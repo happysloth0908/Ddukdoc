@@ -17,6 +17,12 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+# manage secrets
+application-secret.yml
+
+
+
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -35,3 +41,4 @@ out/
 
 ### VS Code ###
 .vscode/
+

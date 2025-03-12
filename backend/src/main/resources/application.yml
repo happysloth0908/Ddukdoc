@@ -1,3 +1,7 @@
 spring:
   application:
     name: ddukdoc
+
+  profiles:
+    include: secret
+    active: local
