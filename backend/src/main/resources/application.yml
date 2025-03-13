@@ -5,3 +5,9 @@ spring:
   profiles:
     include: secret
     active: local
+
+
+app:
+  domain:
+    local: http://localhost:5173
+    prod: https://i12b108.p.ssafy.io/
