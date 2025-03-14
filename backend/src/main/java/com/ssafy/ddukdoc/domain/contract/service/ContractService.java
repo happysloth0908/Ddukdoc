@@ -26,21 +26,8 @@ public class ContractService {
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
         List<TemplateField> fields = templateFieldRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId());
 
-        List<TemplateFieldResponseDto> fieldResponses = fields.stream().map(field ->
-                TemplateFieldResponseDto.builder()
-                        .fieldId(field.getId())
-                        .roleId(field.getRole().getId())
-                        .name(field.getName())
-                        .type(field.getType())
-                        .fieldLabel(field.getFieldLabel())
-                        .isRequired(field.getIsRequired())
-                        .order(field.getDisplayOrder())
-                        .group(field.getFieldGroup())
-                        .maxLength(field.getMaxLength())
-                        .description(field.getDescription())
-                        .placeHolder(field.getDescription())
-                        .build()
-                ).collect(Collectors.toList());
+        List<TemplateFieldResponseDto> fieldResponses = fields.stream()
+                .map(TemplateFieldResponseDto::of).collect(Collectors.toList());
 
         return ApiResponse.success(fieldResponses);
     }
