@@ -20,3 +20,7 @@ spring:
 
 logging.level:
   org.hibernate.SQL: info
+
+oauth:
+  kakao:
+    redirect-uri: https://i12b108.p.ssafy.io/oauth/kakao/callback

@@ -26,3 +26,8 @@ logging:
   level:
     com.zaxxer.hikari.HikariConfig: DEBUG
     com.zaxxer.hikari: TRACE
+
+
+oauth:
+  kakao:
+    redirect-uri: http://localhost:5173/oauth/kakao/callback

@@ -1,9 +1,8 @@
 package com.ssafy.ddukdoc.domain.user.entity;
 
+import com.ssafy.ddukdoc.domain.user.entity.constants.Provider;
 import com.ssafy.ddukdoc.global.common.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +26,8 @@ public class User extends BaseEntity {
     private String userType;
 
     @Column(name = "social_provider", length = 20, nullable = false)
-    private String socialProvider;
+    @Enumerated(EnumType.STRING)
+    private Provider socialProvider;
 
     @Column(name = "social_key", length = 100, nullable = false)
     private String socialKey;

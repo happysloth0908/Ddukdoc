@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.global.security.jwt;
 
 
+import com.ssafy.ddukdoc.global.common.constants.SecurityConstants;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,10 +26,6 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private final long accessTokenValidTime = 24 * 60 * 60 * 1000L; // 24시간
-    private final long refreshTokenValidTime = 14 * 24 * 60 * 60 * 1000L; // 14일
-
-
     // SecretKey 생성
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -49,11 +46,13 @@ public class JwtTokenProvider {
 
     // Refresh Token 생성
     public String createAccessToken(String userId) {
+        long accessTokenValidTime = SecurityConstants.ACCESS_TOKEN_VALIDITY_SECONDS * 1000L;
         return createToken(userId, accessTokenValidTime);
     }
 
     // Refresh Token 생성
     public String createRefreshToken(String userId) {
+        long refreshTokenValidTime = SecurityConstants.REFRESH_TOKEN_VALIDITY_SECONDS * 1000L;
         return createToken(userId, refreshTokenValidTime);
     }
 
