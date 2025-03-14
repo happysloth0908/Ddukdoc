@@ -2,7 +2,7 @@ package com.ssafy.ddukdoc.domain.user.repository;
 
 
 import com.ssafy.ddukdoc.domain.user.entity.User;
-import com.ssafy.ddukdoc.domain.user.entity.constants.Provider;
+import com.ssafy.ddukdoc.global.common.constants.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

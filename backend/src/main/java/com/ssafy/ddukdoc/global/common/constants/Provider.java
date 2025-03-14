@@ -1,4 +1,4 @@
-package com.ssafy.ddukdoc.domain.user.entity.constants;
+package com.ssafy.ddukdoc.global.common.constants;
 
 public enum Provider {
     KAKAO, SSAFY;

@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.user.entity;
 
-import com.ssafy.ddukdoc.domain.user.entity.constants.Provider;
+import com.ssafy.ddukdoc.global.common.constants.Provider;
+import com.ssafy.ddukdoc.global.common.constants.UserType;
 import com.ssafy.ddukdoc.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -29,7 +30,8 @@ public class User extends BaseEntity {
     private String email;
 
     @Column(name = "user_type", length = 20, nullable = false)
-    private String userType;
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
 
     @Column(name = "social_provider", length = 20, nullable = false)
     @Enumerated(EnumType.STRING)

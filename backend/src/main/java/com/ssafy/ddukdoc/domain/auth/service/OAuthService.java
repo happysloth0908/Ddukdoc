@@ -66,7 +66,7 @@ public class OAuthService {
             return LoginResult.of(oAuthLoginResponse, accessToken, refreshToken);
 
         } catch (Exception e) {
-            log.error("Failed to process OAuth login for provider: {} message: {}", provider, e.getMessage());
+            log.error("OAuth 로그인에 오류가 있습니다: {} message: {}", provider, e.getMessage());
             throw new CustomException(ErrorCode.OAUTH_SERVER_ERROR);
         }
     }

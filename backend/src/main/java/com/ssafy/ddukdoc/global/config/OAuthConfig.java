@@ -2,7 +2,7 @@ package com.ssafy.ddukdoc.global.config;
 
 import com.ssafy.ddukdoc.domain.auth.service.strategy.KakaoOAuthStrategy;
 import com.ssafy.ddukdoc.domain.auth.service.strategy.OAuthStrategy;
-import com.ssafy.ddukdoc.domain.user.entity.constants.Provider;
+import com.ssafy.ddukdoc.global.common.constants.Provider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
