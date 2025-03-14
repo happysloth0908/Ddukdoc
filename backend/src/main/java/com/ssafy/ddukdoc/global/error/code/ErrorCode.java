@@ -11,7 +11,9 @@ public enum ErrorCode {
     // Common
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "잘못된 입력값입니다"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "C002", "요청한 리소스를 찾을 수 없습니다"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 오류가 발생했습니다");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 오류가 발생했습니다"),
+    // Template Errors
+    TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 템플릿 코드입니다");
 
     private final HttpStatus status;
     private final String code;

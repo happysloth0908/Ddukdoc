@@ -1,0 +1,47 @@
+package com.ssafy.ddukdoc.domain.contract.service;
+
+import com.ssafy.ddukdoc.domain.template.dto.TemplateFieldResponseDto;
+import com.ssafy.ddukdoc.domain.template.entity.Template;
+import com.ssafy.ddukdoc.domain.template.entity.TemplateField;
+import com.ssafy.ddukdoc.domain.template.repository.TemplateFieldRepository;
+import com.ssafy.ddukdoc.domain.template.repository.TemplateRepository;
+import com.ssafy.ddukdoc.global.common.response.ApiResponse;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import com.ssafy.ddukdoc.global.error.exception.CustomException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ContractService {
+    private final TemplateRepository templateRepository;
+    private final TemplateFieldRepository templateFieldRepository;
+
+    public ResponseEntity<ApiResponse<List<TemplateFieldResponseDto>>> getTemplateFields(String templateCode){
+        Template template = templateRepository.findByCode(templateCode)
+                .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
+        List<TemplateField> fields = templateFieldRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId());
+
+        List<TemplateFieldResponseDto> fieldResponses = fields.stream().map(field ->
+                TemplateFieldResponseDto.builder()
+                        .fieldId(field.getId())
+                        .roleId(field.getRole().getId())
+                        .name(field.getName())
+                        .type(field.getType())
+                        .fieldLabel(field.getFieldLabel())
+                        .isRequired(field.getIsRequired())
+                        .order(field.getDisplayOrder())
+                        .group(field.getFieldGroup())
+                        .maxLength(field.getMaxLength())
+                        .description(field.getDescription())
+                        .placeHolder(field.getDescription())
+                        .build()
+                ).collect(Collectors.toList());
+
+        return ApiResponse.success(fieldResponses);
+    }
+}
