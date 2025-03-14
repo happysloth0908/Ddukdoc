@@ -6,8 +6,9 @@ import com.ssafy.ddukdoc.domain.auth.dto.response.OAuthLoginResponse;
 import com.ssafy.ddukdoc.domain.auth.dto.response.UserInfoResponse;
 import com.ssafy.ddukdoc.domain.auth.service.strategy.OAuthStrategy;
 import com.ssafy.ddukdoc.domain.user.entity.User;
-import com.ssafy.ddukdoc.domain.user.entity.constants.Provider;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
+import com.ssafy.ddukdoc.global.common.constants.Provider;
+import com.ssafy.ddukdoc.global.common.constants.UserType;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import com.ssafy.ddukdoc.global.security.jwt.JwtTokenProvider;
@@ -74,6 +75,8 @@ public class OAuthService {
     private User createUser(OAuthUserInfo userInfo, Provider provider) {
         User newUser = User.builder()
                 .name(userInfo.getNickname())
+                .email(userInfo.getEmail())
+                .userType(UserType.GENERAL) // 일반 사용자로 가입
                 .socialProvider(provider)
                 .socialKey(userInfo.getId())
                 .build();

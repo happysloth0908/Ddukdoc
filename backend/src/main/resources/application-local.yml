@@ -25,9 +25,23 @@ logging.level:
 logging:
   level:
     com.zaxxer.hikari.HikariConfig: DEBUG
+    com.ssafy.ddukdoc.global.config.WebClientConfig: DEBUG
     com.zaxxer.hikari: TRACE
 
+#api 통신 디버깅
+management:
+  endpoints:
+    web:
+      exposure:
+        include: loggers
+  endpoint:
+    loggers:
+      enabled: true
 
 oauth:
   kakao:
     redirect-uri: http://localhost:5173/oauth/kakao/callback
+
+app:
+  is-local: true
+  cookie-domain: localhost
