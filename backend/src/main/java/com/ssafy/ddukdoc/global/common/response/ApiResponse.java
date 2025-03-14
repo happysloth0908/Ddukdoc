@@ -31,7 +31,7 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> status(HttpStatus status) {
+    public static <T> ResponseEntity<ApiResponse<T>> success(HttpStatus status) {
         return ResponseEntity
                 .status(status)
                 .body(new ApiResponse<>(true, null, null));
@@ -45,7 +45,7 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> status(HttpStatus status, T data) {
+    public static <T> ResponseEntity<ApiResponse<T>> success(HttpStatus status, T data) {
         return ResponseEntity
                 .status(status)
                 .body(new ApiResponse<>(true, data, null));
