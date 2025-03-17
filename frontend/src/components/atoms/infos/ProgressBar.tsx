@@ -7,8 +7,8 @@ export const ProgressBar = ({curStage, totalStage}: ProgressBarProps) => {
     const progress = Math.min((curStage / totalStage)*100, 100);
 
     return (
-        <div className="relative w-[90%] rounded-[20px] bg-gray-300">
-            <div style={{ width: `${progress}%` }} className="absolute left-0 top-1/2 -translate-y-1/2 bg-status-info"></div>
+        <div className="relative w-[90%] h-2 rounded-[20px] bg-gray-300">
+            <div style={{ width: `${progress}%` }} className="absolute h-2 left-0 top-0 bg-status-info"></div>
         </div>
     )
 }
