@@ -21,11 +21,11 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
             "JOIN User c ON d.creator.id = c.id " +
             "JOIN User r ON d.recipient.id = r.id " +
             "WHERE (:templateCode IS NULL OR t.code = :templateCode) " +
-            "AND (:keyword IS NULL OR d.title LIKE %:keyword%) " +
-            "AND (:status IS NULL OR d.status = :status) " +
+            "AND (:keyword IS NULL OR d.title LIKE CONCAT('%', :keyword, '%')) " +
+            "AND (:status IS NULL OR UPPER(d.status) = UPPER(:status)) " +
             "AND (:createdAt IS NULL OR FUNCTION('DATE', d.createdAt) = FUNCTION('DATE', :createdAt)) " +
-            "AND ( (:sendReceiveStatus = 1 AND d.creator.id = :userId) " +
-            "      OR (:sendReceiveStatus = 2 AND d.recipient.id = :userId) )")
+            "AND ( (:sendReceiveStatus = 2 AND d.creator.id = :userId) " +
+            "      OR (:sendReceiveStatus = 1 AND d.recipient.id = :userId) )")
     Page<DocumentListDto> findDocumentListByUserId(
             @Param("sendReceiveStatus") Integer sendReceiveStatus,
             @Param("templateCode") String templateCode,

@@ -18,18 +18,16 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
 
-    public DocumentListResponseDto getDocumentList(DocumentSearchRequestDto documentSearchRequestDto, Pageable pageable){
+    public DocumentListResponseDto getDocumentList(Integer userId, DocumentSearchRequestDto documentSearchRequestDto, Pageable pageable){
         Page<DocumentListDto> documentList = documentRepository.findDocumentListByUserId(
                 documentSearchRequestDto.getSendReceiveStatus(),
                 documentSearchRequestDto.getTemplateCode(),
-                documentSearchRequestDto.getStatus(),
                 documentSearchRequestDto.getKeyword(),
+                documentSearchRequestDto.getStatus(),
                 documentSearchRequestDto.getCreatedAt(),
-                1,
+                userId,
                 pageable
         );
-        
-        Integer UserId = 1; // 지금은 임시 값
 
         return DocumentListResponseDto.of(documentList.getContent());
     }

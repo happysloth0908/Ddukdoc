@@ -1,14 +1,11 @@
 package com.ssafy.ddukdoc.domain.document.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Builder
 public class DocumentSearchRequestDto {
     private Integer sendReceiveStatus;
     private Integer page;
