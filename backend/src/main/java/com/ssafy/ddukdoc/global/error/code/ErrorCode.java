@@ -11,7 +11,16 @@ public enum ErrorCode {
     // Common
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "잘못된 입력값입니다"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "C002", "요청한 리소스를 찾을 수 없습니다"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 오류가 발생했습니다");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 오류가 발생했습니다"),
+    UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "C004", "로그인이 필요한 서비스입니다"),
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "C005", "접근 권한이 없습니다"),
+
+    // Auth
+    OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
+    INVALID_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "A002", "지원하지 않는 OAuth 제공자입니다"),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "A003", "리프레시 토큰이 존재하지 않습니다"),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "A004", "유효하지 않은 리프레시 토큰입니다"),
+    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "A005", "유효하지 않은 액세스 토큰입니다");
 
     private final HttpStatus status;
     private final String code;
