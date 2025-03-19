@@ -23,8 +23,8 @@ logging.level:
 
 oauth:
   kakao:
-    redirect-uri: https://i12b108.p.ssafy.io/oauth/kakao/callback
+    redirect-uri: https://j12b108.p.ssafy.io/oauth/kakao/callback
 
 app:
   is-local: false
-  cookie-domain: i12b108.p.ssafy.io
+  cookie-domain: j12b108.p.ssafy.io

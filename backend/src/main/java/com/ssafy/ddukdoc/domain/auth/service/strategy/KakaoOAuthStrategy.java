@@ -23,11 +23,8 @@ public class KakaoOAuthStrategy implements OAuthStrategy {
 
             KakaoUserResponse userResponse = kakaoOAuthClient.getUserInfo(tokenResponse.getAccessToken());
 
-            return OAuthUserInfo.builder()
-                    .id(userResponse.getId().toString())
-                    .email(userResponse.getKakaoAccount().getEmail())
-                    .nickname(userResponse.getKakaoAccount().getProfile().getNickname())
-                    .build();
+            return OAuthUserInfo.of(userResponse);
+
         } catch (IOException e) {
             throw new CustomException(ErrorCode.OAUTH_SERVER_ERROR);
         }
