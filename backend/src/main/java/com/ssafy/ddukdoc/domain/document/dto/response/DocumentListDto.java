@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class DocumentList {
+public class DocumentListDto {
     private Integer documentId;
     private Integer templateId;
     private String templateCode;

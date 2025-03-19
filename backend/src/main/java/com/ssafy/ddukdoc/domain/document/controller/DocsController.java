@@ -1,12 +1,19 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
-import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponse;
+import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.DocumentService;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,14 +24,17 @@ public class DocsController {
 
     // 문서 목록 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse<DocumentListResponse>> getDocsList(
+    public ResponseEntity<ApiResponse<DocumentListResponseDto>> getDocsList(
+            @RequestParam(value = "send_receive_status", required = true) Integer sendReceiveStatus,
             @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "templateCode", required = false) String templateCode,
+            @RequestParam(value = "template_code", required = false) String templateCode,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "createdAt", required = false) String createdAt){
+            @RequestParam(value = "created_at", required = false) LocalDateTime createdAt,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
 
-        DocumentListResponse response = documentService.getDocumentList();
+        DocumentSearchRequestDto documentSearchRequestDto = new DocumentSearchRequestDto(sendReceiveStatus, page, templateCode, keyword, status, createdAt);
+        DocumentListResponseDto response = documentService.getDocumentList(documentSearchRequestDto, pageable);
         return ApiResponse.success(response);
     }
 
