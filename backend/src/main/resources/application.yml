@@ -6,6 +6,8 @@ spring:
     include: secret
     active: local
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
 app:
   domain:
