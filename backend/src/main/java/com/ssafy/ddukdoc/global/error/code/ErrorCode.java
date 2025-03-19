@@ -14,6 +14,9 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 오류가 발생했습니다"),
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "C004", "로그인이 필요한 서비스입니다"),
     FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "C005", "접근 권한이 없습니다"),
+    
+    //Contract
+    TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 템플릿 코드입니다"),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
