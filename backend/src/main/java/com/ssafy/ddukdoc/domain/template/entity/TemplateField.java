@@ -45,9 +45,6 @@ public class TemplateField extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "editor_type", length = 20, nullable = false)
-    private String editorType;
-
     private String placeholder;
 }
 
