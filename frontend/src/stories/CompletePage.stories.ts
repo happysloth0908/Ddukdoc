@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { CompletePage } from "../components/atoms/infos/CompletePage";
+import type { Meta, StoryObj } from '@storybook/react';
+import { CompletePage } from '../components/atoms/infos/CompletePage';
 
 const meta: Meta<typeof CompletePage> = {
-  title: "Components/CompletePage",
+  title: 'Components/Infos/CompletePage',
   component: CompletePage,
   argTypes: {
-    type: { 
-      control: "radio", 
-      options: ["share", "save", "invalid"]
+    type: {
+      control: 'radio',
+      options: ['share', 'save', 'invalid'],
     },
   },
 };
@@ -18,19 +18,18 @@ type Story = StoryObj<typeof CompletePage>;
 
 export const Share: Story = {
   args: {
-    type: "share",
+    type: 'share',
   },
 };
 
 export const Save: Story = {
   args: {
-    type: "save",
+    type: 'save',
   },
 };
 
 export const Invalid: Story = {
   args: {
-    type: "invalid",
+    type: 'invalid',
   },
 };
-
