@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import DateInput, { DateInputProps } from '../../components/inputs/DateInput';
+import DateInput, {
+  DateInputProps,
+} from '../../components/atoms/inputs/DateInput';
 
 export default {
   title: 'Components/DateInput',

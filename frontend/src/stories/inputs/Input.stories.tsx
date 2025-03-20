@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import Input, { InputProps } from '../../components/inputs/Input.tsx';
+import Input, { InputProps } from '../../components/atoms/inputs/Input.tsx';
 
 export default {
   title: 'Components/Input',

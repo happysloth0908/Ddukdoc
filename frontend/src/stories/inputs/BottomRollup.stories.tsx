@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 import BottomRollup, {
   BottomRollupProps,
-} from '../../components/inputs/BottomRollup';
+} from '../../components/atoms/inputs/BottomRollup';
 
 export default {
   title: 'Components/BottomRollup',
