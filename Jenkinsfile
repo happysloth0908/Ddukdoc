@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        // application-secret.yml 내용을 credentials에서 가져오기
+        APPLICATION_SECRET = credentials('APPLICATION-SECRET')
+    }
+
     stages {
         stage('Checkout') {
             steps {
