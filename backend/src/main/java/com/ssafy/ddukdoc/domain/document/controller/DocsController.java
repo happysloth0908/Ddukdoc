@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.document.controller;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSearchRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.DocumentService;
+import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
@@ -14,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-
 import java.time.LocalDateTime;
 
 @RestController
@@ -28,7 +27,7 @@ public class DocsController {
 
     // 문서 목록 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse<DocumentListResponseDto>> getDocsList(
+    public ResponseEntity<ApiResponse<CustomPage<DocumentListResponseDto>>> getDocsList(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "send_receive_status", required = true) Integer sendReceiveStatus,
             @RequestParam(value = "page", required = false) Integer page,
