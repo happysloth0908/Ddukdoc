@@ -1,5 +1,5 @@
 export default interface ButtonProps {
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   children: React.ReactNode;
 }
