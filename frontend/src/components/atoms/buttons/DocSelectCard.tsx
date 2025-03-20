@@ -1,4 +1,3 @@
-import React from 'react';
 import ToggleButtonProps from './ToggleButtonProps';
 
 export default function DocSelectCard({

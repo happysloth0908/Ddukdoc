@@ -1,4 +1,3 @@
-import React from 'react';
 import ButtonProps from './ButtonProps';
 
 interface LongButtonProps extends ButtonProps {
