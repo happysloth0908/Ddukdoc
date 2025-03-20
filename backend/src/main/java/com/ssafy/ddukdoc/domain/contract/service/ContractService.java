@@ -5,11 +5,9 @@ import com.ssafy.ddukdoc.domain.template.entity.Template;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateField;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateFieldRepository;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateRepository;
-import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +19,7 @@ public class ContractService {
     private final TemplateRepository templateRepository;
     private final TemplateFieldRepository templateFieldRepository;
 
-    public ResponseEntity<ApiResponse<List<TemplateFieldResponseDto>>> getTemplateFields(String templateCode){
+    public List<TemplateFieldResponseDto> getTemplateFields(String templateCode){
         Template template = templateRepository.findByCode(templateCode)
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
         List<TemplateField> fields = templateFieldRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId());
@@ -29,6 +27,6 @@ public class ContractService {
         List<TemplateFieldResponseDto> fieldResponses = fields.stream()
                 .map(TemplateFieldResponseDto::of).collect(Collectors.toList());
 
-        return ApiResponse.success(fieldResponses);
+        return fieldResponses;
     }
 }
