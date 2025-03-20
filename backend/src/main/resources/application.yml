@@ -9,6 +9,11 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
 
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true  # 페이징 1부터
+
 app:
   domain:
     local: http://localhost:5173
