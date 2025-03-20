@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ValidateResult } from '../components/atoms/infos/ValidateResult';
+import { ValidateResult } from '../../components/atoms/infos/ValidateResult.tsx';
 
 const meta: Meta<typeof ValidateResult> = {
   title: 'Components/Infos/ValidateResult',

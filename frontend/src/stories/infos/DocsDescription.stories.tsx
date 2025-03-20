@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DocsDescription } from '../components/atoms/infos/DocsDescription';
+import { DocsDescription } from '../../components/atoms/infos/DocsDescription.tsx';
 
 const meta: Meta<typeof DocsDescription> = {
   title: 'Components/Infos/DocsDescription',

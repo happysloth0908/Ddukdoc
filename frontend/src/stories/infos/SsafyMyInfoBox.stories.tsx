@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SsafyMyInfoBox } from '../components/atoms/infos/SsafyMyInfoBox';
+import { SsafyMyInfoBox } from '../../components/atoms/infos/SsafyMyInfoBox.tsx';
 
 const meta: Meta<typeof SsafyMyInfoBox> = {
   title: 'Components/Infos/SsafyMyInfoBox',

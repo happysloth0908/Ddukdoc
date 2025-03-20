@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { RoundIcon } from '@/components/atoms/infos/RoundIcon';
+import { RoundIcon } from '@/components/atoms/infos/RoundIcon.tsx';
 
 const meta: Meta<typeof RoundIcon> = {
   title: 'Components/Infos/RoundIcon', // Storybook 내에서 컴포넌트를 표시할 경로

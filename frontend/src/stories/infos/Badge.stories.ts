@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Badge } from '@/components/atoms/infos/Badge';
+import { Badge } from '@/components/atoms/infos/Badge.tsx';
 
 const meta: Meta<typeof Badge> = {
   title: 'Components/Infos/Badge', // Storybook 내에서 컴포넌트를 표시할 경로

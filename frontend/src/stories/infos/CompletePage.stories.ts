@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CompletePage } from '../components/atoms/infos/CompletePage';
+import { CompletePage } from '../../components/atoms/infos/CompletePage.tsx';
 
 const meta: Meta<typeof CompletePage> = {
   title: 'Components/Infos/CompletePage',
