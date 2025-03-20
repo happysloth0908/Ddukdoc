@@ -65,11 +65,13 @@ public class AESUtil {
     //KEK로 DEK 암호화
     public String encryptDek(SecretKey dek){
         try{
-            if (KEK_STRING == null || KEK_STRING.length() < 32) {
+            byte[] kekBytes = Base64.getDecoder().decode(KEK_STRING);
+
+            if (kekBytes.length != 32) {
                 throw new CustomException(ErrorCode.INVALID_KEK, "kek", "KEK는 32바이트(256비트)여야 합니다.");
             }
             //KEK
-            SecretKey kek = new SecretKeySpec(KEK_STRING.getBytes(StandardCharsets.UTF_8), "AES");
+            SecretKey kek = new SecretKeySpec(kekBytes, "AES");
 
             //DEK 암호화
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -100,6 +102,111 @@ public class AESUtil {
         String encryptedDek = encryptDek(dek);
         // 암호화된 dek + // + 암호화된 data
         return encryptedDek + "//" + encryptedData;
+    }
+
+    //KEK로 DEK 복호화
+    public SecretKey decryptDek(String encryptedDek){
+        try{
+            byte[] kekBytes = Base64.getDecoder().decode(KEK_STRING);
+
+            if (kekBytes.length != 32) {
+                throw new CustomException(ErrorCode.INVALID_KEK, "kek", "KEK는 32바이트(256비트)여야 합니다.");
+            }
+
+            //디코딩된 바이트로 kek 키 생성
+            SecretKey kek = new SecretKeySpec(kekBytes, "AES");
+
+            //Base64 디코딩
+            byte[] decoded = Base64.getDecoder().decode(encryptedDek);
+            System.out.println("[DEBUG] 디코딩된 데이터 길이: " + decoded.length);
+            byte[] iv = new byte[IV_LENGTH];
+            byte[] encryptedBytes = new byte[decoded.length - IV_LENGTH];
+
+            //IV와 암호화된 DEK 분리
+            System.arraycopy(decoded, 0, iv, 0, IV_LENGTH);
+            System.arraycopy(decoded, IV_LENGTH, encryptedBytes, 0, encryptedBytes.length);
+
+            System.out.println("[DEBUG] DEK 복호화 중...");
+
+            //KEK로 암호화된 DEK 복호화
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+
+            cipher.init(Cipher.DECRYPT_MODE,kek,gcmSpec);
+            byte[] dekBytes = cipher.doFinal(encryptedBytes);
+
+            System.out.println("[DEBUG] DEK 복호화 완료!");
+
+            
+            return new SecretKeySpec(dekBytes,"AES");
+        }catch (Exception e){
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR,"reason","DEK 복호화 실패 : "+e.getMessage());
+        }
+    }
+
+    //DEK로 암호화된 data 복호화
+    public String decryptData(String encryptedData, SecretKey dek){
+        try{
+            System.out.println("[DEBUG] 암호화된 데이터(Base64): " + encryptedData);
+
+            //Base64 리코딩
+            byte[] decoded = Base64.getDecoder().decode(encryptedData);
+            System.out.println("[DEBUG] 디코딩된 데이터 길이: " + decoded.length);
+
+            byte[] iv = new byte[IV_LENGTH];
+            byte[] encryptedBytes = new byte[decoded.length - IV_LENGTH];
+
+            //IV와 암호화된 데이터 분리
+            System.arraycopy(decoded, 0, iv, 0, IV_LENGTH);
+            System.arraycopy(decoded, IV_LENGTH, encryptedBytes, 0, encryptedBytes.length);
+
+            System.out.println("[DEBUG] IV: " + Base64.getEncoder().encodeToString(iv));
+            System.out.println("[DEBUG] 암호화된 메시지 길이: " + encryptedBytes.length);
+
+            System.out.println("[DEBUG] 데이터 복호화 중!");
+
+            //DEK로 데이터 복호화
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+
+
+            cipher.init(Cipher.DECRYPT_MODE, dek, gcmSpec);
+            byte[] decryptedData = cipher.doFinal(encryptedBytes);
+            System.out.println("[DEBUG] 데이터 복호화 완료!");
+
+            return new String(decryptedData, StandardCharsets.UTF_8);
+
+        }catch (Exception e){
+            throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "데이터 복호화 실패: " + e.getMessage());
+        }
+    }
+
+    //호출 복호화 메서드
+    public String decrypt(String encryptedInput){
+        try{
+            System.out.println("[DEBUG] 복호화 요청 데이터: " + encryptedInput);
+
+            //DEK 와 data 분리 (DEK//data)
+            String[] parts = encryptedInput.split("//");
+            if(parts.length != 2){
+                throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "잘못된 암호화 형식 길이가 작아요");
+            }
+
+            String encryptedDek = parts[0];
+            String encryptedData = parts[1];
+
+
+            System.out.println("[DEBUG] 암호화된 DEK 추출 완료: " + encryptedDek);
+            System.out.println("[DEBUG] 암호화된 데이터 추출 완료: " + encryptedData);
+
+            //KEK로 DEK 복호화
+            SecretKey dek = decryptDek(encryptedDek);
+
+            //DEK로 데이터 복호화
+            return decryptData(encryptedData, dek);
+        }catch(Exception e){
+            throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "복호화 실패: " + e.getMessage());
+        }
     }
 
 }
