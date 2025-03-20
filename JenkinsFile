@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        GITLAB_CREDENTIAL_ID = 'your-gitlab-credential-id'
-        DOCKER_REGISTRY = 'your-docker-registry' // 필요한 경우
         // application-secret.yml 내용을 credentials에서 가져오기
         APPLICATION_SECRET = credentials('APPLICATION-SECRET')
     }
