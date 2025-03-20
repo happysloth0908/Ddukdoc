@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: ddukdoc
+
+  profiles:
+    include: secret
+    active: local
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+app:
+  domain:
+    local: http://localhost:5173
+    prod: https://i12b108.p.ssafy.io/
