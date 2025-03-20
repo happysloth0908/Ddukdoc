@@ -31,7 +31,7 @@ pipeline {
                 dir('backend') {
 
                     // application-secret.yml 파일 생성
-                     withCredentials([string(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
+                     withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
                     }
 
