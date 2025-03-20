@@ -16,7 +16,7 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   data:
     redis:
-      host: localhost # 이후 ip주소로 변경
+      host: redis-dev # 이후 ip주소로 변경
 
 logging.level:
   org.hibernate.SQL: info
