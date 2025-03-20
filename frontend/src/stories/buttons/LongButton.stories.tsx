@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import LongButton from '../components/atoms/buttons/LongButton';
+import LongButton from '../../components/atoms/buttons/LongButton';
 
 const meta = {
-  title: 'Components/LongButton',
+  title: 'Components/Buttons/LongButton',
   component: LongButton,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
