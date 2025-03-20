@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // application-secret.yml 내용을 credentials에서 가져오기
-        APPLICATION_SECRET = credentials('APPLICATION-SECRET')
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -36,7 +31,9 @@ pipeline {
                 dir('backend') {
 
                     // application-secret.yml 파일 생성
-                    writeFile file: 'src/main/resources/application-secret.yml', text: "${APPLICATION_SECRET}"
+                     withCredentials([string(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
+                        sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
+                    }
 
                     // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
                     script {
