@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import Textarea, { TextareaProps } from '../../components/inputs/Textarea';
+import Textarea, {
+  TextareaProps,
+} from '../../components/atoms/inputs/Textarea';
 
 export default {
   title: 'Components/Textarea',

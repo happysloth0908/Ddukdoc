@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import LongButton from '../components/atoms/buttons/LongButton';
+import ShortButton from '../../components/atoms/buttons/ShortButton';
 
 const meta = {
-  title: 'Components/LongButton',
-  component: LongButton,
+  title: 'Components/Buttons/ShortButton',
+  component: ShortButton,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   argTypes: {
@@ -15,7 +15,7 @@ const meta = {
     onClick: { action: 'clicked' },
     children: { control: 'text' },
   },
-} satisfies Meta<typeof LongButton>;
+} satisfies Meta<typeof ShortButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
