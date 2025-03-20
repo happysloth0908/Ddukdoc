@@ -17,7 +17,7 @@ public class CustomPage<T> {
 
     public CustomPage(Page<T> page) {
         this.content = page.getContent();
-        this.pageNumber = page.getNumber();
+        this.pageNumber = page.getNumber() + 1;
         this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
         this.pageSize = page.getSize();

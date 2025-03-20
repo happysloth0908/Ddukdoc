@@ -7,6 +7,7 @@ import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Pageable;
@@ -29,24 +30,10 @@ public class DocsController {
     @GetMapping("")
     public ResponseEntity<ApiResponse<CustomPage<DocumentListResponseDto>>> getDocsList(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(value = "send_receive_status", required = true) Integer sendReceiveStatus,
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "template_code", required = false) String templateCode,
-            @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "created_at", required = false) LocalDateTime createdAt,
+            @Valid @ModelAttribute DocumentSearchRequestDto documentSearchRequestDto,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
 
-        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
-        DocumentSearchRequestDto documentSearchRequestDto = DocumentSearchRequestDto.builder()
-                .sendReceiveStatus(sendReceiveStatus)
-                .page(page)
-                .templateCode(templateCode)
-                .keyword(keyword)
-                .status(status)
-                .createdAt(createdAt)
-                .build();
-
+       Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         return ApiResponse.ok(documentService.getDocumentList(userId, documentSearchRequestDto, pageable));
     }
 
