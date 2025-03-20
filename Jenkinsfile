@@ -68,6 +68,9 @@ pipeline {
             }
             steps {
                 script {
+
+                    sh "docker rm -f backend-dev || true"
+
                     // Docker Compose 사용하여 배포
                     if (env.DEPLOY_ENV == 'production') {
                         sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-prod"
