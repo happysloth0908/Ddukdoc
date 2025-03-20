@@ -17,8 +17,8 @@ pipeline {
                     env.FRONTEND_CHANGES = changedFiles.contains('frontend/') ? 'true' : 'false'
                     env.BACKEND_CHANGES = changedFiles.contains('backend/') ? 'true' : 'false'
 
-                    echo "Frontend changes: ${env.FRONTEND_CHANGES}"
-                    echo "Backend changes: ${env.BACKEND_CHANGES}"
+                    echo "Frontend 변경 여부: ${env.FRONTEND_CHANGES}"
+                    echo "Backend 변경 여부: ${env.BACKEND_CHANGES}"
                 }
             }
         }
@@ -70,9 +70,9 @@ pipeline {
                 script {
                     // Docker Compose 사용하여 배포
                     if (env.DEPLOY_ENV == 'production') {
-                        sh "docker-compose -f docker-compose-prod.yml up -d --force-recreate backend-prod"
+                        sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-prod"
                     } else {
-                        sh "docker-compose -f docker-compose-dev.yml up -d --force-recreate backend-dev"
+                        sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-dev"
                     }
                 }
             }
@@ -93,10 +93,10 @@ pipeline {
 
     post {
         success {
-            echo "Deployment to ${env.DEPLOY_ENV} completed successfully!"
+            echo "환경 : ${env.DEPLOY_ENV} 성공!"
         }
         failure {
-            echo "Deployment to ${env.DEPLOY_ENV} failed!"
+            echo "환경 : ${env.DEPLOY_ENV} 실패!"
         }
     }
 }
