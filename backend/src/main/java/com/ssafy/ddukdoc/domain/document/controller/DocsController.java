@@ -39,7 +39,11 @@ public class DocsController {
 
     // 문서 상세 조회
     @GetMapping("/{doc_id}")
-    public ResponseEntity<ApiResponse<Void>> getDoc(@PathVariable("doc_id") Long docId){
+    public ResponseEntity<ApiResponse<Void>> getDoc(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Long documentId){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         return ApiResponse.success(HttpStatus.NO_CONTENT);
     }
 }
