@@ -29,6 +29,24 @@ pipeline {
             }
             steps {
                 dir('backend') {
+
+                    // application-secret.yml 파일 생성
+                    writeFile file: 'src/main/resources/application-secret.yml', text: "${APPLICATION_SECRET}"
+
+                    // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
+                    script {
+                        def profileFile = "src/main/resources/application-${env.SPRING_PROFILE.split(',')[0]}.yml"
+
+                        // 플레이스홀더를 Jenkins에 등록된 환경 변수로 대체
+                        sh """
+                        sed -i "s|\\\${DB_URL}|${DB_URL}|g" "${profileFile}"
+                        sed -i "s|\\\${DB_USERNAME}|${DB_USERNAME}|g" "${profileFile}"
+                        sed -i "s|\\\${DB_PASSWORD}|${DB_PASSWORD}|g" "${profileFile}"
+                        """
+
+                        // 여기에 추가 설정 작업들
+                    }
+
                     sh 'chmod +x ./gradlew'
                     sh './gradlew clean build -x test'
 
