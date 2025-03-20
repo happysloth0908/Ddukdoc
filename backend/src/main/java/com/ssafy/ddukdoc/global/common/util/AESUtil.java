@@ -101,7 +101,7 @@ public class AESUtil {
         //dek 암호화
         String encryptedDek = encryptDek(dek);
         // 암호화된 dek + // + 암호화된 data
-        return encryptedDek + "//" + encryptedData;
+        return encryptedDek + ":" + encryptedData;
     }
 
     //KEK로 DEK 복호화
@@ -187,7 +187,7 @@ public class AESUtil {
             System.out.println("[DEBUG] 복호화 요청 데이터: " + encryptedInput);
 
             //DEK 와 data 분리 (DEK//data)
-            String[] parts = encryptedInput.split("//");
+            String[] parts = encryptedInput.split(":");
             if(parts.length != 2){
                 throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "잘못된 암호화 형식 길이가 작아요");
             }
