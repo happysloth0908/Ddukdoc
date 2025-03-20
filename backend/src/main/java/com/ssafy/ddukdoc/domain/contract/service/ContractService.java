@@ -29,6 +29,6 @@ public class ContractService {
         List<TemplateFieldResponseDto> fieldResponses = fields.stream()
                 .map(TemplateFieldResponseDto::of).collect(Collectors.toList());
 
-        return ApiResponse.success(fieldResponses);
+        return ApiResponse.ok(fieldResponses);
     }
 }
