@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS 22.14'  // Jenkins에 설정한 Node.js 이름 (Global Tool Configuration)
+    }
+
     stages {
         stage('Debug Variables') {
             steps {
@@ -114,10 +118,11 @@ pipeline {
                         '''
                     }
 
-                    // Node.js Docker 컨테이너로 빌드
-                    sh '''
-                        docker run --rm -v $(pwd):/app -w /app node:18-alpine sh -c "npm install && npm run build"
-                    '''
+                    // 직접 npm 명령어 실행 (Docker 없이)
+                    sh 'node -v'  // Node.js 버전 확인
+                    sh 'npm -v'   // npm 버전 확인
+                    sh 'npm install'
+                    sh 'npm run build'
 
                     // 빌드 결과물 확인
                     sh 'ls -la build/ || echo "빌드 디렉토리가 없습니다"'
@@ -204,7 +209,6 @@ pipeline {
             echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
             echo "실패 원인을 확인합니다."
             sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
-            sh "docker logs backend-dev || echo '로그를 확인할 수 없습니다'"
         }
         always {
             echo "빌드 및 배포 과정이 종료되었습니다."
