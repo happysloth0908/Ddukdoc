@@ -34,6 +34,5 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
             Pageable pageable
     );
 
-    Optional<Document> findByDocumentId(Integer id);
-
+    Optional<Document> findById(Integer id);
 }

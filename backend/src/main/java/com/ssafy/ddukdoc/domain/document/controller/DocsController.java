@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.DocumentService;
 import com.ssafy.ddukdoc.global.common.CustomPage;
@@ -39,11 +40,11 @@ public class DocsController {
 
     // 문서 상세 조회
     @GetMapping("/{doc_id}")
-    public ResponseEntity<ApiResponse<Void>> getDoc(
+    public ResponseEntity<ApiResponse<DocumentDetailResponseDto>> getDoc(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("doc_id") Long documentId){
+            @PathVariable("doc_id") Integer documentId){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
-        return ApiResponse.success(HttpStatus.NO_CONTENT);
+        return ApiResponse.ok(documentService.getDocumentDetail(userId, documentId));
     }
 }
