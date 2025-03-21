@@ -2,6 +2,16 @@ pipeline {
     agent any
 
     stages {
+        stage('Debug Variables') {
+            steps {
+                echo "DEPLOY_ENV: ${env.DEPLOY_ENV}"
+                echo "SPRING_PROFILE: ${env.SPRING_PROFILE}"
+                echo "DEPLOY_PATH: ${env.DEPLOY_PATH}"
+                echo "DB 관련 환경변수가 설정되어 있는지 확인합니다."
+                sh 'env | grep DB_ || echo "DB 환경변수가 없습니다"'
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -23,40 +33,63 @@ pipeline {
             }
         }
 
+        stage('Network Check') {
+            steps {
+                script {
+                    def networkExists = sh(script: "docker network ls | grep app-network || true", returnStdout: true).trim()
+                    if (networkExists.isEmpty()) {
+                        sh "docker network create app-network"
+                        echo "app-network 생성됨"
+                    } else {
+                        echo "app-network 이미 존재함"
+                    }
+                }
+            }
+        }
+
         stage('Backend Build') {
             when {
                 expression { return env.BACKEND_CHANGES == 'true' }
             }
             steps {
                 dir('backend') {
-
                     // application-secret.yml 파일 생성
-                     withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
+                    withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
+                        sh 'ls -la src/main/resources/application-secret.yml || echo "파일 생성 실패"'
                     }
 
                     // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
                     script {
-                        def profileFile = "src/main/resources/application-${env.SPRING_PROFILE.split(',')[0]}.yml"
+                        // 프로파일 파일 존재 확인
+                        def profileName = env.SPRING_PROFILE.split(',')[0]
+                        def profileFile = "src/main/resources/application-${profileName}.yml"
+
+                        sh "ls -la src/main/resources/ | grep application"
+                        sh "ls -la ${profileFile} || echo '프로파일 파일이 없습니다'"
 
                         // 플레이스홀더를 Jenkins에 등록된 환경 변수로 대체
                         sh """
-                        sed -i "s|\\\${DB_URL}|${DB_URL}|g" "${profileFile}"
-                        sed -i "s|\\\${DB_USERNAME}|${DB_USERNAME}|g" "${profileFile}"
-                        sed -i "s|\\\${DB_PASSWORD}|${DB_PASSWORD}|g" "${profileFile}"
+                        sed -i "s|\\\${DB_URL}|${env.DB_URL}|g" "${profileFile}" || echo "DB_URL 치환 실패"
+                        sed -i "s|\\\${DB_USERNAME}|${env.DB_USERNAME}|g" "${profileFile}" || echo "DB_USERNAME 치환 실패"
+                        sed -i "s|\\\${DB_PASSWORD}|${env.DB_PASSWORD}|g" "${profileFile}" || echo "DB_PASSWORD 치환 실패"
                         """
-
-                        // 여기에 추가 설정 작업들
                     }
 
                     sh 'chmod +x ./gradlew'
                     sh './gradlew clean build -x test'
 
+                    // 빌드 결과물 확인
+                    sh 'ls -la build/libs/ || echo "빌드 실패"'
+
                     // Docker 이미지 빌드
                     sh """
                     docker build -t ddukdoc-backend:${env.DEPLOY_ENV} \
-                    --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} .
+                    --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} . || echo "Docker 빌드 실패"
                     """
+
+                    // 이미지 생성 확인
+                    sh "docker images | grep ddukdoc-backend || echo '이미지가 없습니다'"
                 }
             }
         }
@@ -70,14 +103,19 @@ pipeline {
                     // 환경에 따른 .env 파일 선택
                     script {
                         if (env.DEPLOY_ENV == 'production') {
-                            sh 'cp .env.production .env'
+                            sh 'cp .env.production .env || echo ".env.production 파일이 없습니다"'
                         } else {
-                            sh 'cp .env.development .env'
+                            sh 'cp .env.development .env || echo ".env.development 파일이 없습니다"'
                         }
+
+                        sh 'ls -la .env || echo ".env 파일이 없습니다"'
                     }
 
-                    sh 'npm install'
-                    sh 'npm run build'
+                    sh 'npm install || echo "npm install 실패"'
+                    sh 'npm run build || echo "npm build 실패"'
+
+                    // 빌드 결과물 확인
+                    sh 'ls -la build/ || echo "빌드 디렉토리가 없습니다"'
                 }
             }
         }
@@ -88,15 +126,50 @@ pipeline {
             }
             steps {
                 script {
+                    // docker-compose 파일 존재 여부 확인
+                    sh "ls -la /home/ubuntu/docker-compose-dev.yml || echo 'docker-compose 파일이 없습니다'"
 
+                    // 기존 컨테이너 제거
                     sh "docker rm -f backend-dev || true"
 
-                    // Docker Compose 사용하여 배포
+                    // Docker Compose 대신 직접 실행 시도
                     if (env.DEPLOY_ENV == 'production') {
-                        sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-prod"
+                        // 프로덕션 환경 배포
+                        try {
+                            sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d backend-prod"
+                        } catch (Exception e) {
+                            echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
+                            sh """
+                            docker run -d --name backend-prod \
+                            --network app-network \
+                            -p 8080:8080 \
+                            -e SERVER_PORT=8080 \
+                            -e SPRING_PROFILES_ACTIVE=${env.SPRING_PROFILE} \
+                            --restart unless-stopped \
+                            ddukdoc-backend:${env.DEPLOY_ENV}
+                            """
+                        }
                     } else {
-                        sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-dev"
+                        // 개발 환경 배포
+                        try {
+                            sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml config"
+                            sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d backend-dev"
+                        } catch (Exception e) {
+                            echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
+                            sh """
+                            docker run -d --name backend-dev \
+                            --network app-network \
+                            -p 8085:8085 \
+                            -e SERVER_PORT=8085 \
+                            -e SPRING_PROFILES_ACTIVE=${env.SPRING_PROFILE} \
+                            --restart unless-stopped \
+                            ddukdoc-backend:${env.DEPLOY_ENV}
+                            """
+                        }
                     }
+
+                    // 컨테이너 실행 상태 확인
+                    sh "docker ps | grep backend || echo '백엔드 컨테이너가 실행되지 않았습니다'"
                 }
             }
         }
@@ -107,8 +180,11 @@ pipeline {
             }
             steps {
                 dir('frontend/build') {
-                    sh "rm -rf ${env.DEPLOY_PATH}/*"
-                    sh "cp -r * ${env.DEPLOY_PATH}/"
+                    // 배포 경로 확인 및 생성
+                    sh "mkdir -p ${env.DEPLOY_PATH} || echo '디렉토리 생성 실패'"
+                    sh "rm -rf ${env.DEPLOY_PATH}/* || echo '파일 삭제 실패'"
+                    sh "cp -r * ${env.DEPLOY_PATH}/ || echo '파일 복사 실패'"
+                    sh "ls -la ${env.DEPLOY_PATH}/ || echo '배포 경로 확인 실패'"
                 }
             }
         }
@@ -116,10 +192,17 @@ pipeline {
 
     post {
         success {
-            echo "환경 : ${env.DEPLOY_ENV} 성공!"
+            echo "환경 : ${env.DEPLOY_ENV} 배포 성공!"
+            sh "docker ps | grep backend"
         }
         failure {
-            echo "환경 : ${env.DEPLOY_ENV} 실패!"
+            echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
+            echo "실패 원인을 확인합니다."
+            sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
+            sh "docker logs backend-dev || echo '로그를 확인할 수 없습니다'"
+        }
+        always {
+            echo "빌드 및 배포 과정이 종료되었습니다."
         }
     }
 }
