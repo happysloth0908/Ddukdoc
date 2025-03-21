@@ -12,7 +12,7 @@ export default function RoleSelectCard({
 
   return (
     <button
-      className={`${className} ${isSelected ? 'text-gray-white bg-primary-300' : 'bg-gray-200'} mx-20 flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl px-5 py-6 text-center font-medium transition-colors`}
+      className={`${className} ${isSelected ? 'bg-primary-300 text-gray-white' : 'bg-gray-200'} flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl px-5 py-6 text-center font-medium transition-colors`}
       onClick={() => onToggleClick(id)}
     >
       <div className="mb-2 flex h-12 w-12 items-center justify-center">
