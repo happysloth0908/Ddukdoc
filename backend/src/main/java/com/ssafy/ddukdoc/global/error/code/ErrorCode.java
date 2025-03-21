@@ -23,7 +23,10 @@ public enum ErrorCode {
     INVALID_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "A002", "지원하지 않는 OAuth 제공자입니다"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "A003", "리프레시 토큰이 존재하지 않습니다"),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "A004", "유효하지 않은 리프레시 토큰입니다"),
-    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "A005", "유효하지 않은 액세스 토큰입니다");
+    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "A005", "유효하지 않은 액세스 토큰입니다"),
+
+    //User
+    INVALID_USER_ID(HttpStatus.BAD_REQUEST,"U001","찾을 수 없는 사용자입니다.");
 
     private final HttpStatus status;
     private final String code;
