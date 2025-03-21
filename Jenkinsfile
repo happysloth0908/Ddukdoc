@@ -58,7 +58,7 @@ pipeline {
 //                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
 //                         sh 'ls -la src/main/resources/application-secret.yml || echo "파일 생성 실패"'
                         sh '''
-                            cp "$secretFile" src/main/resources/application-secret.yml
+                            cp "$APP_SECRET" src/main/resources/application-secret.yml
                             chmod 644 src/main/resources/application-*.yml
                         '''
                     }
