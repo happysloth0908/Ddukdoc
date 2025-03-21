@@ -1,0 +1,37 @@
+package com.ssafy.ddukdoc.domain.document.dto.request;
+
+import com.ssafy.ddukdoc.domain.document.entity.Document;
+import com.ssafy.ddukdoc.domain.template.entity.Template;
+import com.ssafy.ddukdoc.domain.user.entity.User;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@Builder
+public class DocumentSaveRequestDto {
+    @NotNull(message = "작성자 역할(role_id)는 필수입니다.")
+    private int roleId;
+
+    @NotNull(message = "문서 제목은 필수입니다.")
+    @Size(min = 1, max = 100, message = "문서 제목은 1자 이상 100자 이하로 입력해주세요.")
+    private String title;
+
+    @NotNull(message = "문서 입력 data는 필수입니다.")
+    private List<DocumentFieldValueSaveRequestDto> data;
+
+    public Document toEntity(User creator, Template templateId, int pin, String status) {
+        return Document.builder()
+                .title(this.title)
+                .creator(creator)
+                .template(templateId)
+                .pin(pin)
+                .status(status)
+                .build();
+    }
+}

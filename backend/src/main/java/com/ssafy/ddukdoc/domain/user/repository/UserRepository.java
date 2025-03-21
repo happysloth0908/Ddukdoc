@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             @Param("socialProvider") Provider provider,
             @Param("socialKey") String providerId);
 
+    Optional<User> findById(Integer userId);
+
 }
