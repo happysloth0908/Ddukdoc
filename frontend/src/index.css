@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 폰트 추가 */
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-ExtraBold.otf") format("otf");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Bold.otf") format("otf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-SemiBold.otf") format("otf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Medium.otf") format("otf");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Regular.otf") format("otf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Light.otf") format("otf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-ExtraLight.otf") format("otf");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Thin.otf") format("otf");
+  font-weight: 100;
+}
+
+body {
+  font-family: "interop";
+}
