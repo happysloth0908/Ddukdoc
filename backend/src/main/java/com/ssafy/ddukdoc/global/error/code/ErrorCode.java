@@ -17,6 +17,7 @@ public enum ErrorCode {
     
     //Contract
     TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 템플릿 코드입니다"),
+    TEMPLATE_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND,"T002","존재하지 않는 템플릿 필드 ID 입니다."),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
@@ -26,7 +27,7 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "A005", "유효하지 않은 액세스 토큰입니다"),
 
     //User
-    INVALID_USER_ID(HttpStatus.BAD_REQUEST,"U001","찾을 수 없는 사용자입니다.");
+    INVALID_USER_ID(HttpStatus.NOT_FOUND,"U001","존재하지 않는 사용자입니다.");
 
     private final HttpStatus status;
     private final String code;
