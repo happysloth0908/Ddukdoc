@@ -49,16 +49,31 @@ public class DocumentService {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
-        // 문서 접근 권한 검증 (creator 또는 recipient만 조회 가능)
+        // 문서 접근 권한 검증 (발신자 또는 수신자만 조회 가능)
         validateDocumentAccess(document, userId);
         
         // 문서 필드값 조회
         List<DocumentFieldValue> fieldValues = documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId);
 
         // 서명 정보 조회
-        Optional<Signature> signature = signatureRepository.findByDocumentId(documentId);
+        List<Signature> signatures = signatureRepository.findAllByDocumentId(documentId);
 
-        return DocumentDetailResponseDto.of(document, fieldValues, signature);
+        // 서명 정보 처리
+        String creatorSignature = null;
+        String recipientSignature = null;
+
+        for(Signature signature : signatures){
+            Integer signatureUserId = signature.getUser().getId();
+
+            if (document.getCreator() != null && document.getCreator().getId().equals(signatureUserId)) {
+                creatorSignature = signature.getIpfsHash();
+            }
+
+            if(document.getRecipient()!= null && document.getRecipient().getId().equals(signatureUserId)){
+                recipientSignature = signature.getIpfsHash();
+            }
+        }
+        return DocumentDetailResponseDto.of(document, fieldValues, creatorSignature, recipientSignature);
     }
 
     // 문서 접근 권한 검증 메서드

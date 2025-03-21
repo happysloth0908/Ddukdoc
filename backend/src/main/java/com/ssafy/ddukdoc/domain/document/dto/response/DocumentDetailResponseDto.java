@@ -18,14 +18,14 @@ public class DocumentDetailResponseDto {
 
     public static DocumentDetailResponseDto of(Document document,
                                                List<DocumentFieldValue> fieldValues,
-                                               Optional<Signature> signature) {
+                                               String creatorSignature,
+                                               String recipientSignature) {
         return DocumentDetailResponseDto.builder()
                 .docsInfo(DocumentResponseDto.of(document))
                 .field(fieldValues.stream()
                         .map(DocumentFieldResponseDto::of)
                         .collect(Collectors.toList()))
-                .signature(signature.map(s -> SignatureResponseDto.of(s, document))
-                        .orElse(null))
+                .signature(SignatureResponseDto.of(creatorSignature, recipientSignature))
                 .build();
     }
 }
