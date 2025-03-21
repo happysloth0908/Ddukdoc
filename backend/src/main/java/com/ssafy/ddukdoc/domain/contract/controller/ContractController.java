@@ -3,7 +3,6 @@ package com.ssafy.ddukdoc.domain.contract.controller;
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.template.dto.TemplateFieldResponseDto;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
-import com.ssafy.ddukdoc.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContractController {
     private final ContractService contractService;
+
     @GetMapping("/{templateCode}")
     public ResponseEntity<ApiResponse<List<TemplateFieldResponseDto>>> getFieldList(@PathVariable String templateCode){
-        return contractService.getTemplateFields(templateCode);
+        return ApiResponse.ok(contractService.getTemplateFields(templateCode));
     }
 }
