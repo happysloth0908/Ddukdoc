@@ -86,4 +86,20 @@ public class DocumentService {
         }
     }
 
+    // 핀코드 검증 로직
+    public void verifyPinCode(Integer userId, Integer documentId, Integer pinCode){
+        // Document 조회, 엔티티를 id로 조회 했을때 없으면 예외 발생
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 문서 접근 권한 검증 (발신자 또는 수신자만 조회 가능)
+        validateDocumentAccess(document, userId);
+
+        // 핀코드 검증
+        Integer documentPinCode = document.getPin();
+        if(!documentPinCode.equals(pinCode)){
+            throw new CustomException(ErrorCode.PIN_CODE_MISMATCH, "pin_code", "잘못된 핀번호입니다.");
+        }
+    }
+
 }
