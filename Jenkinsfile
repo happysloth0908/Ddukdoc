@@ -105,14 +105,9 @@ pipeline {
             steps {
                 dir('frontend') {
                     // 환경에 따른 .env 파일 선택
-                    script {
-                        if (env.DEPLOY_ENV == 'production') {
-                            sh 'cp .env.production .env || echo ".env.production 파일이 없습니다"'
-                        } else {
-                            sh 'cp .env.development .env || echo ".env.development 파일이 없습니다"'
-                        }
-
-                        sh 'ls -la .env || echo ".env 파일이 없습니다"'
+                    withCredentials([file(credentialsId: 'frontend-env-file', variable: 'ENV_FILE')]) {
+                        sh 'cp $ENV_FILE .env'
+                        sh 'ls -la .env'
                     }
 
                     sh 'npm install || echo "npm install 실패"'
