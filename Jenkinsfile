@@ -106,8 +106,12 @@ pipeline {
                 dir('frontend') {
                     // 환경에 따른 .env 파일 선택
                     withCredentials([file(credentialsId: 'frontend-env-file', variable: 'ENV_FILE')]) {
-                        sh 'cp $ENV_FILE .env'
-                        sh 'ls -la .env'
+                        sh '''
+                            cp $ENV_FILE .env.tmp
+                            ls -la .env.tmp  # 생성된 권한 확인
+                            mv -f .env.tmp .env
+                            ls -la .env      # 교체 후 권한 확인
+                        '''
                     }
 
                     // Node.js Docker 컨테이너로 빌드
