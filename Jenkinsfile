@@ -110,8 +110,10 @@ pipeline {
                         sh 'ls -la .env'
                     }
 
-                    sh 'npm install || echo "npm install 실패"'
-                    sh 'npm run build || echo "npm build 실패"'
+                    // Node.js Docker 컨테이너로 빌드
+                    sh '''
+                        docker run --rm -v $(pwd):/app -w /app node:18-alpine sh -c "npm install && npm run build"
+                    '''
 
                     // 빌드 결과물 확인
                     sh 'ls -la build/ || echo "빌드 디렉토리가 없습니다"'
