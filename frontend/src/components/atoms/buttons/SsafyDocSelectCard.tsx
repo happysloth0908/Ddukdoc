@@ -15,13 +15,13 @@ export default function SsafyDocSelectCard({
 
   return (
     <button
-      className={`${className} w-full cursor-pointer rounded-2xl border-4 border-black bg-primary-300 px-5 py-6 text-center font-medium transition-colors`}
+      className={`${className} flex w-full cursor-pointer flex-row items-center justify-center rounded-2xl border-2 border-gray-300 px-5 py-6 text-center font-medium transition-colors`}
       onClick={() => onClick}
     >
-      {icon}
-      <div className="flex flex-col">
+      <div className="flex h-12 w-12 items-center justify-center">{icon}</div>
+      <div className="flex flex-col pl-3 text-left">
         <div>{children}</div>
-        <div className="text-fontSize-s text-text-description">
+        <div className="text-fontSize-xs text-text-description">
           {explanation}
         </div>
       </div>

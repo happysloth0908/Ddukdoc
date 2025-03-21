@@ -36,9 +36,7 @@ export const WithIcon: Story = {
   args: {
     children: 'Document with Icon ',
     icon: (
-      <span className="ml-2 inline-block h-5 w-5 rounded-sm bg-gray-400">
-        📄
-      </span>
+      <span className="inline-block h-5 w-5 rounded-sm bg-gray-400">📄</span>
     ),
   },
 };
@@ -47,9 +45,7 @@ export const SelectedWithIcon: Story = {
   args: {
     children: 'Selected Document with Icon ',
     icon: (
-      <span className="ml-2 inline-block h-5 w-5 rounded-sm bg-gray-400">
-        📄
-      </span>
+      <span className="inline-block h-5 w-5 rounded-sm bg-gray-400">📄</span>
     ),
   },
 };
