@@ -55,8 +55,12 @@ pipeline {
                 dir('backend') {
                     // application-secret.yml 파일 생성
                     withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
-                        sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
-                        sh 'ls -la src/main/resources/application-secret.yml || echo "파일 생성 실패"'
+//                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
+//                         sh 'ls -la src/main/resources/application-secret.yml || echo "파일 생성 실패"'
+                        sh '''
+                            cp "$secretFile" src/main/resources/application-secret.yml
+                            chmod 644 src/main/resources/application-*.yml
+                        '''
                     }
 
                     // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
