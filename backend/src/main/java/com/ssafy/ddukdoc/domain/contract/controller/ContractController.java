@@ -2,9 +2,9 @@ package com.ssafy.ddukdoc.domain.contract.controller;
 
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
-import com.ssafy.ddukdoc.domain.document.service.DocumentService;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
 import jakarta.validation.Valid;
@@ -34,10 +34,15 @@ public class ContractController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable String templateCode,
             @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,
-            @RequestParam("signature") MultipartFile signatureFile){
+            @RequestPart(value = "signature", required = false) MultipartFile signatureFile){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
 
+        // 서명 파일 null 또는 비어있는지 확인
+        if (signatureFile == null || signatureFile.isEmpty()) {
+            return ApiResponse.error(
+                    ErrorCode.SIGNATURE_FILE_NOT_FOUND);
+        }
         return ApiResponse.ok(contractService.saveDocument(templateCode, requestDto, userId,signatureFile));
     }
 }

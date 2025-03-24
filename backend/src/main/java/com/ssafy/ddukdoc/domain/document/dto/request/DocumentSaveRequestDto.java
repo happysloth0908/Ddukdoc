@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.document.dto.request;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.template.entity.Template;
+import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.domain.user.entity.User;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,13 +27,14 @@ public class DocumentSaveRequestDto {
     @NotNull(message = "문서 입력 data는 필수입니다.")
     private List<DocumentFieldValueSaveRequestDto> data;
 
-    public Document toEntity(User creator, Template templateId, int pin, DocumentStatus status) {
+
+    public Document toEntity(User creator, Template templateId, int pin, TemplateCode templateCode) {
         return Document.builder()
                 .title(this.title)
                 .creator(creator)
                 .template(templateId)
                 .pin(pin)
-                .status(status)
+                .status(DocumentStatus.getInitialStatus(templateCode))
                 .build();
     }
 }

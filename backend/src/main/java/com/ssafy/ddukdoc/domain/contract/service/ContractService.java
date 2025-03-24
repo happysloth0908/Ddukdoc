@@ -10,6 +10,7 @@ import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
 import com.ssafy.ddukdoc.domain.template.entity.Template;
+import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateField;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateFieldRepository;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateRepository;
@@ -37,8 +38,10 @@ public class ContractService {
     private final S3Util s3Util;
     private final SignatureRepository signatureRepository;
 
-    public List<TemplateFieldResponseDto> getTemplateFields(String templateCode){
-        Template template = templateRepository.findByCode(templateCode)
+    public List<TemplateFieldResponseDto> getTemplateFields(String  codeStr){
+
+        TemplateCode templateCode = TemplateCode.valueOf(codeStr);
+        Template template = templateRepository.findByCode(templateCode.name())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
         List<TemplateField> fields = templateFieldRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId());
 
@@ -48,22 +51,22 @@ public class ContractService {
         return fieldResponses;
     }
     @Transactional
-    public int saveDocument(String templateCode, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
+    public int saveDocument(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
 
+        TemplateCode templateCode = TemplateCode.valueOf(codeStr);
         //사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
 
         // 템플릿 조회
-        Template template = templateRepository.findByCode(templateCode)
-                .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
+        Template template = templateRepository.findByCode(templateCode.name())
+                .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode.name()));
 
         // 랜덤 핀코드 생성
         int pin = generatePinCode();
 
         //Document 엔티티 생성 및 저장
-        DocumentStatus status = determineDocumentStatus(templateCode);
-        Document document = requestDto.toEntity(user,template,pin,status);
+        Document document = requestDto.toEntity(user,template,pin,templateCode);
         Document saveDocument = documentRepository.save(document);
 
         // DocumentFieldValue 엔티티들 생성 및 저장
@@ -103,22 +106,18 @@ public class ContractService {
     }
 
     private void saveDocumentFieldValues(DocumentSaveRequestDto requestDto, Document document, User user){
-        requestDto.getData().forEach(fieldValueDto ->{
-            TemplateField  field = templateFieldRepository.findById(fieldValueDto.getFieldId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_FIELD_NOT_FOUND,"template_field_id",fieldValueDto.getFieldId()));
+        List<DocumentFieldValue> fieldValues = requestDto.getData().stream()
+                .map(fieldValueDto -> {
+                    TemplateField field = templateFieldRepository.findById(fieldValueDto.getFieldId())
+                            .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_FIELD_NOT_FOUND, "template_field_id", fieldValueDto.getFieldId()));
 
-            DocumentFieldValue fieldValue = fieldValueDto.toEntity(document, field, user);
-            documentFieldValueRepository.save(fieldValue);
-        });
+                    return fieldValueDto.toEntity(document, field, user);
+                })
+                .collect(Collectors.toList());
+
+        documentFieldValueRepository.saveAll(fieldValues);
     }
 
-    private DocumentStatus determineDocumentStatus(String templateCode){
-        if ("G1".equals(templateCode) || "G2".equals(templateCode)) {
-            return DocumentStatus.WAITING;
-        } else {
-            return DocumentStatus.SIGNED;
-        }
-    }
     private int generatePinCode(){
         return (int)(Math.random() * 900000) + 100000; // 100000 ~ 999999
     }
