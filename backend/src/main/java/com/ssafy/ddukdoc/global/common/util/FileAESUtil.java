@@ -92,4 +92,55 @@ public class FileAESUtil {
     }
 
 
+    // 암호화된 파일과 암호화 정보를 이용하여 파일 복호화
+    public File decryptFile(File encryptFile, String encryptedDek, String base64IV){
+        try{
+            //DEK 복호화
+            SecretKey dek = aesUtil.decryptDek(encryptedDek);
+
+            //IV 디코딩
+            byte[] iv = Base64.getDecoder().decode(base64IV);
+
+            //파일 복호화
+            return decryptFileWithDek(encryptFile,dek,iv);
+        }catch(Exception e){
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR,"reason","파일 복호화 실패 : "+e.getMessage());
+        }
+    }
+
+    //DEK로 파일 복호화
+    private File decryptFileWithDek(File encryptedFile, SecretKey dek, byte[] iv) throws Exception{
+        File decryptedFile = new File(encryptedFile.getParent(),encryptedFile.getName().replace(".enc",""));
+
+        try(FileInputStream fis = new FileInputStream(encryptedFile);
+            FileOutputStream fos = new FileOutputStream(decryptedFile)){
+
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+            cipher.init(Cipher.DECRYPT_MODE, dek, gcmSpec);
+
+            //버퍼 크기 설정 (8KB)
+            byte[] buffer = new byte[8192];
+            byte[] decryptedBuffer;
+            int bytesRead;
+
+            //파일 처음에 저장된 IV 제외
+            fis.skip(IV_LENGTH);
+
+            while((bytesRead = fis.read(buffer)) != -1){
+                decryptedBuffer = cipher.update(buffer,0,bytesRead);
+                if(decryptedBuffer != null){
+                    fos.write(decryptedBuffer);
+                }
+            }
+
+            //복호화 완료
+            decryptedBuffer = cipher.doFinal();
+            if(decryptedBuffer != null){
+                fos.write(decryptedBuffer);
+            }
+
+            return decryptedFile;
+        }
+    }
 }
