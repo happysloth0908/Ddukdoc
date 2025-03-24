@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "documents")
 @Getter
@@ -32,8 +34,9 @@ public class Document extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private String status;
+    private DocumentStatus status;
 
     @Column(name = "ipfs_hash")
     private String ipfsHash;
@@ -43,4 +46,13 @@ public class Document extends BaseEntity {
 
     @Column(name = "return_reason")
     private String returnReason;
+
+
+    /**
+     * 문서 상태 변경 메서드
+     * @param status 변경할 상태
+     */
+    public void updateStatus(DocumentStatus status){
+        this.status = status;
+    }
 }
