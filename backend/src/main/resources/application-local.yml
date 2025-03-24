@@ -28,19 +28,9 @@ logging:
     com.ssafy.ddukdoc.global.config.WebClientConfig: DEBUG
     com.zaxxer.hikari: TRACE
 
-#api 통신 디버깅
-management:
-  endpoints:
-    web:
-      exposure:
-        include: loggers
-  endpoint:
-    loggers:
-      enabled: true
-
 oauth:
   kakao:
-    redirect-uri: http://localhost:5173/oauth/kakao/callback
+    redirect-uri: http://localhost:8080/api/oauth/kakao
 
 app:
   is-local: true
