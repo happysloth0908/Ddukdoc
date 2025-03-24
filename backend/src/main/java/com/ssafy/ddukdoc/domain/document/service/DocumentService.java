@@ -84,7 +84,8 @@ public class DocumentService {
 
         // 발신자 확인 예외처리
         if(!document.getCreator().getId().equals(userId)){
-            throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId);
+            throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId)
+                    .addParameter("documentId", documentId);
         }
 
         // 반송 상태 확인 예외처리
