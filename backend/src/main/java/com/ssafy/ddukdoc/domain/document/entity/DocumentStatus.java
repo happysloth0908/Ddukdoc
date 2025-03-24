@@ -1,9 +1,6 @@
 package com.ssafy.ddukdoc.domain.document.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.ssafy.ddukdoc.global.error.code.ErrorCode;
-import com.ssafy.ddukdoc.global.error.exception.CustomException;
 
 public enum DocumentStatus {
     WAITING("서명 대기"),
