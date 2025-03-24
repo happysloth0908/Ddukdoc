@@ -1,8 +1,9 @@
 package com.ssafy.ddukdoc.global.security.jwt;
 
 
+import com.ssafy.ddukdoc.global.common.constants.SecurityConstants;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -25,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws IOException {
 
         String token = resolveToken(request);
 
@@ -61,12 +62,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    //    Bearer 제거하고 순수 토큰 추출
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+        Cookie[] cookies = request.getCookies();
 
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (SecurityConstants.ACCESS_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
 
         return null;
