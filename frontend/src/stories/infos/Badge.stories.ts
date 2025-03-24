@@ -17,23 +17,30 @@ export default meta;
 
 type Story = StoryObj<typeof Badge>;
 
-export const Contract: Story = {
+export const Contract1: Story = {
   args: {
-    type: 'contract', // 차용증 상태로 설정
-    title: '차용증', // 제목 추가
+    type: "G1", // 차용증 상태로 설정
+    title: "차용증", // 제목 추가
+  },
+};
+
+export const Contract2: Story = {
+  args: {
+    type: "G2", // 차용증 상태로 설정
+    title: "근로계약서", // 제목 추가
   },
 };
 
 export const Waiting: Story = {
   args: {
-    type: 'waiting', // 서명 대기 상태로 설정
-    title: '서명 대기', // 제목 추가
+    type: "서명 대기", // 서명 대기 상태로 설정
+    title: "서명 대기", // 제목 추가
   },
 };
 
 export const Reject: Story = {
   args: {
-    type: 'reject', // 반송 상태로 설정
-    title: '반송', // 제목 추가
+    type: "반송", // 반송 상태로 설정
+    title: "반송", // 제목 추가
   },
 };
