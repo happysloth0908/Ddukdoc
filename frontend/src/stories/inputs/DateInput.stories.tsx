@@ -5,7 +5,7 @@ import DateInput, {
 } from '../../components/atoms/inputs/DateInput';
 
 export default {
-  title: 'Components/DateInput',
+  title: 'Components/Inputs/DateInput',
   component: DateInput,
 } as Meta;
 

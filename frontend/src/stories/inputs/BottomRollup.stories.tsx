@@ -5,7 +5,7 @@ import BottomRollup, {
 } from '../../components/atoms/inputs/BottomRollup';
 
 export default {
-  title: 'Components/BottomRollup',
+  title: 'Components/Inputs/BottomRollup',
   component: BottomRollup,
   parameters: {
     layout: 'fullscreen',
