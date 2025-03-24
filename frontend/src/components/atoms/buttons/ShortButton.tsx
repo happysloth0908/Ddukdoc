@@ -1,4 +1,3 @@
-import React from 'react';
 import ButtonProps from './ButtonProps';
 
 interface LongButtonProps extends ButtonProps {
@@ -29,7 +28,7 @@ export default function LongButton({
 
   return (
     <button
-      className={`${className} ${getColorClass()} mx-20 cursor-pointer rounded-md px-5 py-3 text-center font-medium transition-colors`}
+      className={`${className} ${getColorClass()} cursor-pointer rounded-md px-5 py-3 text-center font-medium transition-colors`}
       onClick={onClick}
     >
       {children}
