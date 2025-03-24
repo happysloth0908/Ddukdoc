@@ -1,25 +1,18 @@
 // import { useState } from 'react';
-import { Button } from './stories/Button'
 import { postRegister } from './apis/auth';
+import { BrowserRouter } from 'react-router-dom';
 
-const { worker } = await import('./mocks/browser')
+const { worker } = await import('./mocks/browser');
 
-if (import.meta.env.VITE_NODE_ENV === "development") {
+if (import.meta.env.VITE_NODE_ENV === 'development') {
   worker.start();
 }
 
 function App() {
-  const test = async () => {
-    const res = await postRegister();
-    console.log(res);
-  };
-
-  return (
-    <div>
-      test
-      <Button onClick={test} label='버튼 테스트' />
-    </div>
-  );
+  return;
+  <BrowserRouter>
+    <div></div>;
+  </BrowserRouter>;
 }
 
 export default App;
