@@ -28,7 +28,7 @@ public class DocumentResponseDto {
                 .templateId(document.getTemplate().getCode())
                 .templateName(document.getTemplate().getName())
                 .title(document.getTitle())
-                .status(document.getStatus())
+                .status(document.getStatus().name())
                 .creatorId(document.getCreator().getId())
                 .creatorName(document.getCreator().getName())
                 .recipientId(document.getRecipient().getId())

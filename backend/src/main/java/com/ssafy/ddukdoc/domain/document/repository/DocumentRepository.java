@@ -23,7 +23,8 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
             "AND (:status IS NULL OR UPPER(d.status) = UPPER(:status)) " +
             "AND (:createdAt IS NULL OR FUNCTION('DATE', d.createdAt) = FUNCTION('DATE', :createdAt)) " +
             "AND ( (:sendReceiveStatus = 2 AND d.creator.id = :userId) " +
-            "      OR (:sendReceiveStatus = 1 AND d.recipient.id = :userId) )")
+            "      OR (:sendReceiveStatus = 1 AND d.recipient.id = :userId) ) " +
+            "AND d.status != 'DELETED'")
     Page<Document> findDocumentListByUserId(
             @Param("sendReceiveStatus") Integer sendReceiveStatus,
             @Param("templateCode") String templateCode,
