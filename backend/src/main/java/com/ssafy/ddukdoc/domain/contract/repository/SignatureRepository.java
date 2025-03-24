@@ -2,10 +2,12 @@ package com.ssafy.ddukdoc.domain.contract.repository;
 
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
 
-@Repository
-public interface SignatureRepository extends JpaRepository<Signature,Integer> {
+public interface SignatureRepository extends JpaRepository<Signature, Integer> {
 
+    Optional<Signature> findByDocumentId(Integer documentId); // 문서 ID로 서명 조회
+    List<Signature> findAllByDocumentId(Integer documentId);
 }
