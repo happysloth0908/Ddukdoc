@@ -12,7 +12,7 @@ function App() {
   return (
     <div className='w-dvw h-dvh flex justify-center items-center'>
       <BrowserRouter>
-        <div className='w-dvw h-dvh md:max-w-md md:max-h-[80%] border'>
+        <div className='w-dvw h-dvh md:max-w-md md:max-h-[80%] px-8 border'>
           <molecules.Header children='test' />
           <Routes>
             {/* 문서 작성입니다. */}
