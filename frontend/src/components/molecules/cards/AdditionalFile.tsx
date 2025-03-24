@@ -1,4 +1,4 @@
-import atoms from "@/components/atoms"
+import atoms from "@/components/atoms";
 
 interface AdditionalFileProps {
     data: {
