@@ -40,7 +40,8 @@ public class ContractService {
 
     public List<TemplateFieldResponseDto> getTemplateFields(String  codeStr){
 
-        TemplateCode templateCode = TemplateCode.valueOf(codeStr);
+        TemplateCode templateCode = TemplateCode.fromString(codeStr);
+
         Template template = templateRepository.findByCode(templateCode.name())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
         List<TemplateField> fields = templateFieldRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId());
@@ -53,7 +54,7 @@ public class ContractService {
     @Transactional
     public int saveDocument(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
 
-        TemplateCode templateCode = TemplateCode.valueOf(codeStr);
+        TemplateCode templateCode = TemplateCode.fromString(codeStr);
         //사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));

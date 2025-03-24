@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.template.entity;
 
-import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import com.ssafy.ddukdoc.global.error.exception.CustomException;
 
 public enum TemplateCode {
     G1("차용증"),
@@ -18,4 +19,11 @@ public enum TemplateCode {
         this.description = description;
     }
 
+    public static TemplateCode fromString(String code){
+        try{
+            return valueOf(code.toUpperCase());
+        }catch (IllegalArgumentException e){
+            throw new CustomException(ErrorCode.TEMPLATE_NOT_FOUND);
+        }
+    }
 }
