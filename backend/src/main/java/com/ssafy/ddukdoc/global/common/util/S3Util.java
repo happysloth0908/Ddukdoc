@@ -41,7 +41,7 @@ public class S3Util {
         String uploadImageUrl = putS3(uploadFile,fileName);
 
         // 로컬에 생성한 파일 삭제
-        removeNewFile(uploadFile);
+        uploadFile.delete();
         return uploadImageUrl;
     }
 
@@ -51,13 +51,6 @@ public class S3Util {
         return amazonS3.getUrl(bucket,fileName).toString();
     }
 
-    private void removeNewFile(File targetFile) {
-        if (targetFile.delete()) {
-            System.out.println("파일이 삭제되었습니다.");
-        } else {
-            System.out.println("파일이 삭제되지 못했습니다.");
-        }
-    }
 
     //파일 변환
     private Optional<File> convert(MultipartFile file) throws IOException{
