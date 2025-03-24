@@ -30,7 +30,9 @@ logging:
 
 oauth:
   kakao:
-    redirect-uri: http://localhost:8080/api/oauth/kakao
+    redirect-uri: http://localhost:8080/api/oauth/kakao/login
+  ssafy:
+    redirect-uri: http://localhost:8080/api/oauth/ssafy/login
 
 app:
   is-local: true

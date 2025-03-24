@@ -36,40 +36,32 @@ public class OAuthService {
         // 1. 전략 가져오기
         OAuthStrategy strategy = oAuthStrategyMap.get(provider);
         if (strategy == null) {
-            throw new CustomException(ErrorCode.INVALID_OAUTH_PROVIDER);
+            throw new CustomException(ErrorCode.INVALID_OAUTH_PROVIDER, "provider", provider.name());
         }
 
-        try {
-            // 2. 소셜 로그인으로 유저 정보 받아오기
-            OAuthUserInfo userInfoFromOAuth = strategy.getUserInfo(code);
-            log.debug("Received user info from provider - id: {}, email: {}",
-                    userInfoFromOAuth.getId(), userInfoFromOAuth.getEmail());
+        // 2. 소셜 로그인으로 유저 정보 받아오기
+        OAuthUserInfo userInfoFromOAuth = strategy.getUserInfo(code);
 
-            // 3. 기존 회원인지 확인
-            Optional<User> existingUser = userRepository.findBySocialProviderAndSocialKey(
-                    provider,
-                    userInfoFromOAuth.getId()
-            );
+        // 3. 기존 회원인지 확인
+        Optional<User> existingUser = userRepository.findBySocialProviderAndSocialKey(
+                provider,
+                userInfoFromOAuth.getId()
+        );
 
-            Boolean isNew = existingUser.isEmpty();
-            User user = existingUser.orElseGet(() -> createUser(userInfoFromOAuth, provider));
-            String userId = user.getId().toString();
+        Boolean isNew = existingUser.isEmpty();
+        User user = existingUser.orElseGet(() -> createUser(userInfoFromOAuth, provider));
+        String userId = user.getId().toString();
 
-            String accessToken = jwtTokenProvider.createAccessToken(userId);
-            String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+        String accessToken = jwtTokenProvider.createAccessToken(userId);
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
 
-            // Redis에 RefreshToken 저장
-            authRedisService.saveRefreshToken(userId, refreshToken);
+        // Redis에 RefreshToken 저장
+        authRedisService.saveRefreshToken(userId, refreshToken);
 
-            UserInfoResponse userInfoResponse = UserInfoResponse.of(user, isNew);
-            OAuthLoginResponse oAuthLoginResponse = OAuthLoginResponse.of(userInfoResponse);
+        UserInfoResponse userInfoResponse = UserInfoResponse.of(user, isNew);
+        OAuthLoginResponse oAuthLoginResponse = OAuthLoginResponse.of(userInfoResponse);
 
-            return LoginResult.of(oAuthLoginResponse, accessToken, refreshToken);
-
-        } catch (Exception e) {
-            log.error("OAuth 로그인에 오류가 있습니다: {} message: {}", provider, e.getMessage());
-            throw new CustomException(ErrorCode.OAUTH_SERVER_ERROR);
-        }
+        return LoginResult.of(oAuthLoginResponse, accessToken, refreshToken);
     }
 
     private User createUser(OAuthUserInfo userInfo, Provider provider) {

@@ -1,8 +1,8 @@
 package com.ssafy.ddukdoc.global.infra.oauth;
 
 import com.ssafy.ddukdoc.global.infra.oauth.constants.KakaoOAuthConstants;
-import com.ssafy.ddukdoc.global.infra.oauth.dto.KakaoTokenResponse;
-import com.ssafy.ddukdoc.global.infra.oauth.dto.KakaoUserResponse;
+import com.ssafy.ddukdoc.global.infra.oauth.dto.kakao.KakaoTokenResponse;
+import com.ssafy.ddukdoc.global.infra.oauth.dto.kakao.KakaoUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
