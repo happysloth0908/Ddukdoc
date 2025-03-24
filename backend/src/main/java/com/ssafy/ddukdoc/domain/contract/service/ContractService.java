@@ -1,8 +1,11 @@
 package com.ssafy.ddukdoc.domain.contract.service;
 
+import com.ssafy.ddukdoc.domain.contract.entity.Signature;
+import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
+import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
@@ -12,11 +15,13 @@ import com.ssafy.ddukdoc.domain.template.repository.TemplateFieldRepository;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateRepository;
 import com.ssafy.ddukdoc.domain.user.entity.User;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
+import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +34,8 @@ public class ContractService {
     private final TemplateFieldRepository templateFieldRepository;
     private final DocumentRepository documentRepository;
     private final DocumentFieldValueRepository documentFieldValueRepository;
+    private final S3Util s3Util;
+    private final SignatureRepository signatureRepository;
 
     public List<TemplateFieldResponseDto> getTemplateFields(String templateCode){
         Template template = templateRepository.findByCode(templateCode)
@@ -41,7 +48,7 @@ public class ContractService {
         return fieldResponses;
     }
     @Transactional
-    public int saveDocument(String templateCode, DocumentSaveRequestDto requestDto, Integer userId){
+    public int saveDocument(String templateCode, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
 
         //사용자 조회
         User user = userRepository.findById(userId)
@@ -55,14 +62,44 @@ public class ContractService {
         int pin = generatePinCode();
 
         //Document 엔티티 생성 및 저장
-        String status = determineDocumentStatus(templateCode);
+        DocumentStatus status = determineDocumentStatus(templateCode);
         Document document = requestDto.toEntity(user,template,pin,status);
         Document saveDocument = documentRepository.save(document);
 
         // DocumentFieldValue 엔티티들 생성 및 저장
         saveDocumentFieldValues(requestDto, saveDocument, user);
 
+        saveSignature(document,userId,signatureFile);
+
         return pin;
+    }
+
+    private void saveSignature(Document document, Integer userId, MultipartFile signatureFile) {
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
+
+        // 사용자 권한 확인
+        if (!document.getCreator().getId().equals(userId) &&
+                (document.getRecipient() == null || !document.getRecipient().getId().equals(userId))) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId);
+        }
+
+        String dirName = "signature/"+document.getId()+"/"+userId;
+        String s3Path = s3Util.uploadFile(signatureFile,dirName);
+
+        Signature signature = Signature.builder()
+                .user(user)
+                .document(document)
+                .filePath(s3Path)
+                .build();
+
+        signatureRepository.save(signature);
+
+        if(document.getRecipient() != null && document.getRecipient().getId().equals(userId)){
+            document.updateStatus(DocumentStatus.SIGNED);
+            documentRepository.save(document);
+        }
     }
 
     private void saveDocumentFieldValues(DocumentSaveRequestDto requestDto, Document document, User user){
@@ -75,11 +112,11 @@ public class ContractService {
         });
     }
 
-    private String determineDocumentStatus(String templateCode){
+    private DocumentStatus determineDocumentStatus(String templateCode){
         if ("G1".equals(templateCode) || "G2".equals(templateCode)) {
-            return "서명 대기";
+            return DocumentStatus.WAITING;
         } else {
-            return "완료";
+            return DocumentStatus.SIGNED;
         }
     }
     private int generatePinCode(){

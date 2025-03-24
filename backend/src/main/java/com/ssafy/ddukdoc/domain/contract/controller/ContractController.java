@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,9 +35,13 @@ public class ContractController {
     public ResponseEntity<ApiResponse<Integer>> saveInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable String templateCode,
-            @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto){
+            @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,
+            @RequestParam("signature") MultipartFile signatureFile){
 
-        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
-        return ApiResponse.ok(contractService.saveDocument(templateCode, requestDto, userId));
+       // Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        //문서 저장
+        int pin = contractService.saveDocument(templateCode, requestDto, 1,signatureFile);
+
+        return ApiResponse.ok(pin);
     }
 }
