@@ -38,9 +38,9 @@ public class ContractController {
             @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,
             @RequestParam("signature") MultipartFile signatureFile){
 
-       // Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         //문서 저장
-        int pin = contractService.saveDocument(templateCode, requestDto, 1,signatureFile);
+        int pin = contractService.saveDocument(templateCode, requestDto, userId,signatureFile);
 
         return ApiResponse.ok(pin);
     }
