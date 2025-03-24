@@ -204,12 +204,62 @@ pipeline {
         success {
             echo "환경 : ${env.DEPLOY_ENV} 배포 성공!"
             sh "docker ps | grep backend"
+
+            script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                def changes = ""
+
+                if (env.FRONTEND_CHANGES == 'true') {
+                    changes += "Frontend"
+                }
+                if (env.BACKEND_CHANGES == 'true') {
+                    if (changes) {
+                        changes += ", Backend"
+                    } else {
+                        changes += "Backend"
+                    }
+                }
+                if (!changes) {
+                    changes = "설정 변경"
+                }
+
+                mattermostSend(
+                    color: 'good',
+                    message: "✅ 배포 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
+                             "👤 작성자: ${Author_ID} (${Author_Name})\n" +
+                             "🔄 변경사항: ${changes}\n" +
+                             "🌐 환경: ${env.DEPLOY_ENV}\n" +
+                             "🔍 <${env.BUILD_URL}|상세 정보 보기>",
+                    endpoint: '메타모스트에서 발급 받은 URL',
+                    channel: 'Jenkins_Build_Result'
+                )
+            }
         }
+
         failure {
             echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
             echo "실패 원인을 확인합니다."
             sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
+
+            script {
+                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                def failStage = currentBuild.rawBuild.getExecution().currentHeads[0].getDisplayName()
+
+                mattermostSend(
+                    color: 'danger',
+                    message: "❌ 배포 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
+                             "👤 작성자: ${Author_ID} (${Author_Name})\n" +
+                             "⚠️ 실패 단계: ${failStage}\n" +
+                             "🌐 환경: ${env.DEPLOY_ENV}\n" +
+                             "🔍 <${env.BUILD_URL}|상세 정보 보기>",
+                    endpoint: '메타모스트에서 발급 받은 URL',
+                    channel: 'Jenkins_Build_Result'
+                )
+            }
         }
+
         always {
             echo "빌드 및 배포 과정이 종료되었습니다."
         }
