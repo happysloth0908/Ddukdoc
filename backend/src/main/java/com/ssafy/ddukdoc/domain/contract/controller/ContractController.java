@@ -15,9 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/contract")
@@ -39,9 +37,7 @@ public class ContractController {
             @RequestParam("signature") MultipartFile signatureFile){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
-        //문서 저장
-        int pin = contractService.saveDocument(templateCode, requestDto, userId,signatureFile);
 
-        return ApiResponse.ok(pin);
+        return ApiResponse.ok(contractService.saveDocument(templateCode, requestDto, userId,signatureFile));
     }
 }
