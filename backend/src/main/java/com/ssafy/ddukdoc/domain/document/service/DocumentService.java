@@ -65,11 +65,11 @@ public class DocumentService {
             Integer signatureUserId = signature.getUser().getId();
 
             if (document.getCreator() != null && document.getCreator().getId().equals(signatureUserId)) {
-                creatorSignature = signature.getIpfsHash();
+                creatorSignature = signature.getFilePath();
             }
 
             if(document.getRecipient()!= null && document.getRecipient().getId().equals(signatureUserId)){
-                recipientSignature = signature.getIpfsHash();
+                recipientSignature = signature.getFilePath();
             }
         }
         return DocumentDetailResponseDto.of(document, fieldValues, creatorSignature, recipientSignature);
@@ -90,7 +90,7 @@ public class DocumentService {
         // 반송 상태 확인 예외처리
         if(!document.getStatus().equals(DocumentStatus.RETURNED)){
             throw new CustomException(ErrorCode.DOCUMENT_NOT_RETURNED, "documentId", documentId)
-                    .addParameter("documentStatus", document.getStatus());
+                    .addParameter("documentStatus", document.getStatus().name());
         }
 
         // 문서 상태를 삭제로 변경
