@@ -231,8 +231,8 @@ pipeline {
                              "🔄 변경사항: ${changes}\n" +
                              "🌐 환경: ${env.DEPLOY_ENV}\n" +
                              "🔍 <${env.BUILD_URL}|상세 정보 보기>",
-                    endpoint: '메타모스트에서 발급 받은 URL',
-                    channel: 'Jenkins_Build_Result'
+                    endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
+                    channel: '78077804f0d7f41a4976e15a024145e8'
                 )
             }
         }
@@ -254,8 +254,8 @@ pipeline {
                              "⚠️ 실패 단계: ${failStage}\n" +
                              "🌐 환경: ${env.DEPLOY_ENV}\n" +
                              "🔍 <${env.BUILD_URL}|상세 정보 보기>",
-                    endpoint: '메타모스트에서 발급 받은 URL',
-                    channel: 'Jenkins_Build_Result'
+                    endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
+                    channel: '78077804f0d7f41a4976e15a024145e8'
                 )
             }
         }
