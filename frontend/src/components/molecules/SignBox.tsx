@@ -8,7 +8,7 @@ export const SignBox: React.FC = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
 
-  // 👉 회전 시 캔버스 이미지 복사 및 복원
+  // 회전 시 캔버스 이미지 복사 및 복원
   const handleRotate = () => {
     const canvas = canvasRef.current;
     let backupImage: string | null = null;
@@ -34,13 +34,21 @@ export const SignBox: React.FC = () => {
     }, 100);
   };
 
+  const getAdjustedCoordinates = (x: number, y: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x, y };
+
+    return { x, y };
+  };
+
   const startDrawing = (x: number, y: number) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
+    const coords = getAdjustedCoordinates(x, y);
     ctx.beginPath();
-    ctx.moveTo(x, y);
+    ctx.moveTo(coords.x, coords.y);
     setIsDrawing(true);
   };
 
@@ -50,7 +58,8 @@ export const SignBox: React.FC = () => {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    ctx.lineTo(x, y);
+    const coords = getAdjustedCoordinates(x, y);
+    ctx.lineTo(coords.x, coords.y);
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -65,19 +74,17 @@ export const SignBox: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = window.devicePixelRatio || 1;
     const width = canvas.offsetWidth;
     const height = canvas.offsetHeight;
 
     if (width === 0 || height === 0) return;
 
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    canvas.width = width;
+    canvas.height = height;
 
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
     }
   };
 
@@ -87,8 +94,6 @@ export const SignBox: React.FC = () => {
     if (canvas && ctx) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const dpr = window.devicePixelRatio || 1;
-      ctx.scale(dpr, dpr);
     }
   };
 
@@ -144,7 +149,7 @@ export const SignBox: React.FC = () => {
       canvas.removeEventListener('touchmove', handleMove);
       canvas.removeEventListener('touchend', handleEnd);
     };
-  }, [isDrawing]);
+  }, [isDrawing, isRotated]);
 
   // 최초 mount 시 canvas 사이즈 설정
   useEffect(() => {
