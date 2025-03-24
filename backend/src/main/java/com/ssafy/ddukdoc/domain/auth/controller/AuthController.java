@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final OAuthService oAuthService;
 
-    @GetMapping("/{provider}")
+    @GetMapping("/{provider}/login")
     public ResponseEntity<ApiResponse<OAuthLoginResponse>> socialLogin(
             @PathVariable String provider,
             @RequestParam String code
