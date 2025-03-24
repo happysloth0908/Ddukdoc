@@ -7,11 +7,13 @@ import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
+import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,6 +74,29 @@ public class DocumentService {
         }
         return DocumentDetailResponseDto.of(document, fieldValues, creatorSignature, recipientSignature);
     }
+
+    @Transactional
+    public void deleteDocument(Integer userId, Integer documentId){
+
+        // Document 조회, 엔티티를 id로 조회 했을때 없으면 예외 발생
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 발신자 확인 예외처리
+        if(!document.getCreator().getId().equals(userId)){
+            throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId);
+        }
+
+        // 반송 상태 확인 예외처리
+        if(!document.getStatus().equals(DocumentStatus.RETURNED)){
+            throw new CustomException(ErrorCode.DOCUMENT_NOT_RETURNED, "documentId", documentId)
+                    .addParameter("documentStatus", document.getStatus());
+        }
+
+        // 문서 상태를 삭제로 변경
+        document.updateStatus(DocumentStatus.DELETED);
+    }
+
 
     // 문서 접근 권한 검증 메서드
     private void validateDocumentAccess(Document document, Integer userId) {
