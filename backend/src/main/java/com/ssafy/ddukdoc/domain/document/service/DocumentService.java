@@ -12,14 +12,11 @@ import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +79,8 @@ public class DocumentService {
         boolean isRecipient = document.getRecipient() != null && document.getRecipient().getId().equals(userId);
 
         if (!isCreator && !isRecipient) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                        .addParameter("documentId", document.getId());
         }
     }
 
@@ -98,7 +96,7 @@ public class DocumentService {
         // 핀코드 검증
         Integer documentPinCode = document.getPin();
         if(!documentPinCode.equals(pinCode)){
-            throw new CustomException(ErrorCode.PIN_CODE_MISMATCH, "pin_code", "잘못된 핀번호입니다.");
+            throw new CustomException(ErrorCode.PIN_CODE_MISMATCH);
         }
     }
 

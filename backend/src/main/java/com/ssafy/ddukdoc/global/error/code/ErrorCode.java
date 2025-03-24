@@ -20,7 +20,7 @@ public enum ErrorCode {
 
     //Document
     DOCUMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "존재하지 않는 문서입니다"),
-    PIN_CODE_MISMATCH(HttpStatus.NOT_FOUND, "P001", "잘못된 핀번호입니다"),
+    PIN_CODE_MISMATCH(HttpStatus.NOT_FOUND, "D002", "잘못된 핀번호입니다"),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
