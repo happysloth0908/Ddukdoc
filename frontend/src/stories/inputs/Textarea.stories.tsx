@@ -5,7 +5,7 @@ import Textarea, {
 } from '../../components/atoms/inputs/Textarea';
 
 export default {
-  title: 'Components/Textarea',
+  title: 'Components/Inputs/Textarea',
   component: Textarea,
 } as Meta;
 
