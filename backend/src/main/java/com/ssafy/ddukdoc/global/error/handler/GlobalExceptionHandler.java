@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -109,5 +110,19 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 e);
         return ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    protected ResponseEntity<ApiResponse<Object>> handleMissingServletRequestPartException(
+            MissingServletRequestPartException e,
+            HttpServletRequest request
+    ) {
+        log.error("[MissingServletRequestPartException] {} {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e.getMessage()
+        );
+
+        return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE);
     }
 }

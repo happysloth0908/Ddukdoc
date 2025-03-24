@@ -40,7 +40,8 @@ public enum ErrorCode {
     INVALID_USER_ID(HttpStatus.NOT_FOUND,"U001","존재하지 않는 사용자입니다."),
 
     //s3
-    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S001","파일 업로드 중 오류가 발생했습니다.");
+    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S001","파일 업로드 중 오류가 발생했습니다."),
+    SIGNATURE_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S002", "서명 파일이 없습니다.");
 
     private final HttpStatus status;
     private final String code;
