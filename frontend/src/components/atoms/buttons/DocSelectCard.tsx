@@ -12,11 +12,11 @@ export default function DocSelectCard({
 
   return (
     <button
-      className={`${className} ${isSelected ? 'bg-primary-300 text-gray-white' : 'bg-gray-200'} w-full cursor-pointer rounded-2xl px-5 py-6 text-center font-medium transition-colors`}
+      className={`${className} ${isSelected ? 'bg-primary-300 text-gray-white' : 'bg-gray-200'} w-full flex items-center justify-center cursor-pointer rounded-2xl px-5 py-6 text-center font-medium transition-colors`}
       onClick={() => onToggleClick(id)}
     >
       {children}
-      {icon}
+      <img className='w-12 h-12' src={icon} alt="" />
     </button>
   );
 }

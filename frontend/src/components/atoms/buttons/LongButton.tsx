@@ -28,7 +28,7 @@ export default function LongButton({
 
   return (
     <button
-      className={`${className} ${getColorClass()} w-full cursor-pointer rounded-md px-5 py-3 text-center font-medium transition-colors`}
+      className={`${className} ${getColorClass()} w-full cursor-pointer rounded-xl px-5 py-3 text-center font-medium transition-colors`}
       onClick={onClick}
     >
       {children}
