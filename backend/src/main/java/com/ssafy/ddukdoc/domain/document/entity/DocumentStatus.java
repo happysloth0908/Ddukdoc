@@ -17,5 +17,12 @@ public enum DocumentStatus {
     @JsonValue
     public String getDescription() {
         return description;
+
+    }
+
+    public static DocumentStatus getInitialStatus(TemplateCode templateCode) {
+        return templateCode.name().startsWith("G") ?
+                WAITING :
+                SIGNED;
     }
 }

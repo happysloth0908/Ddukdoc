@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.dto.response;
 
 import com.ssafy.ddukdoc.domain.document.entity.Document;
+import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import lombok.Builder;
 import lombok.Getter;
 
