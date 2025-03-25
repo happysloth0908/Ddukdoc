@@ -23,6 +23,6 @@ public class Signature extends BaseEntity {
     @JoinColumn(name = "document_id")
     private Document document;
 
-    @Column(name = "ipfs_hash", nullable = false)
-    private String ipfsHash;
+    @Column(name = "file_path", nullable = false)
+    private String filePath;
 }
