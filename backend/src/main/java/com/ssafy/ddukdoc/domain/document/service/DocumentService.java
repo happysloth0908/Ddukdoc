@@ -61,6 +61,12 @@ public class DocumentService {
 
         // 문서 접근 권한 검증 (발신자 또는 수신자만 조회 가능)
         validateDocumentAccess(document, userId);
+
+        // 문서 삭제 되었는지 검증
+        if(document.getStatus().equals(DocumentStatus.DELETED)){
+            throw new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId)
+                    .addParameter("userId", userId);
+        }
         
         // 문서 필드값 조회
         List<DocumentFieldValue> fieldValues = documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId);
