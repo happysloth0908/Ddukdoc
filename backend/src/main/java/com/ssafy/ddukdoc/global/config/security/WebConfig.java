@@ -9,20 +9,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${app.domain.prod}")
-    private String prod;
-
-    @Value("${app.domain.local}")
-    private String local;
+    @Value("${app.domain}")
+    private String url;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(local, prod)
+                .allowedOrigins(url)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("Authorization", "Content-Type", "X-Requested-With",
-                        "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials","Access-Control-Allow-Headers",
-                        "Accept", "Origin", "Cookie", "Set-Cookie",
+                        "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Access-Control-Allow-Headers",
+                        "Accept", "Origin", "Cookie", "Set-Cookie", "X-DEV-USER",
                         "Cache-Control", "Connection")
                 .exposedHeaders("Set-Cookie")
                 .allowCredentials(true)

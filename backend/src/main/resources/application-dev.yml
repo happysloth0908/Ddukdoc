@@ -28,5 +28,6 @@ oauth:
     redirect-uri: https://ddukdoc.shop/api/oauth/ssafy/login
 
 app:
+  domain: https://ddukdoc.shop
   is-local: false
   cookie-domain: ddukdoc.shop
