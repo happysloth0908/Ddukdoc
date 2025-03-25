@@ -43,7 +43,10 @@ public enum ErrorCode {
 
     //s3
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S001","파일 업로드 중 오류가 발생했습니다."),
-    SIGNATURE_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S002", "서명 파일이 없습니다.");
+    SIGNATURE_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S002", "서명 파일이 없습니다."),
+
+    //Hash
+    INVALID_ENCRYPTION_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR,"H001","지원하지 않는 해시 암호화 알고리즘입니다.");
 
     private final HttpStatus status;
     private final String code;
