@@ -5,12 +5,16 @@ import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSearchRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.SignatureResponseDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.UserRoleResponseDto;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.user.entity.User;
+import com.ssafy.ddukdoc.domain.user.entity.UserDocRole;
+import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -30,6 +34,7 @@ public class DocumentService {
     private final SignatureRepository signatureRepository;
     private final DocumentFieldValueRepository documentFieldValueRepository;
     private final UserRepository userRepository;
+    private final UserDocRoleRepository userDocRoleRepository;
 
     public CustomPage<DocumentListResponseDto> getDocumentList(Integer userId, DocumentSearchRequestDto documentSearchRequestDto, Pageable pageable){
         Page<Document> documentList = documentRepository.findDocumentListByUserId(
@@ -57,25 +62,11 @@ public class DocumentService {
         // 문서 필드값 조회
         List<DocumentFieldValue> fieldValues = documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId);
 
-        // 서명 정보 조회
-        List<Signature> signatures = signatureRepository.findAllByDocumentId(documentId);
+        // 사용자 역할 정보와 서명 정보 추출
+        UserRoleResponseDto userRoleInfo = extractUserRoleInfo(document);
+        SignatureResponseDto signatureInfo = extractSignatureInfo(document);
 
-        // 서명 정보 처리
-        String creatorSignature = null;
-        String recipientSignature = null;
-
-        for(Signature signature : signatures){
-            Integer signatureUserId = signature.getUser().getId();
-
-            if (document.getCreator() != null && document.getCreator().getId().equals(signatureUserId)) {
-                creatorSignature = signature.getFilePath();
-            }
-
-            if(document.getRecipient()!= null && document.getRecipient().getId().equals(signatureUserId)){
-                recipientSignature = signature.getFilePath();
-            }
-        }
-        return DocumentDetailResponseDto.of(document, fieldValues, creatorSignature, recipientSignature);
+        return DocumentDetailResponseDto.of(document, fieldValues, signatureInfo, userRoleInfo);
     }
 
     @Transactional
@@ -119,7 +110,6 @@ public class DocumentService {
                     .addParameter("userId", userId);
         }
 
-
         // 수신자 정보가 있음에도 사용자가 수신자가 아니라면 접근 금지 예외 발생 (수신자도, 발신자도 아닌 경우)
         throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
                     .addParameter("documentId", document.getId());
@@ -144,6 +134,46 @@ public class DocumentService {
                 .orElseThrow(()-> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
 
         document.updateRecipient(recipient);
+
+        // 수신자 문서 역할 업데이트 (구현해야함)
+    }
+
+    // 사용자 역할 정보 추출 (UserDocRoleRepository 호출)
+    private UserRoleResponseDto extractUserRoleInfo(Document document) {
+        List<UserDocRole> userDocRoles = userDocRoleRepository.findAllByDocument_Id(document.getId());
+
+        Integer creatorRoleId = userDocRoles.stream()
+                .filter(udr -> document.getCreator() != null && udr.getUser().getId().equals(document.getCreator().getId()))
+                .map(udr -> udr.getRole().getId())
+                .findFirst()
+                .orElse(null);
+
+        Integer recipientRoleId = userDocRoles.stream()
+                .filter(udr -> document.getRecipient() != null && udr.getUser().getId().equals(document.getRecipient().getId()))
+                .map(udr -> udr.getRole().getId())
+                .findFirst()
+                .orElse(null);
+
+        return UserRoleResponseDto.of(creatorRoleId, recipientRoleId);
+    }
+
+    // 서명 정보 추출 (SignatureRepository 호출)
+    private SignatureResponseDto extractSignatureInfo(Document document) {
+        List<Signature> signatures = signatureRepository.findAllByDocumentId(document.getId());
+
+        String creatorSignature = signatures.stream()
+                .filter(s -> document.getCreator() != null && s.getUser().getId().equals(document.getCreator().getId()))
+                .map(Signature::getFilePath)
+                .findFirst()
+                .orElse(null);
+
+        String recipientSignature = signatures.stream()
+                .filter(s -> document.getRecipient() != null && s.getUser().getId().equals(document.getRecipient().getId()))
+                .map(Signature::getFilePath)
+                .findFirst()
+                .orElse(null);
+
+        return SignatureResponseDto.of(creatorSignature, recipientSignature);
     }
 
 }
