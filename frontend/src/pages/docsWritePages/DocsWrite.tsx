@@ -1,33 +1,26 @@
-import { useState, useEffect } from 'react';
-import atoms from '@/components/atoms';
+import { Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import docsWriteChildren from "./docsWriteChildren";
 
 export const DocsWrite = () => {
   const [templateCode, setTemplateCode] = useState('G1');
 
-  const handleSelect = (id: string) => {
-    setTemplateCode(id);
-  };
+  // 템플릿 코드 변경
+  const handleTemplateCode = (code: string) => {
+    setTemplateCode(code);
+  }
 
   useEffect(() => {
-    console.log('업데이트된 templateCode:', templateCode);
-  }, [templateCode]);
+    console.log("업데이트!", templateCode);
+  }, [templateCode])
 
   return (
-    <div>
-      <p>어떤 문서를</p>
-      <p>작성하고 싶으신가요?</p>
-      <atoms.DocSelectCard
-        onToggleClick={handleSelect}
-        id='G1'
-        children="차용증"
-        isSelected={templateCode === 'G1' ? true : false}
-      />
-      <atoms.DocSelectCard
-        onToggleClick={handleSelect}
-        id='G2'
-        children="근로계약서"
-        isSelected={templateCode === 'G2' ? true : false}
-      />
+    <div className='flex-1 flex flex-col gap-y-6'>
+      <Routes>
+        <Route index element={<docsWriteChildren.DocsChoose templateCode={templateCode} onTemplateCode={handleTemplateCode} />} />
+        <Route path='check' element={<docsWriteChildren.DocsCheck curTemplate={templateCode} />} />
+        <Route path='role' element={<docsWriteChildren.DocsRoleChoose />} />
+      </Routes>
     </div>
   );
 };
