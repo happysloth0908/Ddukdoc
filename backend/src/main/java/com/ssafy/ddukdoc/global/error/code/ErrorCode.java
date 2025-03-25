@@ -23,6 +23,10 @@ public enum ErrorCode {
     DOCUMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "존재하지 않는 문서입니다"),
     CREATOR_NOT_MATCH(HttpStatus.UNAUTHORIZED, "D002", "문서의 발신자가 아닙니다"),
     DOCUMENT_NOT_RETURNED(HttpStatus.BAD_REQUEST, "D003", "반송되지 않은 문서입니다"),
+    USER_DOC_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "D004", "사용자의 문서 역할을 찾을 수 없습니다"),
+
+    // Role
+    ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "존재하지 않는 문서 역할입니다"),
 
     //Pin
     PIN_CODE_MISMATCH(HttpStatus.NOT_FOUND, "P001", "잘못된 핀번호입니다"),
