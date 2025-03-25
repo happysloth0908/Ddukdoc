@@ -106,11 +106,24 @@ public class DocumentService {
     private void validateDocumentAccess(Document document, Integer userId) {
         boolean isCreator = document.getCreator() != null && document.getCreator().getId().equals(userId);
         boolean isRecipient = document.getRecipient() != null && document.getRecipient().getId().equals(userId);
-
-        if (!isCreator && !isRecipient) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                        .addParameter("documentId", document.getId());
+        
+        // 발신자 혹은 수신자인 경우 접근 허용
+        if(isCreator || isRecipient){
+            return; 
         }
+        
+        // 발신자도 아니고 수신자도 아닌 경우
+        if(document.getRecipient() == null){
+            // 수신자 정보가 없으면 핀코드 입력 요청하는 예외 발생
+            throw new CustomException(ErrorCode.PIN_CODE_REQUIRED, "documentId", document.getId())
+                    .addParameter("userId", userId);
+        }
+
+
+        // 수신자 정보가 있음에도 사용자가 수신자가 아니라면 접근 금지 예외 발생 (수신자도, 발신자도 아닌 경우)
+        throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", document.getId());
+
     }
 
     // 핀코드 검증 로직
