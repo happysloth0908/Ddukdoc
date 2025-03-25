@@ -212,14 +212,3 @@ VALUES
 (90, 8, 6, 'student_birthdate', 'DATE', '생년월일', TRUE, 3, '기본 정보', NULL, '교육생 생년월일 입력', 'YYYY-MM-DD', NOW(), NOW()),
 --  교육생 성명
 (91, 8, 6, 'student_name', 'VARCHAR(50)', '성명', TRUE, 4, '기본 정보', 100, '교육생 성명 입력', '예: 홍길동', NOW(), NOW());
-
--- test 계정
-INSERT INTO `users`
-(id, name, email, user_type, social_provider, social_key, created_at, updated_at, deleted_at)
-VALUES
-    (1, 'Alice', 'alice@example.com', 'GENERAL', 'KAKAO', 'google_key_alice', NOW(), NOW(), NULL);
-
-INSERT INTO `users`
-(id, name, email, user_type, social_provider, social_key, created_at, updated_at, deleted_at)
-VALUES
-    (2, 'Bob', 'bob@example.com', 'GENERAL', 'KAKAO', 'fb_key_bob', NOW(), NOW(), NULL);
