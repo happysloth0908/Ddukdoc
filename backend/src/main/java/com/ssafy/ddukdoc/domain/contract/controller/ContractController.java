@@ -9,6 +9,8 @@ import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,5 +46,20 @@ public class ContractController {
                     ErrorCode.SIGNATURE_FILE_NOT_FOUND);
         }
         return ApiResponse.ok(contractService.saveDocument(templateCode, requestDto, userId,signatureFile));
+    }
+
+    //s3 파일 복호화 후 다운 예시 코드
+    @GetMapping("/signature/{documentId}/{userId}")
+    public ResponseEntity<byte[]> downloadSignature(
+            @PathVariable Integer documentId,
+            @PathVariable Integer userId) {
+
+        byte[] signatureData = contractService.downloadSignature(documentId, userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG); // 이 부분은 나중에 어떤 데이터 형식을 받는가에 따라
+        headers.setContentLength(signatureData.length);
+        //데이터를 바이너리 형식으로 전달
+        return new ResponseEntity<>(signatureData, headers, HttpStatus.OK);
     }
 }
