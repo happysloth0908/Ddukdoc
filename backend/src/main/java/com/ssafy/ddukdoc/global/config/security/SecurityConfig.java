@@ -1,13 +1,16 @@
 package com.ssafy.ddukdoc.global.config.security;
 
 
+import com.ssafy.ddukdoc.global.security.DevAuthenticationFilter;
 import com.ssafy.ddukdoc.global.security.jwt.JwtAuthenticationFilter;
 import com.ssafy.ddukdoc.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,13 +30,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${app.domain.prod}")
-    private String domainUrl;
-
-    @Value("${app.domain.local}")
-    private String localUrl;
+    @Value("${app.domain}")
+    private String url;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Autowired(required = false)
+    private DevAuthenticationFilter devAuthenticationFilter;
+
+    private final Environment environment;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider);
+    }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,22 +58,33 @@ public class SecurityConfig {
                         authorize
                                 .requestMatchers("/api/**").permitAll()
                                 .anyRequest().authenticated()
-                )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class);
+                );
+
+        // 개발 환경 필터는 조건부로 추가
+        if (isDevOrLocalProfile() && devAuthenticationFilter != null) {
+            log.info("개발 환경 인증 필터를 추가합니다.");
+            http.addFilterBefore(devAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
+    }
+
+    private boolean isDevOrLocalProfile() {
+        return Arrays.stream(environment.getActiveProfiles())
+                .anyMatch(profile -> profile.equals("dev") || profile.equals("local"));
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(domainUrl, localUrl));
+        configuration.setAllowedOrigins(List.of(url));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization", "Content-Type", "X-Requested-With",
                 "Access-Control-Allow-Credentials", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers",
-                "Accept", "Origin", "Cookie", "Set-Cookie",
+                "Accept", "Origin", "Cookie", "Set-Cookie", "X-DEV-USER",
                 "Cache-Control", "Connection"
         ));
         configuration.setExposedHeaders(List.of("Set-Cookie"));  // 쿠키 노출 허용

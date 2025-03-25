@@ -13,8 +13,3 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true  # 페이징 1부터
-
-app:
-  domain:
-    local: http://localhost:5173
-    prod: https://i12b108.p.ssafy.io/
