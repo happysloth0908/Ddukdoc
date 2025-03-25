@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -52,12 +53,14 @@ public class GlobalExceptionHandler {
         FieldError fieldError = e.getBindingResult().getFieldError();
         String field = fieldError.getField();
         String defaultMessage = fieldError.getDefaultMessage();
+        Object rejectedValue = fieldError.getRejectedValue();
 
-        log.error("[ValidationException] {} {}: field '{}' - {}",
+        log.error("[ValidationException] {} {}: field '{}' - {} (입력값: '{}')",
                 request.getMethod(),
                 request.getRequestURI(),
                 field,
-                defaultMessage
+                defaultMessage,
+                rejectedValue
         );
         return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, field + " : " + defaultMessage);
     }

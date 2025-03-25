@@ -1,7 +1,6 @@
 package com.ssafy.ddukdoc.domain.document.dto.response;
 
 import com.ssafy.ddukdoc.domain.document.entity.Document;
-import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,10 +8,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class DocumentListResponseDto {
-    private Integer documentId;
-    private Integer templateId;
-    private String templateCode;
+public class DocumentResponseDto {
+    private Integer id;
+    private String templateId;
     private String templateName;
     private String title;
     private String status;
@@ -24,11 +22,10 @@ public class DocumentListResponseDto {
     private LocalDateTime updatedAt;
     private String returnReason;
 
-    public static DocumentListResponseDto of(Document document) {
-        return DocumentListResponseDto.builder()
-                .documentId(document.getId())
-                .templateId(document.getTemplate().getId())
-                .templateCode(document.getTemplate().getCode())
+    public static DocumentResponseDto of(Document document){
+        return DocumentResponseDto.builder()
+                .id(document.getId())
+                .templateId(document.getTemplate().getCode())
                 .templateName(document.getTemplate().getName())
                 .title(document.getTitle())
                 .status(document.getStatus().getDescription())
