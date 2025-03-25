@@ -31,7 +31,7 @@ public class DocumentListResponseDto {
                 .templateCode(document.getTemplate().getCode())
                 .templateName(document.getTemplate().getName())
                 .title(document.getTitle())
-                .status(document.getStatus().name())
+                .status(document.getStatus().getDescription())
                 .creatorId(document.getCreator().getId())
                 .creatorName(document.getCreator().getName())
                 .recipientId(document.getRecipient().getId())
