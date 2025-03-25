@@ -3,6 +3,13 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      backgroundImage: {
+        backgroundswirl: "url('/src/assets/images/mainPage/background.svg')",
+      },
+      backgroundSize: {
+        cover: 'cover',
+        contain: 'contain',
+      },
       colors: {
         bg: {
           default: '#FCFCFC',
