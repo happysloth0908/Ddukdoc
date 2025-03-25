@@ -23,7 +23,9 @@ logging.level:
 
 oauth:
   kakao:
-    redirect-uri: https://ddukdoc.shop/oauth/kakao/callback
+    redirect-uri: https://ddukdoc.shop/api/oauth/kakao/login
+  ssafy:
+    redirect-uri: https://ddukdoc.shop/api/oauth/ssafy/login
 
 app:
   is-local: false

@@ -2,7 +2,6 @@ package com.ssafy.ddukdoc.domain.auth.controller;
 
 
 import com.ssafy.ddukdoc.domain.auth.dto.LoginResult;
-import com.ssafy.ddukdoc.domain.auth.dto.request.OAuthLoginRequest;
 import com.ssafy.ddukdoc.domain.auth.dto.response.OAuthLoginResponse;
 import com.ssafy.ddukdoc.domain.auth.service.OAuthService;
 import com.ssafy.ddukdoc.global.common.constants.Provider;
@@ -19,11 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final OAuthService oAuthService;
 
-    @PostMapping("/{provider}")
+    @GetMapping("/{provider}/login")
     public ResponseEntity<ApiResponse<OAuthLoginResponse>> socialLogin(
             @PathVariable String provider,
-            @RequestBody OAuthLoginRequest request) {
-        LoginResult loginResult = oAuthService.handleOAuthLogin(Provider.valueOf(provider.toUpperCase()), request.getCode());
+            @RequestParam String code
+    ) {
+        LoginResult loginResult = oAuthService.handleOAuthLogin(Provider.valueOf(provider.toUpperCase()), code);
 
         ResponseCookie accessTokenCookie = CookieUtil.makeAccessTokenCookie(loginResult.getAccessToken());
         ResponseCookie refreshTokenCookie = CookieUtil.makeRefreshTokenCookie(loginResult.getRefreshToken());
@@ -40,4 +40,3 @@ public class AuthController {
         return ApiResponse.okWithCookie(accessTokenCookie);
     }
 }
-

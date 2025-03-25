@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.auth.dto;
 
-import com.ssafy.ddukdoc.global.infra.oauth.dto.KakaoUserResponse;
+import com.ssafy.ddukdoc.global.infra.oauth.dto.kakao.KakaoUserResponse;
+import com.ssafy.ddukdoc.global.infra.oauth.dto.ssafy.SsafyUserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,14 @@ public class OAuthUserInfo {
                 .id(userResponse.getId().toString())
                 .email(userResponse.getKakaoAccount().getEmail())
                 .nickname(userResponse.getKakaoAccount().getProfile().getNickname())
+                .build();
+    }
+
+    public static OAuthUserInfo of (SsafyUserResponse userResponse) {
+        return OAuthUserInfo.builder()
+                .id(userResponse.getUserId())
+                .email(userResponse.getEmail())
+                .nickname(userResponse.getName())
                 .build();
     }
 }

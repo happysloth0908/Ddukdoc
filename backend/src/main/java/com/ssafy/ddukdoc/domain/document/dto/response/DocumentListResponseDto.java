@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.dto.response;
 
 import com.ssafy.ddukdoc.domain.document.entity.Document;
+import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -30,7 +31,7 @@ public class DocumentListResponseDto {
                 .templateCode(document.getTemplate().getCode())
                 .templateName(document.getTemplate().getName())
                 .title(document.getTitle())
-                .status(document.getStatus())
+                .status(document.getStatus().getDescription())
                 .creatorId(document.getCreator().getId())
                 .creatorName(document.getCreator().getName())
                 .recipientId(document.getRecipient().getId())
