@@ -10,6 +10,8 @@ import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
+import com.ssafy.ddukdoc.domain.user.entity.User;
+import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -27,6 +29,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final SignatureRepository signatureRepository;
     private final DocumentFieldValueRepository documentFieldValueRepository;
+    private final UserRepository userRepository;
 
     public CustomPage<DocumentListResponseDto> getDocumentList(Integer userId, DocumentSearchRequestDto documentSearchRequestDto, Pageable pageable){
         Page<Document> documentList = documentRepository.findDocumentListByUserId(
@@ -111,19 +114,23 @@ public class DocumentService {
     }
 
     // 핀코드 검증 로직
+    @Transactional
     public void verifyPinCode(Integer userId, Integer documentId, Integer pinCode){
         // Document 조회, 엔티티를 id로 조회 했을때 없으면 예외 발생
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
-
-        // 문서 접근 권한 검증 (발신자 또는 수신자만 조회 가능)
-        validateDocumentAccess(document, userId);
 
         // 핀코드 검증
         Integer documentPinCode = document.getPin();
         if(!documentPinCode.equals(pinCode)){
             throw new CustomException(ErrorCode.PIN_CODE_MISMATCH);
         }
+
+        // 수신자 정보 업데이트
+        User recipient = userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
+
+        document.updateRecipient(recipient);
     }
 
 }
