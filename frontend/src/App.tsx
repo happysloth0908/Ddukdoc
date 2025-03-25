@@ -1,28 +1,35 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import molecules from '@/components/molecules';
-import { DocsWrite } from '@/pages/docsWritePages/DocsWrite'
-import { worker } from './mocks/browser';
+import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
+// import { worker } from './mocks/browser';
+import { Main } from '@/pages/mainPage/Main';
 
-if (import.meta.env.VITE_NODE_ENV === 'development') {
-  worker.start();
-}
+// if (import.meta.env.VITE_NODE_ENV === 'development') {
+//   worker.start();
+// }
 
 function App() {
+  const location = useLocation();
+  const isMainRoute = location.pathname === '/';
+  const bgClass = isMainRoute
+    ? 'bg-backgroundswirl bg-no-repeat bg-cover'
+    : 'bg-white';
+
   return (
-    <div className='w-dvw h-dvh flex justify-center items-center'>
-      <BrowserRouter>
-        <div className='w-dvw h-dvh md:max-w-md md:max-h-[80%] px-8 border'>
-          <molecules.Header children='test' />
-          <Routes>
-            {/* 문서 작성입니다. */}
-            <Route path='/docs' element={<DocsWrite />} />
-            {/* 마이페이지 */}
-            {/* <Route path='/mypage' element={} /> */}
-            {/* 위변조 검사 */}
-            {/* <Route path='/forgery' element={} /> */}
-          </Routes>
-        </div>
-      </BrowserRouter>
+    <div className={`${bgClass} flex h-dvh w-dvw items-center justify-center`}>
+      <div className="relative flex h-dvh w-dvw flex-col border px-8 md:max-w-md">
+        <molecules.Header children="test" />
+        <Routes>
+          {/* 문서 작성입니다. */}
+          <Route path="/docs" element={<DocsWrite />} />
+          {/* 메인 페이지 */}
+          <Route path="/" element={<Main />} />
+          {/* 마이페이지 */}
+          {/* <Route path='/mypage' element={} /> */}
+          {/* 위변조 검사 */}
+          {/* <Route path='/forgery' element={} /> */}
+        </Routes>
+      </div>
     </div>
   );
 }
