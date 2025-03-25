@@ -26,5 +26,6 @@ oauth:
     redirect-uri: https://j12b108.p.ssafy.io/oauth/kakao/callback
 
 app:
+  domain: https://j12b108.p.ssafy.io
   is-local: false
   cookie-domain: j12b108.p.ssafy.io

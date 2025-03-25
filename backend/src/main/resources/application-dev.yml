@@ -26,5 +26,6 @@ oauth:
     redirect-uri: https://ddukdoc.shop/oauth/kakao/callback
 
 app:
+  domain: https://ddukdoc.shop
   is-local: false
   cookie-domain: ddukdoc.shop
