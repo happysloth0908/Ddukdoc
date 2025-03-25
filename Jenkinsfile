@@ -56,56 +56,58 @@ pipeline {
                 expression { return env.BACKEND_CHANGES == 'true' }
             }
             steps {
-                try {
-                    dir('backend') {
-                        // application-secret.yml 파일 생성
-                        withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
-                            //                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
+                script {
+                    try {
+                        dir('backend') {
+                            // application-secret.yml 파일 생성
+                            withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
+                                //                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
 //                         sh 'ls -la src/main/resources/application-secret.yml || echo "파일 생성 실패"'
-                            sh '''
+                                sh '''
                             cp "$APP_SECRET" src/main/resources/application-secret.yml
                             chmod 644 src/main/resources/application-*.yml
                         '''
-                        }
+                            }
 
-                        // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
-                        script {
-                            // 프로파일 파일 존재 확인
-                            def profileName = env.SPRING_PROFILE.split(',')[0]
-                            def profileFile = "src/main/resources/application-${profileName}.yml"
+                            // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
+                            script {
+                                // 프로파일 파일 존재 확인
+                                def profileName = env.SPRING_PROFILE.split(',')[0]
+                                def profileFile = "src/main/resources/application-${profileName}.yml"
 
-                            sh "ls -la src/main/resources/ | grep application"
-                            sh "ls -la ${profileFile} || echo '프로파일 파일이 없습니다'"
+                                sh "ls -la src/main/resources/ | grep application"
+                                sh "ls -la ${profileFile} || echo '프로파일 파일이 없습니다'"
 
-                            // 플레이스홀더를 Jenkins에 등록된 환경 변수로 대체
-                            sh """
+                                // 플레이스홀더를 Jenkins에 등록된 환경 변수로 대체
+                                sh """
                         sed -i "s|\\\${DB_URL}|${env.DB_URL}|g" "${profileFile}" || echo "DB_URL 치환 실패"
                         sed -i "s|\\\${DB_USERNAME}|${env.DB_USERNAME}|g" "${profileFile}" || echo "DB_USERNAME 치환 실패"
                         sed -i "s|\\\${DB_PASSWORD}|${env.DB_PASSWORD}|g" "${profileFile}" || echo "DB_PASSWORD 치환 실패"
                         """
-                        }
+                            }
 
-                        sh 'chmod +x ./gradlew'
-                        sh './gradlew clean build -x test'
+                            sh 'chmod +x ./gradlew'
+                            sh './gradlew clean build -x test'
 
-                        // 빌드 결과물 확인
-                        sh 'ls -la build/libs/ || echo "빌드 실패"'
+                            // 빌드 결과물 확인
+                            sh 'ls -la build/libs/ || echo "빌드 실패"'
 
-                        // Docker 이미지 빌드
-                        sh """
+                            // Docker 이미지 빌드
+                            sh """
                     docker build -t ddukdoc-backend:${env.DEPLOY_ENV} \
                     --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} . || echo "Docker 빌드 실패"
                     """
 
-                        // 이미지 생성 확인
-                        sh "docker images | grep ddukdoc-backend || echo '이미지가 없습니다'"
+                            // 이미지 생성 확인
+                            sh "docker images | grep ddukdoc-backend || echo '이미지가 없습니다'"
+                        }
+                    } catch (Exception e) {
+                        // 오류 메시지 저장
+                        env.FAILURE_STAGE = 'Backend 빌드'
+                        env.FAILURE_MESSAGE = e.getMessage()
+                        // 오류를 다시 던져서 파이프라인 실패 처리
+                        throw e
                     }
-                } catch (Exception e) {
-                    // 오류 메시지 저장
-                    env.FAILURE_STAGE = 'Backend 빌드'
-                    env.FAILURE_MESSAGE = e.getMessage()
-                    // 오류를 다시 던져서 파이프라인 실패 처리
-                    throw e
                 }
             }
         }
@@ -204,13 +206,15 @@ pipeline {
                 expression { return env.FRONTEND_CHANGES == 'true' }
             }
             steps {
-                dir('frontend/dist') {
+                script {
                     try {
-                        // 배포 경로 확인 및 생성
-                        sh "mkdir -p ${env.DEPLOY_PATH}"
-                        sh "rm -rf ${env.DEPLOY_PATH}/*"
-                        sh "cp -r * ${env.DEPLOY_PATH}/"
-                        sh "ls -la ${env.DEPLOY_PATH}/"
+                        dir('frontend/dist') {
+                            // 배포 경로 확인 및 생성
+                            sh "mkdir -p ${env.DEPLOY_PATH}"
+                            sh "rm -rf ${env.DEPLOY_PATH}/*"
+                            sh "cp -r * ${env.DEPLOY_PATH}/"
+                            sh "ls -la ${env.DEPLOY_PATH}/"
+                        }
                     } catch (Exception e) {
                         // 오류 메시지 저장
                         env.FAILURE_STAGE = 'Frontend 배포'
