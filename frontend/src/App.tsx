@@ -1,9 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import molecules from '@/components/molecules';
-// import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
+import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
+import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
-
-const { worker } = await import('./mocks/browser');
 
 if (import.meta.env.VITE_NODE_ENV === 'development') {
   worker.start();

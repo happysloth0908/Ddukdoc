@@ -18,13 +18,13 @@ export const Header = ({ children }: HeaderProps) => {
   }, [pathname]);
 
   // 경로에 따라 헤더 제목 변경
-  const getTitleByPath = () => {
-    const pathSegments = pathname.split('/').filter(Boolean);
+  // const getTitleByPath = () => {
+  //   const pathSegments = pathname.split('/').filter(Boolean);
 
-    if (pathSegments[0] === ' url 경로 ') {
-      return '헤더 제목';
-    }
-  };
+  //   if (pathSegments[0] === ' url 경로 ') {
+  //     return '헤더 제목';
+  //   }
+  // };
 
   // 뒤로 가기 눌렀을 때
   const onClick = () => {
