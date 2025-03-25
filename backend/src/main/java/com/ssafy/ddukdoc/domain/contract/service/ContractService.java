@@ -9,12 +9,16 @@ import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
+import com.ssafy.ddukdoc.domain.template.entity.Role;
 import com.ssafy.ddukdoc.domain.template.entity.Template;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateField;
+import com.ssafy.ddukdoc.domain.template.repository.RoleRepository;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateFieldRepository;
 import com.ssafy.ddukdoc.domain.template.repository.TemplateRepository;
 import com.ssafy.ddukdoc.domain.user.entity.User;
+import com.ssafy.ddukdoc.domain.user.entity.UserDocRole;
+import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -37,6 +41,8 @@ public class ContractService {
     private final DocumentFieldValueRepository documentFieldValueRepository;
     private final S3Util s3Util;
     private final SignatureRepository signatureRepository;
+    private final RoleRepository roleRepository;
+    private final UserDocRoleRepository userDocRoleRepository;
 
     public List<TemplateFieldResponseDto> getTemplateFields(String  codeStr){
 
@@ -75,7 +81,23 @@ public class ContractService {
 
         saveSignature(document,userId,signatureFile);
 
+        //userID 저장
+        saveUserDocRole(saveDocument,user,requestDto.getRoleId());
+
         return pin;
+    }
+
+    private void saveUserDocRole(Document document, User user, int roleId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_INPUT_VALUE,"role_id",+roleId));
+
+        UserDocRole userDocRole = UserDocRole.builder()
+                .user(user)
+                .document(document)
+                .role(role)
+                .build();
+
+        userDocRoleRepository.save(userDocRole);
     }
 
     private void saveSignature(Document document, Integer userId, MultipartFile signatureFile) {
