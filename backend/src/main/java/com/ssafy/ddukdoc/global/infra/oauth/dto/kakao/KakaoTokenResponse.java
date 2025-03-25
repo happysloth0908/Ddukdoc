@@ -1,4 +1,4 @@
-package com.ssafy.ddukdoc.global.infra.oauth.dto;
+package com.ssafy.ddukdoc.global.infra.oauth.dto.kakao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

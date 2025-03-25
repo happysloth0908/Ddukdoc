@@ -1,11 +1,11 @@
 package com.ssafy.ddukdoc.domain.auth.service.strategy;
 
 import com.ssafy.ddukdoc.domain.auth.dto.OAuthUserInfo;
-import com.ssafy.ddukdoc.global.error.exception.CustomException;
-import com.ssafy.ddukdoc.global.infra.oauth.KakaoOAuthClient;
-import com.ssafy.ddukdoc.global.infra.oauth.dto.kakao.KakaoTokenResponse;
-import com.ssafy.ddukdoc.global.infra.oauth.dto.kakao.KakaoUserResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import com.ssafy.ddukdoc.global.error.exception.CustomException;
+import com.ssafy.ddukdoc.global.infra.oauth.SsafyOAuthClient;
+import com.ssafy.ddukdoc.global.infra.oauth.dto.ssafy.SsafyTokenResponse;
+import com.ssafy.ddukdoc.global.infra.oauth.dto.ssafy.SsafyUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,15 +13,15 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class KakaoOAuthStrategy implements OAuthStrategy {
-    private final KakaoOAuthClient kakaoOAuthClient;
+public class SsafyOAuthStrategy implements OAuthStrategy {
+    private final SsafyOAuthClient ssafyOAuthClient;
 
     @Override
     public OAuthUserInfo getUserInfo(String code) {
         try {
-            KakaoTokenResponse tokenResponse = kakaoOAuthClient.getToken(code);
+            SsafyTokenResponse tokenResponse = ssafyOAuthClient.getToken(code);
 
-            KakaoUserResponse userResponse = kakaoOAuthClient.getUserInfo(tokenResponse.getAccessToken());
+            SsafyUserResponse userResponse = ssafyOAuthClient.getUserInfo(tokenResponse.getAccessToken());
 
             return OAuthUserInfo.of(userResponse);
 
