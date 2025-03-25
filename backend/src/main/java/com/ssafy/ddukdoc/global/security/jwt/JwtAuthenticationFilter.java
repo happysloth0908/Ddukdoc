@@ -2,7 +2,9 @@ package com.ssafy.ddukdoc.global.security.jwt;
 
 
 import com.ssafy.ddukdoc.global.common.constants.SecurityConstants;
+import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,7 +28,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws IOException {
+            @NonNull FilterChain filterChain) throws IOException, ServletException {
+
+        // 이미 인증된 사용자가 있는지 확인 (DevAuthenticationFilter 등에서 설정한 경우)
+        Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAlreadyAuthenticated = existingAuth != null &&
+                existingAuth.isAuthenticated() &&
+                existingAuth.getPrincipal() instanceof UserPrincipal;
+
+        // 이미 인증되어 있다면 JWT 검증 과정을 건너뜀
+        if (isAlreadyAuthenticated) {
+            log.debug("이미 인증된 사용자가 있습니다. JWT 검증을 건너뜁니다.");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String token = resolveToken(request);
 

@@ -52,12 +52,14 @@ public class GlobalExceptionHandler {
         FieldError fieldError = e.getBindingResult().getFieldError();
         String field = fieldError.getField();
         String defaultMessage = fieldError.getDefaultMessage();
+        Object rejectedValue = fieldError.getRejectedValue();
 
-        log.error("[ValidationException] {} {}: field '{}' - {}",
+        log.error("[ValidationException] {} {}: field '{}' - {} (입력값: '{}')",
                 request.getMethod(),
                 request.getRequestURI(),
                 field,
-                defaultMessage
+                defaultMessage,
+                rejectedValue
         );
         return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, field + " : " + defaultMessage);
     }
