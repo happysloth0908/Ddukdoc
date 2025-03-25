@@ -88,7 +88,7 @@ public class S3Util {
 
             //임시 암호화 파일 삭제
             encryptedTempFile.delete();
-            // 중요: 복호화된 파일이 존재하는지 확인
+            // 복호화된 파일이 존재하는지 확인
             if (!decryptedFile.exists()) {
                 throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file",
                         "복호화된 파일이 존재하지 않습니다: " + decryptedFile.getAbsolutePath());
@@ -172,5 +172,43 @@ public class S3Util {
             return Optional.of(convertFile);
         }
         return Optional.empty();
+    }
+    // Service 호출 파일 키 추출 후 파일 다운로드 및 복호화
+    public byte[] downloadAndDecryptFileToBytes(String s3Path) {
+        String fileKey;
+        File decryptedFile = null;
+
+        try {
+            // S3 URL에서 파일 키 추출
+            if (s3Path.contains("/eftoj1/")) {
+                fileKey = "eftoj1/" + s3Path.split("/eftoj1/")[1];
+            } else {
+                throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "잘못된 파일 경로 형식입니다: " + s3Path);
+            }
+
+            // 파일 다운로드 및 복호화
+            decryptedFile = downloadAndDecryptFile(fileKey);
+
+            // 파일이 존재하는지 확인
+            if (!decryptedFile.exists()) {
+                throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file",
+                        "복호화된 파일이 존재하지 않습니다: " + decryptedFile.getAbsolutePath());
+            }
+
+            // 파일 내용을 바이트 배열로 변환
+            byte[] fileContent = java.nio.file.Files.readAllBytes(decryptedFile.toPath());
+
+            // 임시 파일 삭제
+            boolean deleted = decryptedFile.delete();
+
+            return fileContent;
+        } catch (Exception e) {
+            // 예외 발생 시 임시 파일 정리
+            if (decryptedFile != null && decryptedFile.exists()) {
+                decryptedFile.delete();
+            }
+            e.printStackTrace();
+            throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "파일 다운로드 및 복호화 중 오류: " + e.getMessage());
+        }
     }
 }

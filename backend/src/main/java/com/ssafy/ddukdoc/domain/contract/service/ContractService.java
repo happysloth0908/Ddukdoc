@@ -149,46 +149,25 @@ public class ContractService {
 
     // 서명 파일 다운로드 및 복호화
     public byte[] downloadSignature(Integer documentId, Integer userId) {
-        // 문서 정보 조회
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
-
-        // 서명 정보 조회
-        Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId));
-
-        // S3에서 파일 다운로드 및 복호화
-        String s3Path = signature.getFilePath();
-        String fileKey;
-
         try {
-            // S3 URL에서 파일 키 추출
-            if (s3Path.contains("/eftoj1/")) {
-                fileKey = "eftoj1/" + s3Path.split("/eftoj1/")[1];
-            } else {
-                throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "signature", "잘못된 파일 경로 형식입니다.");
-            }
+            // 문서 정보 조회
+            Document document = documentRepository.findById(documentId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
-            // 파일 다운로드 및 복호화
-            File decryptedFile = s3Util.downloadAndDecryptFile(fileKey);
+            // 서명 정보 조회
+            Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId));
 
-            // 파일이 존재하는지 다시 확인
-            if (!decryptedFile.exists()) {
-                throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "signature",
-                        "복호화된 파일이 존재하지 않습니다: " + decryptedFile.getAbsolutePath());
-            }
+            // S3에서 파일 다운로드 및 복호화
+            String s3Path = signature.getFilePath();
+            return s3Util.downloadAndDecryptFileToBytes(s3Path);
 
-            // 파일 내용을 바이트 배열로 변환
-            byte[] fileContent = java.nio.file.Files.readAllBytes(decryptedFile.toPath());
-
-            // 중요: 읽은 후에 임시 파일 삭제
-            boolean deleted = decryptedFile.delete();
-
-            return fileContent;
+        } catch (CustomException e) {
+            throw new CustomException(e.getErrorCode());
         } catch (Exception e) {
-            e.printStackTrace();
+            // 그 외 예외는 CustomException으로 변환
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "signature",
-                    "서명 파일 다운로드 중 오류: " + e.getMessage());
+                    "서명 파일 처리 중 오류: " + e.getMessage());
         }
     }
 }

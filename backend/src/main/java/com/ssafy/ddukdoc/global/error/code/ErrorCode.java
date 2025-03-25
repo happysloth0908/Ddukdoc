@@ -47,7 +47,9 @@ public enum ErrorCode {
     FILE_CONVERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S003","File 변환과정에서 오류가 발생했습니다."),
     FILE_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S004","파일 다운로드 중 오류가 발생했습니다."),
     FILE_METADATA_ERROR(HttpStatus.BAD_REQUEST,"S005","메타데이터의 정보가 누락되었습니다."),
-    FILE_NOT_FOUND(HttpStatus.BAD_REQUEST,"S006","파일이 존재하지 않거나 파일이 아닙니다.");
+    FILE_NOT_FOUND(HttpStatus.BAD_REQUEST,"S006","파일이 존재하지 않거나 파일이 아닙니다."),
+    FILE_SIZE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S007","파일 크기가 IV 길이보다 작습니다. 파일이 손상되었을 수 있습니다."),
+    FILE_DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S008","파일 복호화 과정에서 오류가 발생했습니다.");
 
     private final HttpStatus status;
     private final String code;

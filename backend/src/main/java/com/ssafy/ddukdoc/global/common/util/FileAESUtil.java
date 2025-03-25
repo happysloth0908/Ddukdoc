@@ -12,6 +12,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
@@ -124,18 +125,16 @@ public class FileAESUtil {
     }
 
     //DEK로 파일 복호화
-    // FileAESUtil.java 파일의 decryptFileWithDek 메서드 개선
-    private File decryptFileWithDek(File encryptedFile, SecretKey dek, byte[] iv) throws Exception {
+    private File decryptFileWithDek(File encryptedFile, SecretKey dek, byte[] iv) throws IOException {
         // 임시 디렉토리에 고유한 이름으로 복호화된 파일 생성
         File decryptedFile = File.createTempFile("decrypted-", getFileExtension(encryptedFile.getName()));
-
         try {
             // 암호화된 파일 전체 읽기
             byte[] encryptedBytes = java.nio.file.Files.readAllBytes(encryptedFile.toPath());
 
             // 암호화된 내용만 추출 (IV 부분 제외)
             if (encryptedBytes.length <= IV_LENGTH) {
-                throw new Exception("파일 크기가 IV 길이보다 작습니다. 파일이 손상되었을 수 있습니다.");
+                throw new CustomException(ErrorCode.FILE_SIZE_ERROR);
             }
 
             // 첫 12바이트가 파일에 저장된 IV
@@ -176,8 +175,7 @@ public class FileAESUtil {
             if (decryptedFile.exists()) {
                 decryptedFile.delete();
             }
-            e.printStackTrace();
-            throw e;
+            throw new CustomException(ErrorCode.FILE_DECRYPTION_ERROR,"reason",e.getMessage());
         }
     }
 
