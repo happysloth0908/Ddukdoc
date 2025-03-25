@@ -43,7 +43,11 @@ public enum ErrorCode {
 
     //s3
     FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S001","파일 업로드 중 오류가 발생했습니다."),
-    SIGNATURE_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S002", "서명 파일이 없습니다.");
+    SIGNATURE_FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S002", "서명 파일이 없습니다."),
+    FILE_CONVERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S003","File 변환과정에서 오류가 발생했습니다."),
+    FILE_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S004","파일 다운로드 중 오류가 발생했습니다."),
+    FILE_METADATA_ERROR(HttpStatus.BAD_REQUEST,"S005","메타데이터의 정보가 누락되었습니다."),
+    FILE_NOT_FOUND(HttpStatus.BAD_REQUEST,"S006","파일이 존재하지 않거나 파일이 아닙니다.");
 
     private final HttpStatus status;
     private final String code;
