@@ -2,6 +2,7 @@ import BigButton from './BigButton';
 import Login from '@/assets/images/login';
 import MainPage from '@/assets/images/mainPage';
 import SmallButton from './SmallButton';
+import { Link } from 'react-router-dom';
 
 export const MainMenuPage = () => {
   return (
@@ -15,25 +16,31 @@ export const MainMenuPage = () => {
       </div>
 
       {/* 메인 버튼 - BigButton */}
-      <div className="mx-auto mb-6 w-full max-w-md">
-        <BigButton />
-      </div>
+      <Link to="/docs">
+        <div className="mx-auto mb-6 w-full max-w-md">
+          <BigButton />
+        </div>
+      </Link>
 
       {/* 작은 버튼들 - 간격 조정 */}
       <div className="mx-auto flex w-full max-w-md justify-center gap-4">
         <div className="flex-1">
-          <SmallButton
-            imageSrc={MainPage.securityShield}
-            subtitle="블록체인 기술로 위변조 검사"
-            title="위변조 검사"
-          />
+          <Link to="/forgery">
+            <SmallButton
+              imageSrc={MainPage.securityShield}
+              subtitle="블록체인 기술로 위변조 검사"
+              title="위변조 검사"
+            />
+          </Link>
         </div>
         <div className="flex-1">
-          <SmallButton
-            imageSrc={MainPage.myDoc}
-            subtitle="내 문서들을 한번에 확인"
-            title="나의 문서"
-          />
+          <Link to="/mypage">
+            <SmallButton
+              imageSrc={MainPage.myDoc}
+              subtitle="내 문서들을 한번에 확인"
+              title="나의 문서"
+            />
+          </Link>
         </div>
       </div>
 
