@@ -26,8 +26,8 @@ public class DocumentEvidence extends BaseEntity {
     @Column(length = 100)
     private String title;
 
-    @Column(name = "ipfs_hash")
-    private String ipfsHash;
+    @Column(name = "file_path")
+    private String filePath;
 
     @Column(name = "mime_type", length = 100)
     private String mimeType;
