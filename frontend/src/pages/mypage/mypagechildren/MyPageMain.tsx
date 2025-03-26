@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '@/apis/mypage';
+import MyPageMainFilter from './MyPageMainFilter';
+import BottomRollup from '@/components/atoms/inputs/BottomRollup'; // ⬅️ 추가!
 
 interface DocData {
   id: number;
@@ -35,153 +37,33 @@ interface ApiResponse {
   error: null;
 }
 
+interface SearchParams {
+  searchKeyword?: string;
+  selectedDocType?: string;
+  selectedStatus?: string;
+  selectedDate?: string;
+}
+
 const MyPageMain = () => {
   const [docs, setDocs] = useState<DocData[]>([]);
   const [selectedType, setSelectedType] = useState<'1' | '2'>('1');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchParams, setSearchParams] = useState<SearchParams>({});
 
-  const fetchDocs = async (type: '1' | '2') => {
+  const fetchDocs = async (type: '1' | '2', params: SearchParams = {}) => {
     try {
+      const queryParams = new URLSearchParams({
+        send_receive_status: type,
+        ...(params.searchKeyword && { keyword: params.searchKeyword }),
+        ...(params.selectedDocType && { doc_type: params.selectedDocType }),
+        ...(params.selectedStatus && { status: params.selectedStatus }),
+        ...(params.selectedDate && { date: params.selectedDate }),
+      }).toString();
+
       const response = await apiClient.get<ApiResponse>(
-        `/api/docs?send_receive_status=${type}`
+        `/api/docs?${queryParams}`
       );
       setDocs(response.data.data.content);
-
-      // 임시 데이터
-      // const response: ApiResponse = {
-      //   success: true,
-      //   data: {
-      //     content: [
-      //       {
-      //         id: 1,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 2,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 3,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 4,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 5,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 6,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 7,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //       {
-      //         id: 8,
-      //         template_id: 1,
-      //         template_code: 'G2',
-      //         template_name: '차용증',
-      //         title: '03.12 전아현 차용증',
-      //         status: '서명 대기',
-      //         creator_id: 1,
-      //         creator_name: '김발신',
-      //         recipient_id: 31,
-      //         recipient_name: '이수신',
-      //         created_at: '2024-12-04T15:30:00Z',
-      //         updated_at: '2024-12-04T16:05:20Z',
-      //         return_reason: null,
-      //       },
-      //     ],
-      //     page_number: 1,
-      //     total_pages: 10,
-      //     total_elements: 150,
-      //     page_size: 10,
-      //     first: true,
-      //     last: false,
-      //   },
-      //   error: null,
-      // };
-      // setDocs(response.data.content);
     } catch (error) {
       console.error('문서 목록을 불러오는데 실패했습니다:', error);
     }
@@ -189,7 +71,12 @@ const MyPageMain = () => {
 
   const handleTypeChange = (type: '1' | '2') => {
     setSelectedType(type);
-    fetchDocs(type);
+  };
+
+  const handleSearch = (params: SearchParams) => {
+    setSearchParams(params);
+    fetchDocs(selectedType, params);
+    setIsFilterOpen(false);
   };
 
   useEffect(() => {
@@ -214,9 +101,13 @@ const MyPageMain = () => {
           />
         </div>
         <div>
-          <SlidersHorizontal className="h-7 w-7" />
+          <SlidersHorizontal
+            className="h-7 w-7 cursor-pointer"
+            onClick={() => setIsFilterOpen(true)}
+          />
         </div>
       </div>
+
       <div className="mt-32 flex-1 overflow-y-auto">
         <div className="space-y-4">
           {docs.map((doc) => (
@@ -233,6 +124,18 @@ const MyPageMain = () => {
           ))}
         </div>
       </div>
+
+      {/* ✅ BottomRollup 적용 */}
+      <BottomRollup
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+      >
+        <MyPageMainFilter
+          onClose={() => setIsFilterOpen(false)}
+          onSearch={handleSearch}
+          initialValues={searchParams}
+        />
+      </BottomRollup>
     </div>
   );
 };

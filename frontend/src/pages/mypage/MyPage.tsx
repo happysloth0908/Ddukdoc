@@ -1,7 +1,7 @@
 // import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import MyPageMain from './mypagechildren/MyPageMain';
-import DocDetail from '../docs/DocDetail';
+import DocDetail from './mypagechildren/DocDetail';
 
 const MyPage = () => (
   <Routes>
