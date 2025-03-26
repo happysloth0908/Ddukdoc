@@ -27,6 +27,7 @@ function App() {
           <Route path="/docs" element={<DocsWrite />} />
           {/* 메인 페이지 */}
           <Route path="/" element={<MainMenuPage />} />
+          <Route path="/login" element={<LoginPage />} />
           {/* 마이페이지 */}
           {/* <Route path='/mypage' element={} /> */}
           {/* 위변조 검사 */}
