@@ -83,6 +83,7 @@ pipeline {
                         sed -i "s|\\\${DB_URL}|${env.DB_URL}|g" "${profileFile}" || echo "DB_URL 치환 실패"
                         sed -i "s|\\\${DB_USERNAME}|${env.DB_USERNAME}|g" "${profileFile}" || echo "DB_USERNAME 치환 실패"
                         sed -i "s|\\\${DB_PASSWORD}|${env.DB_PASSWORD}|g" "${profileFile}" || echo "DB_PASSWORD 치환 실패"
+                        sed -i "s|\\\${REDIS_HOST}|${env.REDIS_HOST}|g" "${profileFile}" || echo "REDIS_HOST 치환 실패"
                         """
                             }
 
@@ -126,6 +127,8 @@ pipeline {
                             ls -la .env.tmp
                             mv -f .env.tmp .env
                             ls -la .env
+                            sed -i "s|\\\\${URL}|${URL}|g" .env || echo ".env에서 URL 치환 실패"
+                            cat .env  # 치환 결과 확인용
                         '''
                             }
 
