@@ -1,4 +1,4 @@
-package com.ssafy.ddukdoc.domain.material;
+package com.ssafy.ddukdoc.domain.material.repository;
 
 import com.ssafy.ddukdoc.domain.material.entity.DocumentEvidence;
 import org.springframework.data.jpa.repository.JpaRepository;
