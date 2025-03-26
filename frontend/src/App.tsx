@@ -2,7 +2,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import molecules from '@/components/molecules';
 import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
 import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
-import { worker } from './mocks/browser';
+// import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
 
 // if (import.meta.env.VITE_NODE_ENV === 'development') {

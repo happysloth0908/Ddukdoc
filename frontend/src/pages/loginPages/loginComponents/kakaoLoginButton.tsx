@@ -1,7 +1,7 @@
 import Login from '@/assets/images/login';
 
 interface KakaoLoginButtonProps {
-  className: string;
+  className?: string;
 }
 
 export const KakaoLoginButton = ({ className }: KakaoLoginButtonProps) => {

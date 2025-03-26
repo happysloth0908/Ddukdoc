@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { kakaoLoginButton as KakaoLoginButton } from '@/pages/login/loginComponents/kakaoLoginButton';
+import { KakaoLoginButton } from '@/pages/loginPages/loginComponents/kakaoLoginButton';
 const meta = {
   title: 'Components/Login/KakaoLoginButton',
   component: KakaoLoginButton,
@@ -13,9 +13,7 @@ const meta = {
     },
   },
   // argTypes를 사용하여 스토리북에서 조작 가능한 props를 정의할 수 있습니다
-  argTypes: {
-    onClick: { action: 'clicked' },
-  },
+  argTypes: {},
 } satisfies Meta<typeof KakaoLoginButton>;
 
 export default meta;
@@ -28,9 +26,7 @@ export const Default: Story = {
 
 // 로딩 상태 예시 (실제 컴포넌트에 isLoading prop이 있다면)
 export const Loading: Story = {
-  args: {
-    isLoading: true,
-  },
+  args: {},
   parameters: {
     docs: {
       description: {
@@ -42,27 +38,12 @@ export const Loading: Story = {
 
 // 비활성화 상태 예시 (실제 컴포넌트에 disabled prop이 있다면)
 export const Disabled: Story = {
-  args: {
-    disabled: true,
-  },
+  args: {},
   parameters: {
     docs: {
       description: {
         story: '버튼이 비활성화된 상태입니다.',
       },
     },
-  },
-};
-
-// 다양한 테마 또는 크기 변형을 보여주는 스토리를 추가할 수 있습니다
-export const Small: Story = {
-  args: {
-    size: 'small',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    size: 'large',
   },
 };
