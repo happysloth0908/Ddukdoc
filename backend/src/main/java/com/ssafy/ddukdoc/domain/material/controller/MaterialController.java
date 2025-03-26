@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.material.controller;
 
+import com.ssafy.ddukdoc.domain.material.dto.response.MaterialListResponseDto;
 import com.ssafy.ddukdoc.domain.material.service.MaterialService;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,4 +34,15 @@ public class MaterialController {
         materialService.uploadMaterial(userId, documentId, title, file);
         return ApiResponse.ok();
     }
+
+    // 기타 자료 조회
+    @GetMapping("/{doc_id}")
+    public ResponseEntity<ApiResponse<List<MaterialListResponseDto>>> getMaterialList(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        return ApiResponse.ok(materialService.getMaterialList(userId, documentId));
+    }
+
 }
