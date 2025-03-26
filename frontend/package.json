@@ -13,6 +13,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.3.0",
     "axios": "^1.8.3",
     "lucide-react": "^0.483.0",
     "prettier-plugin-tailwindcss": "^0.6.11",

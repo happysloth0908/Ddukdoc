@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import DefaultIcons from "@/assets/images/default";
 
 
-export const DocsRoleChoose = ({ role, onRole }: { role: string, onRole: (code: string) => void}) => {
+export const DocsRoleChoose = ({ templateCode, role, onRole }: { templateCode: string, role: string, onRole: (code: string) => void}) => {
     
     const handleSelect = (id: string) => {
         onRole(id);
@@ -33,7 +33,7 @@ export const DocsRoleChoose = ({ role, onRole }: { role: string, onRole: (code: 
                 className="text-info-small font-bold"
             />
           </div>
-          <Link to="check">
+          <Link to={"/docs/detail/" + templateCode}>
             <atoms.LongButton className='mb-20' children="다음" colorType='black' />
           </Link>
         </div>
