@@ -48,6 +48,12 @@ dependencies {
 	//s3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.652'
+
+	//itext
+	implementation 'com.itextpdf:kernel:7.2.5'
+	implementation 'com.itextpdf:io:7.2.5'
+	implementation 'com.itextpdf:layout:7.2.5'
+	implementation 'com.itextpdf:font-asian:7.2.5'  // 한글 지원을 위한 아시아 폰트 패키지
 }
 
 tasks.named('test') {
