@@ -7,14 +7,14 @@ import com.ssafy.ddukdoc.domain.user.entity.User;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
-public class DocumentFieldValueSaveRequestDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class DocumentFieldDto {
     @NotNull(message = "필드 ID는 필수입니다.")
     private int fieldId;
 
