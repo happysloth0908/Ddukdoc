@@ -12,9 +12,9 @@ if (import.meta.env.VITE_NODE_ENV === 'development') {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
+  <BrowserRouter>
+    <StrictMode>
       <App />
-    </BrowserRouter>
-  </StrictMode>
+    </StrictMode>
+  </BrowserRouter>
 );

@@ -1,41 +1,38 @@
-// 라우팅 관련
-import { Route, Routes } from 'react-router-dom';
-// 헤더
+import { Route, Routes, useLocation } from 'react-router-dom';
 import molecules from '@/components/molecules';
 import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
+import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
 import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
 
-// 문서 작성
-import { DocsWrite } from '@/pages/docsWritePages/DocsWrite'
-
-import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
-
+// if (import.meta.env.VITE_NODE_ENV === 'development') {
+//   worker.start();
+// }
 
 function App() {
   const location = useLocation();
-
-  useEffect(() => {
-    console.log('지금 경로는', location, "입니다.");
-  }, [location]);
-
+  const isMainRoute = location.pathname === '/';
+  const bgClass = isMainRoute
+    ? 'bg-backgroundswirl bg-no-repeat bg-cover'
+    : 'bg-white';
 
   return (
-    <div className='w-dvw h-dvh flex justify-center items-center'>
-        <div className='relative flex flex-col w-dvw h-dvh px-8 md:max-w-md border'>
-          <molecules.Header children='test' />
-          <Routes>
-            {/* 로그인 페이지 */}
-            <Route path="/login" element={<LoginPage />} />
-            {/* 문서 작성입니다. */}
-            <Route path='/docs/*' element={<DocsWrite />} />
-            {/* 마이페이지 */}
-            {/* <Route path='/mypage' element={} /> */}
-            {/* 위변조 검사 */}
-            {/* <Route path='/forgery' element={} /> */}
-          </Routes>
-        </div>
+    <div className="flex h-dvh w-dvw items-center justify-center">
+      <div
+        className={`relative flex h-dvh w-dvw flex-col border px-8 md:max-w-md ${bgClass} `}
+      >
+        <molecules.Header children="test" />
+        <Routes>
+          {/* 문서 작성입니다. */}
+          <Route path="/docs" element={<DocsWrite />} />
+          {/* 메인 페이지 */}
+          <Route path="/" element={<MainMenuPage />} />
+          {/* 마이페이지 */}
+          {/* <Route path='/mypage' element={} /> */}
+          {/* 위변조 검사 */}
+          {/* <Route path='/forgery' element={} /> */}
+        </Routes>
+      </div>
     </div>
   );
 }
