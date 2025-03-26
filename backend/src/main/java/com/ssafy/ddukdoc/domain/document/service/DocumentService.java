@@ -16,6 +16,7 @@ import com.ssafy.ddukdoc.domain.template.entity.Role;
 import com.ssafy.ddukdoc.domain.template.repository.RoleRepository;
 import com.ssafy.ddukdoc.domain.user.entity.User;
 import com.ssafy.ddukdoc.domain.user.entity.UserDocRole;
+import com.ssafy.ddukdoc.domain.user.entity.UserDocRoleStatus;
 import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -149,17 +151,13 @@ public class DocumentService {
     }
 
     private void updateUserDocRole(Document document) {
-        // 기존 UserDocRole 조회
-        List<UserDocRole> userDocRoles = userDocRoleRepository.findAllByDocument_Id(document.getId());
-
         // 생성자의 문서 역할 조회
-        UserDocRole creatorDocRole = userDocRoles.stream()
-                .filter(udr -> udr.getUser().getId().equals(document.getCreator().getId()))
-                .findFirst()
+        UserDocRole creatorDocRole = userDocRoleRepository.findAllByDocument_IdAndUser_Id(document.getId(), document.getCreator().getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_DOC_ROLE_NOT_FOUND));
 
         // 수신자의 역할을 결정
-        Integer newRecipientRoleId = determineRecipientRole(creatorDocRole.getRole().getId());
+        Integer newRecipientRoleId = UserDocRoleStatus.getRecipientRole(creatorDocRole.getRole().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND,"creatorRoleId", creatorDocRole.getRole().getId()));
 
         Role mappedRole = roleRepository.findById(newRecipientRoleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND,"roleId", newRecipientRoleId));
@@ -173,23 +171,6 @@ public class DocumentService {
         userDocRoleRepository.save(newRole);
     }
 
-
-    private Integer determineRecipientRole(Integer creatorRoleId) {
-        switch (creatorRoleId) {
-            case 2:  // 채권자
-                return 3;  // 채무자
-            case 3:  // 채무자
-                return 2;  // 채권자
-            case 4:  // 고용인
-                return 5;  // 피고용인
-            case 5:  // 피고용인
-                return 4;  // 고용인
-            case 6:  // 교육생
-                return 6;
-            default:
-                return creatorRoleId;
-        }
-    }
 
     // 사용자 역할 정보 추출 (UserDocRoleRepository 호출)
     private UserRoleResponseDto extractUserRoleInfo(Document document) {

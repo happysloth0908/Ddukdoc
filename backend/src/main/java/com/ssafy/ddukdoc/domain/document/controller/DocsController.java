@@ -55,7 +55,7 @@ public class DocsController {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         documentService.deleteDocument(userId, documentId);
-        return ApiResponse.ok(null);
+        return ApiResponse.ok();
     }
 
     // 핀번호 입력
@@ -67,6 +67,6 @@ public class DocsController {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         documentService.verifyPinCode(userId, documentId, pinCodeRequestDto.getPinCode());
-        return ApiResponse.ok(null);
+        return ApiResponse.ok();
     }
 }
