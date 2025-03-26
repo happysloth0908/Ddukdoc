@@ -8,6 +8,7 @@ import com.ssafy.ddukdoc.global.common.constants.Provider;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +22,15 @@ public class AuthController {
     @GetMapping("/{provider}/login")
     public ResponseEntity<ApiResponse<OAuthLoginResponse>> socialLogin(
             @PathVariable String provider,
-            @RequestParam String code
+            @RequestParam String code,
+            @Value("${app.domain.url}") String domainUrl
     ) {
         LoginResult loginResult = oAuthService.handleOAuthLogin(Provider.valueOf(provider.toUpperCase()), code);
 
         ResponseCookie accessTokenCookie = CookieUtil.makeAccessTokenCookie(loginResult.getAccessToken());
         ResponseCookie refreshTokenCookie = CookieUtil.makeRefreshTokenCookie(loginResult.getRefreshToken());
 
-        return ApiResponse.okWithCookie(loginResult.getResponse(), accessTokenCookie, refreshTokenCookie);
+        return ApiResponse.redirectWithCookie(domainUrl, accessTokenCookie, refreshTokenCookie);
     }
 
     @PostMapping("/refresh")

@@ -10,4 +10,6 @@ public interface SignatureRepository extends JpaRepository<Signature, Integer> {
 
     Optional<Signature> findByDocumentId(Integer documentId); // 문서 ID로 서명 조회
     List<Signature> findAllByDocumentId(Integer documentId);
+
+    Optional<Signature> findByDocumentIdAndUserId(Integer documentId, Integer userId);
 }
