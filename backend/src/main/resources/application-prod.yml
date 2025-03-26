@@ -28,6 +28,8 @@ oauth:
     redirect-uri: https://j12b108.p.ssafy.io/api/oauth/ssafy/login
 
 app:
-  domain: https://j12b108.p.ssafy.io
+  domain:
+    url: https://j12b108.p.ssafy.io
+    cors-origins: https://j12b108.p.ssafy.io
   is-local: false
   cookie-domain: j12b108.p.ssafy.io
