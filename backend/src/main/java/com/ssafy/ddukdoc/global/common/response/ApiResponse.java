@@ -194,6 +194,28 @@ public class ApiResponse<T> {
     }
 
     /**
+     * HTTP 302 Found 상태와 리다이렉션 URL, 그리고 쿠키로 응답을 생성합니다.
+     *
+     * @param location 리다이렉션할 URL
+     * @param cookies 응답에 포함될 하나 이상의 쿠키
+     * @param <T> 응답 데이터의 타입
+     * @return API 응답과 쿠키를 포함하는 ResponseEntity
+     */
+    public static <T> ResponseEntity<ApiResponse<T>> redirectWithCookie(String location, ResponseCookie... cookies) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.LOCATION, location);
+
+        for (ResponseCookie cookie : cookies) {
+            headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .headers(headers)
+                .body(new ApiResponse<>(true, null, null));
+    }
+
+    /**
      * 제공된 오류 코드의 세부 정보로 오류 응답을 생성합니다.
      *
      * @param error 상태, 코드 및 메시지를 포함하는 오류 코드
