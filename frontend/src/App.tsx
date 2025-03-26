@@ -2,6 +2,9 @@
 import { Route, Routes } from 'react-router-dom';
 // 헤더
 import molecules from '@/components/molecules';
+import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
+import { worker } from './mocks/browser';
+import { LoginPage } from '@/pages/loginPages/Login';
 
 // 문서 작성
 import { DocsWrite } from '@/pages/docsWritePages/DocsWrite'
@@ -23,6 +26,8 @@ function App() {
         <div className='relative flex flex-col w-dvw h-dvh px-8 md:max-w-md border'>
           <molecules.Header children='test' />
           <Routes>
+            {/* 로그인 페이지 */}
+            <Route path="/login" element={<LoginPage />} />
             {/* 문서 작성입니다. */}
             <Route path='/docs/*' element={<DocsWrite />} />
             {/* 마이페이지 */}
