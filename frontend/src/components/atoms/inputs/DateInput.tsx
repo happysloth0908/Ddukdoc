@@ -7,8 +7,8 @@ export interface DateInputProps
   > {
   label?: string;
   helperText?: string;
-  value: string; // YYYY-MM-DD 형식
-  onChange: (value: string) => void;
+  // value: string; // YYYY-MM-DD 형식
+  // onChange: (value: string) => void;
   minDate?: string;
   maxDate?: string;
 }
@@ -19,21 +19,21 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
       label,
       helperText,
       className,
-      value,
-      onChange,
+      // value,
+      // onChange,
       minDate,
       maxDate,
       ...props
     },
     ref
   ) => {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
-    };
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //   onChange(e.target.value);
+    // };
 
     return (
       <div className="flex w-full justify-center">
-        <div className="flex w-4/5 flex-col">
+        <div className="flex w-full flex-col">
           {label && (
             <div className="mb-1 text-md font-medium text-text-default">
               {label}
@@ -42,14 +42,13 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
           <input
             ref={ref}
             type="date"
-            value={value}
-            onChange={handleChange}
+            // value={value}
+            // onChange={handleChange}
             min={minDate}
             max={maxDate}
             className={`h-12 w-full rounded-md border bg-bg-default px-3 py-2 text-md text-text-default focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:bg-gray-100 disabled:text-text-description ${className}`}
             {...props}
           />
-          3+
         </div>
       </div>
     );
