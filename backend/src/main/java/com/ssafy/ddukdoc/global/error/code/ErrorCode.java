@@ -25,6 +25,11 @@ public enum ErrorCode {
     CREATOR_NOT_MATCH(HttpStatus.UNAUTHORIZED, "D003", "문서의 발신자가 아닙니다"),
     DOCUMENT_NOT_RETURNED(HttpStatus.BAD_REQUEST, "D004", "반송되지 않은 문서입니다"),
 
+    //DocumentEvidence
+    MATERIAL_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "M001", "파일이 없거나 비어있습니다"),
+    MATERIAL_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "M002", "허용되지 않는 확장자입니다"),
+    MATERIAL_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "M003", "파일 용량을 초과했습니다"),
+
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
     INVALID_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "A002", "지원하지 않는 OAuth 제공자입니다"),
