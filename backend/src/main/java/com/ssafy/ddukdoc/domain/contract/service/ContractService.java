@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,7 @@ public class ContractService {
         // DocumentFieldValue 엔티티들 생성 및 저장
         saveDocumentFieldValues(requestDto, saveDocument, user);
 
+        //서명 파일 저장
         saveSignature(document,userId,signatureFile);
 
         //userID 저장
@@ -89,7 +91,7 @@ public class ContractService {
 
     private void saveUserDocRole(Document document, User user, int roleId) {
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_INPUT_VALUE,"role_id",+roleId));
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_INPUT_VALUE,"role_id",roleId));
 
         UserDocRole userDocRole = UserDocRole.builder()
                 .user(user)
@@ -99,7 +101,7 @@ public class ContractService {
 
         userDocRoleRepository.save(userDocRole);
     }
-
+    //서명 파일을 암호화하여 S3에 저장
     private void saveSignature(Document document, Integer userId, MultipartFile signatureFile) {
         // 사용자 조회
         User user = userRepository.findById(userId)
@@ -112,7 +114,7 @@ public class ContractService {
         }
 
         String dirName = "signature/"+document.getId()+"/"+userId;
-        String s3Path = s3Util.uploadFile(signatureFile,dirName);
+        String s3Path = s3Util.uploadEncryptedFile(signatureFile,dirName);
 
         Signature signature = Signature.builder()
                 .user(user)
@@ -121,7 +123,7 @@ public class ContractService {
                 .build();
 
         signatureRepository.save(signature);
-
+        //수신자가 서명을 한 상태인 경우 문서 상태 SIGNED로 변경
         if(document.getRecipient() != null && document.getRecipient().getId().equals(userId)){
             document.updateStatus(DocumentStatus.SIGNED);
             documentRepository.save(document);
@@ -143,5 +145,29 @@ public class ContractService {
 
     private int generatePinCode(){
         return (int)(Math.random() * 900000) + 100000; // 100000 ~ 999999
+    }
+
+    // 서명 파일 다운로드 및 복호화
+    public byte[] downloadSignature(Integer documentId, Integer userId) {
+        try {
+            // 문서 정보 조회
+            Document document = documentRepository.findById(documentId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+            // 서명 정보 조회
+            Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId));
+
+            // S3에서 파일 다운로드 및 복호화
+            String s3Path = signature.getFilePath();
+            return s3Util.downloadAndDecryptFileToBytes(s3Path);
+
+        } catch (CustomException e) {
+            throw new CustomException(e.getErrorCode());
+        } catch (Exception e) {
+            // 그 외 예외는 CustomException으로 변환
+            throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "signature",
+                    "서명 파일 처리 중 오류: " + e.getMessage());
+        }
     }
 }
