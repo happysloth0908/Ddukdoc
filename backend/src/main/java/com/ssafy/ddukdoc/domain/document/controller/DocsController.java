@@ -47,6 +47,17 @@ public class DocsController {
         return ApiResponse.ok(documentService.getDocumentDetail(userId, documentId));
     }
 
+    // 문서 삭제
+    @PatchMapping("/{doc_id}/delete")
+    public ResponseEntity<ApiResponse<Void>> deleteDoc(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        documentService.deleteDocument(userId, documentId);
+        return ApiResponse.ok(null);
+    }
+
     // 핀번호 입력
     @PostMapping("/{doc_id}")
     public ResponseEntity<ApiResponse<Void>> verifyPincode(

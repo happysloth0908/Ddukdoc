@@ -1,10 +1,9 @@
-package com.ssafy.ddukdoc.domain.template.dto;
+package com.ssafy.ddukdoc.domain.template.dto.response;
 
 import com.ssafy.ddukdoc.domain.template.entity.Role;
 import com.ssafy.ddukdoc.domain.template.entity.Template;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateField;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

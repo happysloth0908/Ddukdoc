@@ -1,14 +1,19 @@
 package com.ssafy.ddukdoc.domain.contract.controller;
 
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
-import com.ssafy.ddukdoc.domain.template.dto.TemplateFieldResponseDto;
+import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
+import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
+import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,9 +22,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContractController {
     private final ContractService contractService;
+    private final AuthenticationUtil authenticationUtil;
 
     @GetMapping("/{templateCode}")
     public ResponseEntity<ApiResponse<List<TemplateFieldResponseDto>>> getFieldList(@PathVariable String templateCode){
         return ApiResponse.ok(contractService.getTemplateFields(templateCode));
+    }
+
+    @PostMapping(value = "/{templateCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Integer>> saveInfo(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable String templateCode,
+            @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,
+            @RequestPart(value = "signature", required = false) MultipartFile signatureFile){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+
+        // 서명 파일 null 또는 비어있는지 확인
+        if (signatureFile == null || signatureFile.isEmpty()) {
+            return ApiResponse.error(
+                    ErrorCode.SIGNATURE_FILE_NOT_FOUND);
+        }
+        return ApiResponse.ok(contractService.saveDocument(templateCode, requestDto, userId,signatureFile));
     }
 }
