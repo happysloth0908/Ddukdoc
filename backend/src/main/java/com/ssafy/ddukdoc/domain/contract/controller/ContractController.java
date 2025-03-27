@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.contract.controller;
 
+import com.ssafy.ddukdoc.domain.contract.dto.request.RecipientInfoRequestDto;
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
@@ -9,6 +10,7 @@ import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/contract")
 @RequiredArgsConstructor
@@ -61,5 +65,24 @@ public class ContractController {
         headers.setContentLength(signatureData.length);
         //데이터를 바이너리 형식으로 전달
         return new ResponseEntity<>(signatureData, headers, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/{documentId}/signature", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Void>> saveRecipientSignature(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer documentId,
+            @RequestPart("jsonData") @Valid
+            RecipientInfoRequestDto requestDto,
+            @RequestPart(value = "signature", required = false) MultipartFile signatureFile) {
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+
+        // 서명 파일 null 또는 비어있는지 확인
+        if (signatureFile == null || signatureFile.isEmpty()) {
+            return ApiResponse.error(ErrorCode.SIGNATURE_FILE_NOT_FOUND);
+        }
+
+        contractService.saveRecipientInfo(documentId, requestDto, userId, signatureFile);
+        return ApiResponse.ok();
     }
 }
