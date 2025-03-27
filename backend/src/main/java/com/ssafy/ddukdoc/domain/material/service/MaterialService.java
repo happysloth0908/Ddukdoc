@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.domain.material.service;
 
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
+import com.ssafy.ddukdoc.domain.material.dto.response.MaterialDetailResponseDto;
 import com.ssafy.ddukdoc.domain.material.dto.response.MaterialListResponseDto;
 import com.ssafy.ddukdoc.domain.material.entity.DocumentEvidence;
 import com.ssafy.ddukdoc.domain.material.repository.MaterialRepository;
@@ -79,6 +80,37 @@ public class MaterialService {
         return documentEvidenceList.stream()
                 .map(MaterialListResponseDto::of)
                 .collect(Collectors.toList());
+    }
+
+    public MaterialDetailResponseDto getMaterialDetail(Integer userId, Integer documentId, Integer materialId){
+
+        // 문서 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 사용자 검증
+        if (!(document.getCreator().getId().equals(userId) ||
+                (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 추가자료 검증
+        DocumentEvidence material = materialRepository.findById(materialId)
+                .orElseThrow(()-> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
+        
+        // 이미지만 상세 조회 가능
+        if (!fileValidationUtil.isImageExtension(material.getMimeType())) {
+            throw new CustomException(ErrorCode.MATERIAL_NOT_IMAGE, "fileFormat", material.getMimeType())
+                    .addParameter("materialId", materialId)
+                    .addParameter("documentId", documentId);
+        }
+
+
+        // S3에서 파일 다운로드 및 복호화
+        byte[] fileBytes = s3Util.downloadAndDecryptFileToBytes(material.getFilePath());
+
+        return MaterialDetailResponseDto.of(material, fileBytes);
     }
 
 }
