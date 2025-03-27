@@ -16,7 +16,7 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   data:
     redis:
-      host: redis-dev # 이후 ip주소로 변경
+      host: redis-dev
 
 logging.level:
   org.hibernate.SQL: info
@@ -28,6 +28,8 @@ oauth:
     redirect-uri: https://ddukdoc.shop/api/oauth/ssafy/login
 
 app:
-  domain: https://ddukdoc.shop
+  domain:
+    url: https://ddukdoc.shop
+    cors-origins: https://ddukdoc.shop, http://localhost:5173
   is-local: false
   cookie-domain: ddukdoc.shop
