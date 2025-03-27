@@ -113,4 +113,36 @@ public class MaterialService {
         return MaterialDetailResponseDto.of(material, fileBytes);
     }
 
+    @Transactional
+    public void deleteMaterial(Integer userId, Integer documentId, Integer materialId){
+
+        // 문서 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 사용자 검증
+        if (!(document.getCreator().getId().equals(userId) ||
+                (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 추가자료 검증
+        DocumentEvidence material = materialRepository.findById(materialId)
+                .orElseThrow(()-> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
+
+        // 추가자료 생성자 검증
+        if(!material.getUser().getId().equals(userId)){
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId",documentId)
+                    .addParameter("materialId", materialId);
+        }
+
+        // S3에서 파일 삭제
+        s3Util.deleteFileFromS3(material.getFilePath());
+
+        // 추가자료 삭제
+        materialRepository.delete(material);
+    }
+
 }

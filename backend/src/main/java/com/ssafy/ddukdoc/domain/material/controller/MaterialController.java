@@ -61,4 +61,17 @@ public class MaterialController {
         return ApiResponse.ok(materialService.getMaterialDetail(userId, documentId, materialId));
     }
 
+    // 기타 자료 삭제
+    @DeleteMapping("/{doc_id}/{material_id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> deleteMaterial(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId,
+            @PathVariable("material_id") Integer materialId){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        materialService.deleteMaterial(userId, documentId, materialId);
+        return ApiResponse.ok();
+    }
+
 }
