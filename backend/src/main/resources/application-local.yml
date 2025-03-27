@@ -17,10 +17,7 @@ spring:
   data:
     redis:
       host: localhost
-  servlet:
-    multipart:
-      max-file-size: 200MB
-      max-request-size: 200MB
+
 
 
 logging.level:
@@ -39,6 +36,8 @@ oauth:
     redirect-uri: http://localhost:8080/api/oauth/ssafy/login
 
 app:
-  domain: http://localhost:5173
+  domain:
+    url: http://localhost:5173
+    cors-origins: http://localhost:5173
   is-local: true
   cookie-domain: localhost

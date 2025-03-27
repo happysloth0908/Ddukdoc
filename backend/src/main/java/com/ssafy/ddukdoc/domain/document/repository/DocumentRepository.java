@@ -14,7 +14,7 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
             "FROM Document d " +
             "JOIN d.template t " +
             "JOIN d.creator c " +
-            "JOIN d.recipient r " +
+            "LEFT JOIN d.recipient r " +
             "WHERE (:templateCode IS NULL OR t.code = :templateCode) " +
             "AND (:keyword IS NULL OR d.title LIKE CONCAT('%', :keyword, '%')) " +
             "AND (:status IS NULL OR UPPER(d.status) = UPPER(:status)) " +

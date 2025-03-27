@@ -11,7 +11,7 @@ import com.ssafy.ddukdoc.global.common.util.FileValidationUtil;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MaterialService {
 
     private final DocumentRepository documentRepository;
@@ -41,7 +42,7 @@ public class MaterialService {
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
 
         // 파일 검증
-        fileValidationUtil.isValidFileExtension(file);
+        String fileExtension = fileValidationUtil.isValidFileExtension(file);
         
         // S3에 파일 업로드 (암호화)
         String fileUrl = s3Util.uploadEncryptedFile(file, "material");
@@ -52,7 +53,7 @@ public class MaterialService {
                 .user(user)
                 .title(title)
                 .filePath(fileUrl)
-                .mimeType(file.getContentType())
+                .mimeType(fileExtension)
                 .build();
 
         materialRepository.save(documentEvidence);
