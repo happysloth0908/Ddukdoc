@@ -5,6 +5,7 @@ import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -14,6 +15,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -143,5 +146,19 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 e);
         return ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * 파일 용량 초과 시 예외 처리
+     * 발생 조건: spring.servlet.multipart.max-file-size 또는 request-size 초과
+     */
+    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class})
+    protected ResponseEntity<ApiResponse<Object>> handleMaxUploadSizeExceededException(
+            Exception e, HttpServletRequest request) {
+        log.warn("[MaxUploadSizeExceeded] {} {} - {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e.getMessage());
+        return ApiResponse.error(ErrorCode.MATERIAL_SIZE_EXCEEDED);
     }
 }
