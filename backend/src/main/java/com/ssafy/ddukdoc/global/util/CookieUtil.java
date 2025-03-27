@@ -27,4 +27,48 @@ public class CookieUtil {
                 .maxAge(Duration.ofSeconds(SecurityConstants.REFRESH_TOKEN_VALIDITY_SECONDS))
                 .build();
     }
+
+    public static ResponseCookie deleteAccessTokenCookie() {
+        return ResponseCookie.from(SecurityConstants.ACCESS_TOKEN_COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(SecurityConstants.getIsLocal())
+                .sameSite("Strict")
+                .domain(SecurityConstants.getDomain())
+                .path("/")
+                .maxAge(0) // 즉시 만료
+                .build();
+    }
+
+    public static ResponseCookie deleteRefreshTokenCookie() {
+        return ResponseCookie.from(SecurityConstants.REFRESH_TOKEN_COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(SecurityConstants.getIsLocal())
+                .sameSite("Strict")
+                .domain(SecurityConstants.getDomain())
+                .path("/")
+                .maxAge(0) // 즉시 만료
+                .build();
+    }
+
+    public static ResponseCookie makeDevAccessTokenCookie(String refreshToken) {
+        return ResponseCookie.from(SecurityConstants.ACCESS_TOKEN_COOKIE_NAME, refreshToken)
+                .httpOnly(false)
+                .secure(true)
+                .sameSite("None")
+                .domain(null)
+                .path("/")
+                .maxAge(Duration.ofSeconds(SecurityConstants.ACCESS_TOKEN_VALIDITY_SECONDS))
+                .build();
+    }
+
+    public static ResponseCookie makeDevRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from(SecurityConstants.REFRESH_TOKEN_COOKIE_NAME, refreshToken)
+                .httpOnly(false)
+                .secure(true)
+                .sameSite("None")
+                .domain(null)
+                .path("/")
+                .maxAge(Duration.ofSeconds(SecurityConstants.REFRESH_TOKEN_VALIDITY_SECONDS))
+                .build();
+    }
 }
