@@ -54,4 +54,9 @@ public class Document extends BaseEntity {
     public void updateStatus(DocumentStatus status){
         this.status = status;
     }
+
+    public void updateFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
 }
