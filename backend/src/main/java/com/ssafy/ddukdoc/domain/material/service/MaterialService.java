@@ -69,7 +69,8 @@ public class MaterialService {
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
                 (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
-           throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId);
+           throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                   .addParameter("documentId", documentId);
         }
 
         // 문서 내 등록된 추가자료 모두 조회
