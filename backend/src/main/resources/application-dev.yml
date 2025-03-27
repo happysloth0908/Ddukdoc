@@ -1,0 +1,35 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+    defer-datasource-initialization: false
+  sql:
+    init:
+      mode: never  # 모든 데이터베이스로 초기화 대상 변경
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+  data:
+    redis:
+      host: redis-dev
+
+logging.level:
+  org.hibernate.SQL: info
+
+oauth:
+  kakao:
+    redirect-uri: https://ddukdoc.shop/api/oauth/kakao/login
+  ssafy:
+    redirect-uri: https://ddukdoc.shop/api/oauth/ssafy/login
+
+app:
+  domain:
+    url: https://ddukdoc.shop
+    cors-origins: https://ddukdoc.shop, http://localhost:5173
+  is-local: false
+  cookie-domain: ddukdoc.shop

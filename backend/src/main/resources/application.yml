@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: ddukdoc
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  profiles:
+    include: secret
+    active: local
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true  # 페이징 1부터
