@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class ContractService {
     private final TemplateRepository templateRepository;
     private final UserRepository userRepository;

@@ -10,8 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class RecipientInfoRequestDto {
 
     @NotNull(message = "역할 ID는 필수입니다.")
