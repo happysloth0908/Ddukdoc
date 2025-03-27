@@ -5,6 +5,7 @@ import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfDocumentInfo;
+import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -83,13 +85,6 @@ public class PdfGeneratorUtil {
             if (transactionId != null && !transactionId.isEmpty()) {
                 PdfDocumentInfo info = pdf.getDocumentInfo();
                 info.setMoreInfo("transactionId", transactionId);
-
-                // 일반 메타데이터도 추가 (테스트용)
-                info.setTitle("계약서: 차용증");
-                info.setAuthor("DDUKDOC System");
-                info.setSubject("계약문서");
-                info.setKeywords("차용증, 계약, 문서");
-                info.setCreator("DDUKDOC PDF Generator");
             }
 
             // 템플릿 코드에 맞는 문서 생성기 가져오기
@@ -101,7 +96,10 @@ public class PdfGeneratorUtil {
             document.close();
             return outputStream;
         }catch (IOException e){
-            log.error("PDF 생성 실패: {}", e.getMessage(), e);
+            log.error("PDF 생성 실패: {} - DOC TYPE: {} ",
+                    e.getMessage(),
+                    templateCode,
+                    e);
             throw new CustomException(ErrorCode.PDF_GENERATION_ERROR,"reason",e.getMessage());
         }
     }
@@ -124,55 +122,39 @@ public class PdfGeneratorUtil {
      * @param signatures 역할 ID별 서명 이미지 맵
      * @return 생성된 PDF와 해시값을 포함한 결과 객체
      */
-    public PdfHashResult generatePdfForHash(TemplateCode templateCode,
+    public byte[] generatePdfForHash(TemplateCode templateCode,
                                             List<DocumentFieldDto> fieldValues,
-                                            Map<Integer, byte[]> signatures) throws IOException {
-        // 메타데이터 없이 PDF 생성
-        ByteArrayOutputStream pdfStream = generatePdf(templateCode, fieldValues, signatures, null);
-        byte[] pdfData = pdfStream.toByteArray();
+                                            Map<Integer, byte[]> signatures) {
+        try {
+            // generatePdf() 메서드 호출 시 IOException 처리
+            ByteArrayOutputStream pdfStream = generatePdf(templateCode, fieldValues, signatures, null);
+            byte[] pdfData = pdfStream.toByteArray();
 
-        // PDF 데이터의 해시값 계산
-        String hash = generatePdfHash(pdfData);
+            // PDF 데이터의 해시값 계산
+            String hash = generatePdfHash(pdfData);
 
-        return new PdfHashResult(pdfData, hash);
-    }
+            // PDF 메타데이터에 해시값 추가
+            // 추 후 블록체인 ID 값으로 변경 예정
+            try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfData));
+                 ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
 
-    /**
-     * 트랜잭션 ID를 메타데이터에 포함하여 최종 PDF를 생성합니다.
-     *
-     * @param templateCode 템플릿 코드
-     * @param fieldValues 문서 필드 값 리스트
-     * @param signatures 역할 ID별 서명 이미지 맵
-     * @param transactionId 블록체인 트랜잭션 ID
-     * @return 트랜잭션 ID가 포함된 최종 PDF 데이터
-     */
-    public byte[] generateFinalPdfWithTransaction(TemplateCode templateCode,
-                                                  List<DocumentFieldDto> fieldValues,
-                                                  Map<Integer, byte[]> signatures,
-                                                  String transactionId) throws IOException {
-        // 트랜잭션 ID를 포함하여 최종 PDF 생성
-        ByteArrayOutputStream finalPdfStream = generatePdf(templateCode, fieldValues, signatures, transactionId);
-        return finalPdfStream.toByteArray();
-    }
+                PdfWriter writer = new PdfWriter(modifiedPdfStream);
+                PdfDocument pdfDocument = new PdfDocument(reader, writer);
 
-    /**
-     * PDF 생성과 해시 결과를 담는 내부 클래스
-     */
-    public static class PdfHashResult {
-        private final byte[] pdfData;
-        private final String hash;
+                // 메타데이터에 해시값 추가
+                PdfDocumentInfo info = pdfDocument.getDocumentInfo();
+                info.setMoreInfo("documentHash", hash);
 
-        public PdfHashResult(byte[] pdfData, String hash) {
-            this.pdfData = pdfData;
-            this.hash = hash;
-        }
+                pdfDocument.close();
 
-        public byte[] getPdfData() {
-            return pdfData;
-        }
-
-        public String getHash() {
-            return hash;
+                return modifiedPdfStream.toByteArray();
+            } catch (IOException e) {
+                throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "Metadata addition failed", e.getMessage());
+            }
+        } catch (IOException e) {
+            // generatePdf() 메서드에서 발생하는 IOException 처리
+            throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "PDF generation failed", e.getMessage());
         }
     }
+
 }
