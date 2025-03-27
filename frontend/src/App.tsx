@@ -4,6 +4,7 @@ import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
 import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
 // import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
+import MyPage from '@/pages/mypage/MyPage.tsx';
 
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
@@ -29,7 +30,7 @@ function App() {
           <Route path="/" element={<MainMenuPage />} />
           <Route path="/login" element={<LoginPage />} />
           {/* 마이페이지 */}
-          {/* <Route path='/mypage' element={} /> */}
+          <Route path="/mypage/*" element={<MyPage />} />
           {/* 위변조 검사 */}
           {/* <Route path='/forgery' element={} /> */}
         </Routes>
