@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.domain.material.service;
 
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
+import com.ssafy.ddukdoc.domain.material.dto.response.MaterialListResponseDto;
 import com.ssafy.ddukdoc.domain.material.entity.DocumentEvidence;
 import com.ssafy.ddukdoc.domain.material.repository.MaterialRepository;
 import com.ssafy.ddukdoc.domain.user.entity.User;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +57,28 @@ public class MaterialService {
                 .build();
 
         materialRepository.save(documentEvidence);
+    }
+
+
+    public List<MaterialListResponseDto> getMaterialList(Integer userId, Integer documentId){
+        
+        // 문서 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 사용자 검증
+        if (!(document.getCreator().getId().equals(userId) ||
+                (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
+           throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                   .addParameter("documentId", documentId);
+        }
+
+        // 문서 내 등록된 추가자료 모두 조회
+        List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
+
+        return documentEvidenceList.stream()
+                .map(MaterialListResponseDto::of)
+                .collect(Collectors.toList());
     }
 
 }
