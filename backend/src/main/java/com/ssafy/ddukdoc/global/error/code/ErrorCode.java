@@ -32,10 +32,12 @@ public enum ErrorCode {
     PIN_CODE_MISMATCH(HttpStatus.NOT_FOUND, "P001", "잘못된 핀번호입니다"),
     PIN_CODE_REQUIRED(HttpStatus.BAD_REQUEST, "P002", "핀코드 입력이 필요합니다"),
 
-    //DocumentEvidence
+    // DocumentEvidence
     MATERIAL_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "M001", "파일이 없거나 비어있습니다"),
     MATERIAL_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "M002", "허용되지 않는 확장자입니다"),
     MATERIAL_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "M003", "파일 용량을 초과했습니다"),
+    MATERIAL_NOT_FOUND(HttpStatus.NOT_FOUND, "M004", "존재하지 않는 파일입니다"),
+    MATERIAL_NOT_IMAGE(HttpStatus.BAD_REQUEST, "M005","이미지 파일만 조회 가능합니다"),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
