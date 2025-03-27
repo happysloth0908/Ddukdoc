@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 public class DocumentFieldResponseDto {
     private Integer fieldId;
+    private Integer roleId;
     private String fieldName;
     private Boolean isRequired;
     private String type;
@@ -18,6 +19,7 @@ public class DocumentFieldResponseDto {
     public static DocumentFieldResponseDto of(DocumentFieldValue documentFieldValue){
         return DocumentFieldResponseDto.builder()
                 .fieldId(documentFieldValue.getField().getId())
+                .roleId(documentFieldValue.getField().getRole().getId())
                 .fieldName(documentFieldValue.getField().getName())
                 .isRequired(documentFieldValue.getField().getIsRequired())
                 .type(documentFieldValue.getField().getType())

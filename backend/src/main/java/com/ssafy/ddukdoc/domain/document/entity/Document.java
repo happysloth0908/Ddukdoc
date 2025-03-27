@@ -54,4 +54,12 @@ public class Document extends BaseEntity {
     public void updateStatus(DocumentStatus status){
         this.status = status;
     }
+
+    /**
+     * 수신자 정보 업데이트 메서드
+     * @param recipient 수신자 정보
+     */
+    public void updateRecipient(User recipient){
+        this.recipient = recipient;
+    }
 }
