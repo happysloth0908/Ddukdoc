@@ -55,6 +55,17 @@ public class Document extends BaseEntity {
         this.status = status;
     }
 
+    /**
+     * 수신자 정보 업데이트 메서드
+     * @param recipient 수신자 정보
+     */
+    public void updateRecipient(User recipient){
+        this.recipient = recipient;
+    }
+    /**
+     * 문서 경로 변경 메서드
+     * @param filePath 변경할 상태
+     */
     public void updateFilePath(String filePath) {
         this.filePath = filePath;
     }

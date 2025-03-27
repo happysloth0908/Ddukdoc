@@ -19,6 +19,7 @@ spring:
       host: localhost
 
 
+
 logging.level:
   org.hibernate.SQL: info
 
@@ -35,6 +36,8 @@ oauth:
     redirect-uri: http://localhost:8080/api/oauth/ssafy/login
 
 app:
-  domain: http://localhost:5173
+  domain:
+    url: http://localhost:5173
+    cors-origins: http://localhost:5173
   is-local: true
   cookie-domain: localhost
