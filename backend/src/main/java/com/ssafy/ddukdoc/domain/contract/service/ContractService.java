@@ -88,7 +88,7 @@ public class ContractService {
         Document saveDocument = documentRepository.save(document);
 
         // DocumentFieldValue 엔티티들 생성 및 저장
-        saveDocumentFieldValues(requestDto, saveDocument, user);
+        saveSenderInfo(requestDto, saveDocument, user);
 
         //서명 파일 저장
         saveSignature(document,userId,signatureFile);
@@ -138,6 +138,25 @@ public class ContractService {
             document.updateStatus(DocumentStatus.SIGNED);
             documentRepository.save(document);
         }
+    }
+    private void saveSenderInfo(DocumentSaveRequestDto requestDto, Document document, User user) {
+        List<DocumentFieldValue> fieldValues = requestDto.getData().stream()
+                .map(fieldValueDto -> {
+                    TemplateField field = templateFieldRepository.findById(fieldValueDto.getFieldId())
+                            .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_FIELD_NOT_FOUND,
+                                    "template_field_id", fieldValueDto.getFieldId()));
+
+                    // 필드 값을 암호화하여 저장
+                    String encryptedValue = aesUtil.encrypt(fieldValueDto.getFieldValue());
+
+                    return fieldValueDto.toEntity(document, field, user,encryptedValue);
+
+                })
+                .collect(Collectors.toList());
+
+        documentFieldValueRepository.saveAll(fieldValues);
+        // 암호화된 값 대신 원본 값으로 DTO 생성
+        //return requestDto.getData();
     }
 
     private void saveDocumentFieldValues(DocumentSaveRequestDto requestDto, Document document, User user){
