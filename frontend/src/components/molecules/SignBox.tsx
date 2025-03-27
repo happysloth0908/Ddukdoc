@@ -172,7 +172,7 @@ export const SignBox: React.FC = () => {
 
   return isRotated ? (
     // 가로 모드 레이아웃
-    <div className="flex h-[844px] w-[390px] flex-col items-center justify-between px-2 py-4">
+    <div className="flex h-full w-full flex-col items-center justify-between px-2 py-4">
       {renderCanvas()}
       <div className="flex h-1/4 w-full flex-col items-start justify-center">
         <div className="flex rotate-90 flex-col">
@@ -198,7 +198,7 @@ export const SignBox: React.FC = () => {
     </div>
   ) : (
     // 세로 모드 레이아웃
-    <div className="flex h-[844px] w-[390px] flex-col items-center justify-between px-2 py-4">
+    <div className="flex h-full w-full flex-col items-center justify-between px-2 py-4">
       <div className="mt-3 w-full">
         <DocsDescription
           title={'서명을 해주세요'}

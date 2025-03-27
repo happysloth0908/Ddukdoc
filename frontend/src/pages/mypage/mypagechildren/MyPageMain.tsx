@@ -2,10 +2,10 @@ import ShortButton from '@/components/atoms/buttons/ShortButton';
 import { DocsCard } from '@/components/molecules/cards/DocsCard';
 import { useEffect, useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '@/apis/mypage';
 import MyPageMainFilter from './MyPageMainFilter';
-import BottomRollup from '@/components/atoms/inputs/BottomRollup'; // ⬅️ 추가!
+import BottomRollup from '@/components/atoms/inputs/BottomRollup';
 
 interface DocData {
   id: number;
@@ -49,6 +49,7 @@ const MyPageMain = () => {
   const [selectedType, setSelectedType] = useState<'1' | '2'>('1');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchParams, setSearchParams] = useState<SearchParams>({});
+  const navigate = useNavigate(); // ✅ useNavigate 훅 사용
 
   const fetchDocs = async (type: '1' | '2', params: SearchParams = {}) => {
     try {
@@ -85,7 +86,7 @@ const MyPageMain = () => {
 
   return (
     <div className="flex w-full flex-1 flex-col">
-      <div className="fixed left-0 right-0 top-0 z-10 mx-5 my-10 flex items-center justify-between bg-white px-4">
+      <div className="left-0 top-0 z-10 my-10 flex w-full items-center justify-between bg-white">
         <div className="flex space-x-2">
           <ShortButton
             children={'수신'}
@@ -108,24 +109,23 @@ const MyPageMain = () => {
         </div>
       </div>
 
-      <div className="mt-32 flex-1 overflow-y-auto">
-        <div className="space-y-4">
+      <div className="flex-1">
+        <div className="space-y-4 overflow-y-auto">
           {docs.map((doc) => (
-            <Link
+            <div
               key={doc.id}
-              to={`docs/${doc.id}`}
-              className="block cursor-pointer"
+              className="cursor-pointer"
+              onClick={() => navigate(`docs/${doc.id}`)} // ✅ 클릭 시 라우팅
             >
               <DocsCard
                 data={doc}
                 calls={selectedType === '1' ? '수신' : '발신'}
               />
-            </Link>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* ✅ BottomRollup 적용 */}
       <BottomRollup
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
