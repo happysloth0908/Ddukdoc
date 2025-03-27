@@ -1,21 +1,45 @@
 import { Link } from "react-router-dom";
 import atoms from "@/components/atoms";
 import iouData from '@/types/iou';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-
-
-export const DocsWriteSender = ({role, data, handleData}: {role: string, data: iouData, handleData: () => void}) => {
+export const DocsWriteSender = ({role, data, handleData}: {role: string, data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
     const [formData, setFormData] = useState({
-        name: "",
-        id: "",
-        address: "",
-        contact: "",
+        name: (data.creditor_name || data.debtor_name) || "",
+        id: (data.creditor_id || data.debtor_id) || "",
+        address: (data.creditor_address || data.debtor_address) || "",
+        contact: (data.creditor_contact || data.debtor_contact) || "",
     });
+
+    // 부모 데이터가 업데이트되면 formData를 동기화 (빈 값일 때만 업데이트)
+    // useEffect(() => {
+    //     if (!formData.name && !formData.id && !formData.address && !formData.contact) {
+    //         setFormData(role === "채권자"
+    //             ? {
+    //                 name: data.creditor_name || "",
+    //                 id: data.creditor_id || "",
+    //                 address: data.creditor_address || "",
+    //                 contact: data.creditor_contact || "",
+    //             }
+    //             : {
+    //                 name: data.debtor_name || "",
+    //                 id: data.debtor_id || "",
+    //                 address: data.debtor_address || "",
+    //                 contact: data.debtor_contact || "",
+    //             }
+    //         );
+    //     }
+    // }, [data, role]);
+    useEffect(() => {
+        console.log("나는 자식");
+        console.log(formData);
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (value != null) {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
     };
     
     const handleSenderData = () => {

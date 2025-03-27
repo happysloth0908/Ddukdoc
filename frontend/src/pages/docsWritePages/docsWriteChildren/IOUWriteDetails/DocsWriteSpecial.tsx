@@ -1,10 +1,32 @@
 import { Link } from "react-router-dom";
 import atoms from "@/components/atoms";
+import iouData from "@/types/iou";
+import { useState } from "react";
 
 
 
-export const DocsWriteSpecial = () => {
+export const DocsWriteSpecial = ({data, handleData}: {data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
 
+    const [formData, setFormData] = useState({
+        special_terms: "",
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSenderData = () => {
+        console.log("이전 데이터:", data);
+        console.log("입력된 데이터:", formData);
+
+        const updatedData = {
+            special_terms: formData.special_terms,
+        }
+
+        handleData(updatedData);
+    };
+    
     return (
         <div className="w-full h-full flex flex-col">
             <atoms.ProgressBar curStage={4} totalStage={5} />
@@ -13,12 +35,12 @@ export const DocsWriteSpecial = () => {
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"특약 사항"} description="을 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
                         <label>특약 사항(선택)</label>
-                        <atoms.Textarea placeholder="추가 내용을 입력하세요" />
+                        <atoms.Textarea onChange={handleChange} placeholder="추가 내용을 입력하세요" />
                         <atoms.InfoBox context="입력하지 않은 정보 외에 다른 특이사항을 추가하려면<br/>특약 사항을 적는 것이 좋아요:)" />
                     </form>
                 </div>
             </div>
-            <Link to={"/docs/detail/G1/money"}>
+            <Link onClick={handleSenderData} to={"/docs/detail/G1/money"}>
                 <atoms.LongButton className="mb-20" children="다음" colorType="black" />
             </Link>
         </div>
