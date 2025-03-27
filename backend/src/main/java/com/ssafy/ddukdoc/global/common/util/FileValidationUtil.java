@@ -26,8 +26,9 @@ public class FileValidationUtil {
     /**
      * 파일 검증
      * @param file 검증할 파일
+     * @return String 파일 확장자
      */
-    public void isValidFileExtension(MultipartFile file) {
+    public String isValidFileExtension(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new CustomException(ErrorCode.MATERIAL_UPLOAD_ERROR, "material", file);
         }
@@ -42,6 +43,8 @@ public class FileValidationUtil {
         if(!ALLOWED_EXTENSIONS.contains(fileExtension)){
             throw new CustomException(ErrorCode.MATERIAL_INVALID_FORMAT, "fileExtension", fileExtension);
         }
+
+        return fileExtension;
     }
 
     /**

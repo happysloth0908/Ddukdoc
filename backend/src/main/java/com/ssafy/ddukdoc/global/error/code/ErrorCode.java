@@ -28,7 +28,7 @@ public enum ErrorCode {
     //DocumentEvidence
     MATERIAL_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "M001", "파일이 없거나 비어있습니다"),
     MATERIAL_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "M002", "허용되지 않는 확장자입니다"),
-    MATERIAL_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "M003", "파일 용량을 초과했습니다"),
+    MATERIAL_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "M003", "파일 용량을 초과했습니다"),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
