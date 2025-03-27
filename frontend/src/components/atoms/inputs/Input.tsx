@@ -6,16 +6,16 @@ export interface InputProps
   helperText?: string;
   placeholder?: string;
   // value: string;
-  onChange: (value: string) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (
-    { label, helperText, placeholder, className, ...props },
+    { label, placeholder, onChange, className, ...props },
     ref
   ) => {
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
+      onChange(e);
     };
 
     return (
