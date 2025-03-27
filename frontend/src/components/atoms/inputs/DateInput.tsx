@@ -1,4 +1,4 @@
-import { forwardRef, InputHTMLAttributes } from 'react';
+import { forwardRef, ChangeEvent, InputHTMLAttributes } from 'react';
 
 export interface DateInputProps
   extends Omit<
@@ -8,7 +8,7 @@ export interface DateInputProps
   label?: string;
   helperText?: string;
   // value: string; // YYYY-MM-DD 형식
-  // onChange: (value: string) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   minDate?: string;
   maxDate?: string;
 }
@@ -17,19 +17,19 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
   (
     {
       label,
-      helperText,
+      // helperText,
       className,
       // value,
-      // onChange,
+      onChange,
       minDate,
       maxDate,
       ...props
     },
     ref
   ) => {
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //   onChange(e.target.value);
-    // };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(e);
+    };
 
     return (
       <div className="flex w-full justify-center">
@@ -43,7 +43,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
             ref={ref}
             type="date"
             // value={value}
-            // onChange={handleChange}
+            onChange={handleChange}
             min={minDate}
             max={maxDate}
             className={`h-12 w-full rounded-md border bg-bg-default px-3 py-2 text-md text-text-default focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:bg-gray-100 disabled:text-text-description ${className}`}
