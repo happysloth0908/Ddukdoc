@@ -1,28 +1,34 @@
-import { useState } from 'react';
-import { StoryFn, Meta } from '@storybook/react';
-import Textarea, {
-  TextareaProps,
-} from '../../components/atoms/inputs/Textarea';
+import { Meta, StoryObj } from '@storybook/react';
+import Textarea, { TextareaProps } from '@/components/atoms/inputs/Textarea';
+import { ChangeEvent } from 'react';
 
-export default {
-  title: 'Components/Inputs/Textarea',
+const meta: Meta<typeof Textarea> = {
+  title: 'Components/Textarea',
   component: Textarea,
-} as Meta;
-
-const Template: StoryFn<TextareaProps> = (args) => {
-  const [value, setValue] = useState(args.value || '');
-  return <Textarea {...args} value={value} onChange={setValue} />;
+  argTypes: {
+    placeholder: { control: 'text' },
+    disabled: { control: 'boolean' },
+  },
 };
 
-export const Default = Template.bind({});
-Default.args = {
-  placeholder: '추가 내용을 입력하세요.',
-  value: '',
+export default meta;
+
+const Template = (args: TextareaProps) => {
+
+  return <Textarea {...args} onChange={(e: ChangeEvent<HTMLTextAreaElement>) => e} />;
 };
 
-export const WithInitialValue = Template.bind({});
-WithInitialValue.args = {
-  value:
-    '미리 입력된 텍스트입니다.\n여러 줄 입력이 가능합니다.\n세 번째 줄입니다.',
-  placeholder: '추가 내용을 입력하세요.',
+export const Default: StoryObj<typeof Textarea> = {
+  render: Template,
+  args: {
+    placeholder: 'Enter your text...',
+  },
+};
+
+export const Disabled: StoryObj<typeof Textarea> = {
+  render: Template,
+  args: {
+    placeholder: 'Cannot type...',
+    disabled: true,
+  },
 };
