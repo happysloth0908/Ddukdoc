@@ -63,9 +63,9 @@ const BottomRollup = ({ isOpen, onClose, children }: BottomRollupProps) => {
         }`}
       >
         {/* 상단 핸들 바 */}
-        <div className="relative h-8">
-          <div className="absolute left-1/2 top-[11px] h-[3px] w-32 -translate-x-1/2 rounded-full bg-zinc-600 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />
-        </div>
+        {/*<div className="relative h-8">*/}
+        {/*  <div className="absolute left-1/2 top-[11px] h-[3px] w-32 -translate-x-1/2 rounded-full bg-zinc-600 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]" />*/}
+        {/*</div>*/}
 
         {/* 컨텐츠 영역 */}
         <div className="h-full overflow-y-auto p-4">
