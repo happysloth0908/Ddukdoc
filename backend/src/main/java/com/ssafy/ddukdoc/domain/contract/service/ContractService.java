@@ -265,7 +265,7 @@ public class ContractService {
 
         // 역할 검증
         roleRepository.findById(roleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "role_id", roleId));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND, "role_id", roleId));
 
         return document;
     }

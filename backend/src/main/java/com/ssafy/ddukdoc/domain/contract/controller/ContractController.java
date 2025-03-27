@@ -70,6 +70,7 @@ public class ContractController {
     }
 
     @PostMapping(value = "/{documentId}/signature", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> saveRecipientSignature(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Integer documentId,
