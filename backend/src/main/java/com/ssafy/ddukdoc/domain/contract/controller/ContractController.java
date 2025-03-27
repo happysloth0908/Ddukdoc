@@ -96,7 +96,7 @@ public class ContractController {
     public ResponseEntity<ApiResponse<Void>> returnDocument(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId,
-            @RequestBody ContractReturnRequestDto contractReturnRequestDto){
+            @Valid @RequestBody ContractReturnRequestDto contractReturnRequestDto){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         contractService.returnDocument(userId, documentId, contractReturnRequestDto.getReturnReason());
