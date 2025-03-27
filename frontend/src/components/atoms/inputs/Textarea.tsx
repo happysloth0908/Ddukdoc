@@ -1,25 +1,24 @@
 import {
   TextareaHTMLAttributes,
-  // ChangeEvent,
+  ChangeEvent,
   forwardRef,
-  useEffect,
   useRef,
 } from 'react';
 
 export interface TextareaProps
   extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
   // value: string;
-  // onChange: (value: string) => void;
+  onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, onChange, ...props }, ref) => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    // const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    //   onChange(e.target.value);
-    //   adjustHeight();
-    // };
+    const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+      onChange(e);
+      // adjustHeight();
+    };
 
     // const adjustHeight = () => {
     //   const textarea = textareaRef.current;
@@ -29,9 +28,6 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     //   }
     // };
 
-    // useEffect(() => {
-    //   adjustHeight();
-    // }, [value]);
 
     return (
       <div className="flex w-full justify-center">
@@ -45,8 +41,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 ref.current = element;
               }
             }}
-            // value={value}
-            // onChange={handleChange}
+            onChange={handleChange}
             rows={3}
             className={`min-h-[72px] w-full resize-none rounded-md border bg-bg-default px-3 py-2 text-md text-text-default placeholder:text-text-description focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:bg-gray-100 disabled:text-text-description ${className}`}
             {...props}
