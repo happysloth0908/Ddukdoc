@@ -24,7 +24,7 @@ function App() {
         <molecules.Header children="test" />
         <Routes>
           {/* 문서 작성입니다. */}
-          <Route path="/docs" element={<DocsWrite />} />
+          <Route path="/docs/*" element={<DocsWrite />} />
           {/* 메인 페이지 */}
           <Route path="/" element={<MainMenuPage />} />
           <Route path="/login" element={<LoginPage />} />
