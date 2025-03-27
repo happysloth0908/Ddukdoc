@@ -167,7 +167,7 @@ export const FileUpload = () => {
         )}
       </div>
       <div className="mb-20">
-        <LongButton className="bg-gray-950 text-white">다음</LongButton>
+        <LongButton colorType="black">다음</LongButton>
       </div>
     </div>
   );
