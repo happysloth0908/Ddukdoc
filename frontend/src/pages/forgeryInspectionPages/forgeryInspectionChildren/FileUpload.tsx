@@ -1,11 +1,22 @@
 import { useState, DragEvent, useEffect, ChangeEvent } from 'react';
 import LongButton from '@/components/atoms/buttons/LongButton';
+import api from '@/apis/axios';
+import { AxiosError } from 'axios';
+
+interface forgeryTestResponseProps {
+  success: boolean;
+  data: string; // success/fail
+  error: string;
+  timestamp: string;
+}
 
 export const FileUpload = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [forgeryTestResponse, setForgeryTestResponse] =
+    useState<forgeryTestResponseProps>();
 
   // PDF URL에 '#toolbar=0' 파라미터를 추가하여 툴바 숨기기
   useEffect(() => {
@@ -72,6 +83,25 @@ export const FileUpload = () => {
     setFile(null);
     setError(null);
     setPdfUrl(null);
+  };
+
+  const onUploadClick = async () => {
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post('/api/verification', formData);
+      setForgeryTestResponse(response.data);
+      console.log('API 응답:', response.data);
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        setError(
+          e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
+        );
+      } else {
+        setError('알 수 없는 오류가 발생했습니다.');
+      }
+    }
   };
 
   // A4 비율 계산 (가로:세로 = 1:1.414)
@@ -166,7 +196,7 @@ export const FileUpload = () => {
           </div>
         )}
       </div>
-      <div className="mb-20">
+      <div className="mb-20" onClick={onUploadClick}>
         <LongButton colorType="black">다음</LongButton>
       </div>
     </div>
