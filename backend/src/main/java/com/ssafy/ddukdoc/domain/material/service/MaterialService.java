@@ -138,7 +138,8 @@ public class MaterialService {
                     .addParameter("materialId", materialId);
         }
 
-        // S3 삭제 로직 추후 추가
+        // S3에서 파일 삭제
+        s3Util.deleteFileFromS3(material.getFilePath());
 
         // 추가자료 삭제
         materialRepository.delete(material);
