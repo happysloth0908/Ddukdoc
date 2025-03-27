@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.contract.controller;
 
+import com.ssafy.ddukdoc.domain.contract.dto.request.ContractReturnRequestDto;
 import com.ssafy.ddukdoc.domain.contract.dto.request.RecipientInfoRequestDto;
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
@@ -86,6 +87,19 @@ public class ContractController {
         }
 
         contractService.saveRecipientInfo(documentId, requestDto, userId, signatureFile);
+        return ApiResponse.ok();
+    }
+
+    // 사용자의 문서 반송
+    @PatchMapping("/return/{doc_id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> returnDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId,
+            @RequestBody ContractReturnRequestDto contractReturnRequestDto){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        contractService.returnDocument(userId, documentId, contractReturnRequestDto.getReturnReason());
         return ApiResponse.ok();
     }
 }
