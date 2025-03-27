@@ -32,8 +32,8 @@ public class DevToolController {
         String accessToken = jwtTokenProvider.createAccessToken(userId.toString());
         String refreshToken = jwtTokenProvider.createRefreshToken(userId.toString());
 
-        ResponseCookie accessTokenCookie = CookieUtil.makeAccessTokenCookie(accessToken);
-        ResponseCookie refreshTokenCookie = CookieUtil.makeRefreshTokenCookie(refreshToken);
+        ResponseCookie accessTokenCookie = CookieUtil.makeDevAccessTokenCookie(accessToken);
+        ResponseCookie refreshTokenCookie = CookieUtil.makeDevRefreshTokenCookie(refreshToken);
 
         Map<String, String> result = new HashMap<>();
         result.put("userId", userId.toString());

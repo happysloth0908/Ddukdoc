@@ -25,7 +25,7 @@ public class DocumentSaveRequestDto {
     private String title;
 
     @NotNull(message = "문서 입력 data는 필수입니다.")
-    private List<DocumentFieldValueSaveRequestDto> data;
+    private List<DocumentFieldDto> data;
 
 
     public Document toEntity(User creator, Template templateId, int pin, TemplateCode templateCode) {

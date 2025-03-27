@@ -5,11 +5,17 @@ import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -101,6 +107,34 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 접근 권한이 없는 경우 발생하는 예외 처리
+     * 발생 조건: @PreAuthorize 등의 보안 어노테이션으로 접근이 거부될 때
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    protected ResponseEntity<ApiResponse<Object>> handleAuthorizationDeniedException(
+            AuthorizationDeniedException e, HttpServletRequest request) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userInfo = auth != null ?
+                auth.toString() : "No Authentication";
+
+        log.error("[AccessDenied] {} {}: {} - User: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e.getMessage(),
+                userInfo
+        );
+
+        // 익명 사용자인 경우
+        if (auth instanceof AnonymousAuthenticationToken) {
+            return ApiResponse.error(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        // 인증은 됐지만 권한이 없는 경우
+        return ApiResponse.error(ErrorCode.FORBIDDEN_ACCESS);
+    }
+
+    /**
      * 기타 모든 처리되지 않은 예외를 처리하는 폴백 핸들러
      * 발생 조건: 위 핸들러에서 처리되지 않은 모든 예외 발생 시
      */
@@ -112,5 +146,19 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 e);
         return ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * 파일 용량 초과 시 예외 처리
+     * 발생 조건: spring.servlet.multipart.max-file-size 또는 request-size 초과
+     */
+    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class})
+    protected ResponseEntity<ApiResponse<Object>> handleMaxUploadSizeExceededException(
+            Exception e, HttpServletRequest request) {
+        log.warn("[MaxUploadSizeExceeded] {} {} - {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e.getMessage());
+        return ApiResponse.error(ErrorCode.MATERIAL_SIZE_EXCEEDED);
     }
 }

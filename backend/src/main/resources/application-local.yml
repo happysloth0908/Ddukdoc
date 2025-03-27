@@ -19,6 +19,7 @@ spring:
       host: localhost
 
 
+
 logging.level:
   org.hibernate.SQL: info
 
