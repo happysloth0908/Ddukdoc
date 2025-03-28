@@ -3,10 +3,13 @@ package com.ssafy.ddukdoc.domain.contract.controller;
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
-import com.ssafy.ddukdoc.global.common.response.ApiResponse;
+import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
+import com.ssafy.ddukdoc.global.common.response.CommonResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -23,18 +26,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/contract")
 @RequiredArgsConstructor
+@Tag(name = "계약 관리", description = "계약/템플릿 관련 API")
 public class ContractController {
     private final ContractService contractService;
     private final AuthenticationUtil authenticationUtil;
 
     @GetMapping("/{templateCode}")
-    public ResponseEntity<ApiResponse<List<TemplateFieldResponseDto>>> getFieldList(@PathVariable String templateCode){
-        return ApiResponse.ok(contractService.getTemplateFields(templateCode));
+    @Operation(summary = "템플릿 필드 목록 조회", description = "템플릿 코드에 해당하는 필드 목록을 조회합니다.")
+    @ApiErrorCodeExamples({ErrorCode.TEMPLATE_NOT_FOUND})
+    public ResponseEntity<CommonResponse<List<TemplateFieldResponseDto>>> getFieldList(@PathVariable String templateCode){
+        return CommonResponse.ok(contractService.getTemplateFields(templateCode));
     }
 
     @PostMapping(value = "/{templateCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Integer>> saveInfo(
+    @Operation(summary = "문서 저장", description = "템플릿 코드에 해당하는 문서를 저장합니다. \n\n pin 번호를 return 합니다.")
+    @ApiErrorCodeExamples({ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.TEMPLATE_NOT_FOUND, ErrorCode.TEMPLATE_FIELD_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.FILE_UPLOAD_ERROR, ErrorCode.INVALID_INPUT_VALUE})
+    public ResponseEntity<CommonResponse<Integer>> saveInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable String templateCode,
             @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,
@@ -44,14 +52,16 @@ public class ContractController {
 
         // 서명 파일 null 또는 비어있는지 확인
         if (signatureFile == null || signatureFile.isEmpty()) {
-            return ApiResponse.error(
+            return CommonResponse.error(
                     ErrorCode.SIGNATURE_FILE_NOT_FOUND);
         }
-        return ApiResponse.ok(contractService.saveDocument(templateCode, requestDto, userId,signatureFile));
+        return CommonResponse.ok(contractService.saveDocument(templateCode, requestDto, userId,signatureFile));
     }
 
     //s3 파일 복호화 후 다운 예시 코드
     @GetMapping("/signature/{documentId}/{userId}")
+    @Operation(summary = "서명 이미지 다운로드", description = "특정 문서의 사용자 서명 이미지를 다운로드합니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.FILE_DOWNLOAD_ERROR})
     public ResponseEntity<byte[]> downloadSignature(
             @PathVariable Integer documentId,
             @PathVariable Integer userId) {
