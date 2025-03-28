@@ -1,6 +1,8 @@
 package com.ssafy.ddukdoc.global.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,14 +12,16 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 
 @Getter
-public class ApiResponse<T> {
+public class CommonResponse<T> {
 
     private final boolean success;
     private final T data;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(hidden = true)
     private final ErrorResponse error;
     private final LocalDateTime timestamp;
 
-    private ApiResponse(boolean success, T data, ErrorResponse error) {
+    private CommonResponse(boolean success, T data, ErrorResponse error) {
         this.success = success;
         this.data = data;
         this.error = error;
@@ -31,10 +35,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> success(HttpStatus status) {
+    public static <T> ResponseEntity<CommonResponse<T>> success(HttpStatus status) {
         return ResponseEntity
                 .status(status)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -45,10 +49,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> success(HttpStatus status, T data) {
+    public static <T> ResponseEntity<CommonResponse<T>> success(HttpStatus status, T data) {
         return ResponseEntity
                 .status(status)
-                .body(new ApiResponse<>(true, data, null));
+                .body(new CommonResponse<>(true, data, null));
     }
 
     /**
@@ -57,10 +61,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> ok() {
+    public static <T> ResponseEntity<CommonResponse<T>> ok() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -70,10 +74,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> ok(T data) {
+    public static <T> ResponseEntity<CommonResponse<T>> ok(T data) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ApiResponse<>(true, data, null));
+                .body(new CommonResponse<>(true, data, null));
     }
 
     /**
@@ -83,7 +87,7 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답과 쿠키를 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> okWithCookie(ResponseCookie... cookies) {
+    public static <T> ResponseEntity<CommonResponse<T>> okWithCookie(ResponseCookie... cookies) {
         HttpHeaders headers = new HttpHeaders();
         for (ResponseCookie cookie : cookies) {
             headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -92,7 +96,7 @@ public class ApiResponse<T> {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .headers(headers)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -103,7 +107,7 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답과 쿠키를 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> okWithCookie(T data, ResponseCookie... cookies) {
+    public static <T> ResponseEntity<CommonResponse<T>> okWithCookie(T data, ResponseCookie... cookies) {
         HttpHeaders headers = new HttpHeaders();
         for (ResponseCookie cookie : cookies) {
             headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -112,7 +116,7 @@ public class ApiResponse<T> {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .headers(headers)
-                .body(new ApiResponse<>(true, data, null));
+                .body(new CommonResponse<>(true, data, null));
     }
 
     /**
@@ -121,10 +125,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> created() {
+    public static <T> ResponseEntity<CommonResponse<T>> created() {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -134,10 +138,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> created(T data) {
+    public static <T> ResponseEntity<CommonResponse<T>> created(T data) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, data, null));
+                .body(new CommonResponse<>(true, data, null));
     }
 
     /**
@@ -146,10 +150,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> noContent() {
+    public static <T> ResponseEntity<CommonResponse<T>> noContent() {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -158,10 +162,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> accepted() {
+    public static <T> ResponseEntity<CommonResponse<T>> accepted() {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -171,10 +175,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> accepted(T data) {
+    public static <T> ResponseEntity<CommonResponse<T>> accepted(T data) {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(new ApiResponse<>(true, data, null));
+                .body(new CommonResponse<>(true, data, null));
     }
 
     /**
@@ -184,13 +188,13 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> found(String location) {
+    public static <T> ResponseEntity<CommonResponse<T>> found(String location) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.LOCATION, location);
         return ResponseEntity
                 .status(HttpStatus.FOUND)
                 .headers(headers)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -201,7 +205,7 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 응답과 쿠키를 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> redirectWithCookie(String location, ResponseCookie... cookies) {
+    public static <T> ResponseEntity<CommonResponse<T>> redirectWithCookie(String location, ResponseCookie... cookies) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.LOCATION, location);
 
@@ -212,7 +216,7 @@ public class ApiResponse<T> {
         return ResponseEntity
                 .status(HttpStatus.FOUND)
                 .headers(headers)
-                .body(new ApiResponse<>(true, null, null));
+                .body(new CommonResponse<>(true, null, null));
     }
 
     /**
@@ -222,10 +226,10 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 오류 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorCode error) {
+    public static <T> ResponseEntity<CommonResponse<T>> error(ErrorCode error) {
         return ResponseEntity
                 .status(error.getStatus())
-                .body(new ApiResponse<>(false, null, new ErrorResponse(error.getCode(), error.getMessage())));
+                .body(new CommonResponse<>(false, null, new ErrorResponse(error.getCode(), error.getMessage())));
     }
 
     /**
@@ -236,9 +240,24 @@ public class ApiResponse<T> {
      * @param <T> 응답 데이터의 타입
      * @return API 오류 응답을 포함하는 ResponseEntity
      */
-    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorCode error, String message) {
+    public static <T> ResponseEntity<CommonResponse<T>> error(ErrorCode error, String message) {
         return ResponseEntity
                 .status(error.getStatus())
-                .body(new ApiResponse<>(false, null, new ErrorResponse(error.getCode(), message)));
+                .body(new CommonResponse<>(false, null, new ErrorResponse(error.getCode(), message)));
+    }
+
+    /**
+     * Swagger 문서화를 위한 에러 응답 예시 객체를 생성합니다.
+     * 실제 응답을 생성하지 않고 예시 객체만 생성합니다.
+     *
+     * @param errorCode 에러 코드
+     * @return 에러 응답 예시 객체
+     */
+    public static CommonResponse<?> errorExample(ErrorCode errorCode) {
+        return new CommonResponse<>(
+                false,
+                null,
+                new ErrorResponse(errorCode.getCode(), errorCode.getMessage())
+        );
     }
 }

@@ -24,6 +24,7 @@ public enum ErrorCode {
     CREATOR_NOT_MATCH(HttpStatus.UNAUTHORIZED, "D002", "문서의 발신자가 아닙니다"),
     DOCUMENT_NOT_RETURNED(HttpStatus.BAD_REQUEST, "D003", "반송되지 않은 문서입니다"),
     USER_DOC_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "D004", "사용자의 문서 역할을 찾을 수 없습니다"),
+    INVALID_DOCUMENT_STATUS(HttpStatus.BAD_REQUEST,"D005" ,"문서의 상태가 서명대기가 아닙니다." ),
 
     // Role
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "존재하지 않는 문서 역할입니다"),
@@ -32,10 +33,12 @@ public enum ErrorCode {
     PIN_CODE_MISMATCH(HttpStatus.NOT_FOUND, "P001", "잘못된 핀번호입니다"),
     PIN_CODE_REQUIRED(HttpStatus.BAD_REQUEST, "P002", "핀코드 입력이 필요합니다"),
 
-    //DocumentEvidence
+    // DocumentEvidence
     MATERIAL_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "M001", "파일이 없거나 비어있습니다"),
     MATERIAL_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "M002", "허용되지 않는 확장자입니다"),
     MATERIAL_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "M003", "파일 용량을 초과했습니다"),
+    MATERIAL_NOT_FOUND(HttpStatus.NOT_FOUND, "M004", "존재하지 않는 파일입니다"),
+    MATERIAL_NOT_IMAGE(HttpStatus.BAD_REQUEST, "M005","이미지 파일만 조회 가능합니다"),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
@@ -62,6 +65,8 @@ public enum ErrorCode {
     FILE_NOT_FOUND(HttpStatus.BAD_REQUEST,"S006","파일이 존재하지 않거나 파일이 아닙니다."),
     FILE_SIZE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S007","파일 크기가 IV 길이보다 작습니다. 파일이 손상되었을 수 있습니다."),
     FILE_DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S008","파일 복호화 과정에서 오류가 발생했습니다."),
+    FILE_PATH_ERROR(HttpStatus.BAD_REQUEST, "S009", "잘못된 파일 경로입니다"),
+    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S010", "파일 삭제 중 오류가 발생했습니다"),
 
     //Hash
     INVALID_ENCRYPTION_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR,"H001","지원하지 않는 해시 암호화 알고리즘입니다."),

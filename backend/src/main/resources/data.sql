@@ -43,7 +43,7 @@ VALUES
 
 -- 지연 변제 관련
 (11, 1, (SELECT id FROM templates WHERE code = 'G1'), 'late_interest_rate', 'DECIMAL(5,2)', '지연 이자율 (%)', TRUE, 11, '변제조건', NULL, '연체 발생 시 이자율', '예: 5.0', NOW(), NOW()),
-(12, 1, (SELECT id FROM templates WHERE code = 'G1'), 'loss_of_benefit_conditions', 'TEXT', '기한의 이익 상실 조건', TRUE, 12, '변제조건', NULL, '기한의 이익 상실 사유', '예: 이자 3회 연체 시', NOW(), NOW()),
+(12, 1, (SELECT id FROM templates WHERE code = 'G1'), 'loss_of_benefit_conditions', 'INT', '지연 횟수', TRUE, 12, '변제조건', NULL, '기한의 이익 상실 사유', '예: 3', NOW(), NOW()),
 
 -- 특약사항
 (13, 1, (SELECT id FROM templates WHERE code = 'G1'), 'special_terms', 'TEXT', '특약사항', FALSE, 13, '기타', NULL, '특별 약정 사항', '예: 없음', NOW(), NOW()),

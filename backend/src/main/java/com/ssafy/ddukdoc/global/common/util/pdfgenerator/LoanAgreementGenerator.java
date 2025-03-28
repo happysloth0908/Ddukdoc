@@ -118,9 +118,15 @@ public class LoanAgreementGenerator implements DocumentGenerator{
 
         // 계좌번호
         Cell accountLabel = new Cell().add(new Paragraph("계좌번호").setBold().setFont(font));
-        Cell accountValue = new Cell().add(new Paragraph(fieldMap.get("account_number") + " (" + fieldMap.get("account_holder") + ")").setFont(font));
+        Cell accountValue = new Cell().add(new Paragraph(fieldMap.get("account_number")).setFont(font));
         accountTable.addCell(accountLabel);
         accountTable.addCell(accountValue);
+
+        // 예금주
+        Cell account_holderLabel = new Cell().add(new Paragraph("예금주").setBold().setFont(font));
+        Cell account_holderValue = new Cell().add(new Paragraph(fieldMap.get("account_holder")).setFont(font));
+        accountTable.addCell(account_holderLabel);
+        accountTable.addCell(account_holderValue);
 
         // 이자 지급일
         Cell interestDateLabel = new Cell().add(new Paragraph("이자 지급일").setBold().setFont(font));
