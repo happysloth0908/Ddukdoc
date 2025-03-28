@@ -16,14 +16,14 @@ function App() {
   const isMainRoute = location.pathname === '/';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
-    : 'bg-white';
+    : 'bg-bg-default';
 
   return (
     <div className="flex h-dvh w-dvw items-center justify-center">
       <div
         className={`relative flex h-dvh w-dvw flex-col border px-8 md:max-w-md ${bgClass} `}
       >
-        <molecules.Header children="test" />
+        <molecules.Header />
         <Routes>
           {/* 문서 작성입니다. */}
           <Route path="/docs/*" element={<DocsWrite />} />
