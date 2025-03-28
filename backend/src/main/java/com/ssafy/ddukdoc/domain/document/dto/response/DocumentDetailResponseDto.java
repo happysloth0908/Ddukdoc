@@ -16,14 +16,12 @@ public class DocumentDetailResponseDto {
     private UserRoleResponseDto userRoleInfo;
 
     public static DocumentDetailResponseDto of(Document document,
-                                               List<DocumentFieldValue> fieldValues,
+                                               List<DocumentFieldResponseDto> fieldValues,
                                                SignatureResponseDto signature,
                                                UserRoleResponseDto userRoleInfo) {
         return DocumentDetailResponseDto.builder()
                 .docsInfo(DocumentResponseDto.of(document))
-                .field(fieldValues.stream()
-                        .map(DocumentFieldResponseDto::of)
-                        .collect(Collectors.toList()))
+                .field(fieldValues)
                 .signature(signature)
                 .userRoleInfo(userRoleInfo)
                 .build();

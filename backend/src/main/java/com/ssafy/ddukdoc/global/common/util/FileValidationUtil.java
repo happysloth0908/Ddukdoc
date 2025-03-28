@@ -58,4 +58,13 @@ public class FileValidationUtil {
         }
         return filename.substring(filename.lastIndexOf('.') + 1);
     }
+
+    /**
+     * 이미지 파일인지 확인
+     * @param extension 파일 확장자
+     * @return boolean
+     */
+    public boolean isImageExtension(String extension) {
+        return Arrays.asList("jpg", "jpeg", "png", "gif", "bmp", "webp").contains(extension.toLowerCase());
+    }
 }
