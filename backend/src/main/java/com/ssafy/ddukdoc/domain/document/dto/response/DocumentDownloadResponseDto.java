@@ -12,7 +12,7 @@ public class DocumentDownloadResponseDto {
 
     public static DocumentDownloadResponseDto of(Document document, byte[] content){
         return DocumentDownloadResponseDto.builder()
-                .documentTitle(document.getTitle())
+                .documentTitle(document.getTitle().replaceAll("\\s+", "_"))
                 .documentContent(content)
                 .build();
     }
