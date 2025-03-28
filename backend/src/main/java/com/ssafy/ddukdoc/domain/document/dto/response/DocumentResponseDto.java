@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.dto.response;
 
 import com.ssafy.ddukdoc.domain.document.entity.Document;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,17 +10,29 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class DocumentResponseDto {
+    @Schema(example = "1")
     private Integer id;
+    @Schema(example = "G1")
     private String templateId;
+    @Schema(example = "차용증")
     private String templateName;
+    @Schema(example = "소운이 200만원 빌린 차용증")
     private String title;
+    @Schema(example = "서명 대기")
     private String status;
+    @Schema(example = "10")
     private Integer creatorId;
+    @Schema(example = "홍길동")
     private String creatorName;
+    @Schema(example = "20")
     private Integer recipientId;
+    @Schema(example = "김철수")
     private String recipientName;
+    @Schema(example = "2023-05-10T09:30:00")
     private LocalDateTime createdAt;
+    @Schema(example = "2023-05-10T10:15:30")
     private LocalDateTime updatedAt;
+    @Schema(example = "null")
     private String returnReason;
 
     public static DocumentResponseDto of(Document document){
