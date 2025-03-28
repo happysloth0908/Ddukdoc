@@ -4,6 +4,7 @@ import com.ssafy.ddukdoc.domain.contract.dto.request.ContractReturnRequestDto;
 import com.ssafy.ddukdoc.domain.contract.dto.request.RecipientInfoRequestDto;
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentSaveResponseDto;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -39,7 +40,7 @@ public class ContractController {
 
     @PostMapping(value = "/{templateCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Integer>> saveInfo(
+    public ResponseEntity<ApiResponse<DocumentSaveResponseDto>> saveInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable String templateCode,
             @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,

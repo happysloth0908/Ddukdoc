@@ -5,6 +5,7 @@ import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentSaveResponseDto;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
@@ -70,7 +71,7 @@ public class ContractService {
         return fieldResponses;
     }
     @Transactional
-    public int saveDocument(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
+    public DocumentSaveResponseDto saveDocument(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
 
         TemplateCode templateCode = TemplateCode.fromString(codeStr);
         //사용자 조회
@@ -97,7 +98,9 @@ public class ContractService {
         //userID 저장
         saveUserDocRole(saveDocument,user,requestDto.getRoleId());
 
-        return pin;
+        DocumentSaveResponseDto responseDto = DocumentSaveResponseDto.of(pin,saveDocument.getId());
+
+        return responseDto;
     }
 
     private void saveUserDocRole(Document document, User user, int roleId) {
