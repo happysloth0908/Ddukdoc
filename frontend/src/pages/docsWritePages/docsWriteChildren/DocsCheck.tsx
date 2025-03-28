@@ -1,25 +1,24 @@
 import atoms from "@/components/atoms"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { pdf } from "@react-pdf/renderer";
 import { Documents } from "@/pdfs/Documents";
 
 export const DocsCheck = ({ curTemplate }: { curTemplate: string }) => {
+    
+  const location = useLocation();
+  const previousPage = location.state?.from || "알 수 없음";
+
+  console.log(previousPage);
 
     // pdf 미리보기
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  
+                                                                                          
     useEffect(() => {
       const generatePdf = async () => {
-        if (curTemplate === "G1") {
-            const blob = await pdf(<Documents templateCode="G1" />).toBlob();
+            const blob = await pdf(<Documents templateCode={curTemplate} />).toBlob();
             const url = URL.createObjectURL(blob);
             setPdfUrl(url);
-        } else if (curTemplate === "G2") {
-            const blob = await pdf(<Documents templateCode="G2" />).toBlob();
-            const url = URL.createObjectURL(blob);
-            setPdfUrl(url);
-        }
       };
   
       generatePdf();

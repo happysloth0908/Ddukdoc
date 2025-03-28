@@ -8,14 +8,16 @@ import iouData from "@/types/iou";
 export const DocsWriteBank = ({data, handleData}: {data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
 
     const [formData, setFormData] = useState({
-        bank_name: "",
-        account_holder: "",
-        account_number: "",
+        bank_name: data.bank_name || "",
+        account_holder: data.account_holder || "",
+        account_number: data.account_number || "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (value != null) {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleSenderData = () => {
@@ -38,9 +40,9 @@ export const DocsWriteBank = ({data, handleData}: {data: iouData, handleData: (n
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"계좌 정보"} description="를 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
-                        <atoms.Input name="bank_name" onChange={handleChange} label="은행명" />
-                        <atoms.Input name="account_holder" onChange={handleChange} label="예금주" />
-                        <atoms.Input name="account_number" onChange={handleChange} label="계좌번호" />
+                        <atoms.Input name="bank_name" defaultValue={data.bank_name || ""} onChange={handleChange} label="은행명" />
+                        <atoms.Input name="account_holder" defaultValue={data.account_holder || ""} onChange={handleChange} label="예금주" />
+                        <atoms.Input name="account_number" defaultValue={data.account_number || ""} onChange={handleChange} label="계좌번호" />
                     </form>
                 </div>
             </div>

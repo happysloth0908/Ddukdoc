@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import atoms from "@/components/atoms";
 import iouData from '@/types/iou';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const DocsWriteSender = ({role, data, handleData}: {role: string, data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
     const [formData, setFormData] = useState({
@@ -10,30 +10,6 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
         address: (data.creditor_address || data.debtor_address) || "",
         contact: (data.creditor_contact || data.debtor_contact) || "",
     });
-
-    // 부모 데이터가 업데이트되면 formData를 동기화 (빈 값일 때만 업데이트)
-    // useEffect(() => {
-    //     if (!formData.name && !formData.id && !formData.address && !formData.contact) {
-    //         setFormData(role === "채권자"
-    //             ? {
-    //                 name: data.creditor_name || "",
-    //                 id: data.creditor_id || "",
-    //                 address: data.creditor_address || "",
-    //                 contact: data.creditor_contact || "",
-    //             }
-    //             : {
-    //                 name: data.debtor_name || "",
-    //                 id: data.debtor_id || "",
-    //                 address: data.debtor_address || "",
-    //                 contact: data.debtor_contact || "",
-    //             }
-    //         );
-    //     }
-    // }, [data, role]);
-    useEffect(() => {
-        console.log("나는 자식");
-        console.log(formData);
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -68,10 +44,10 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={role+" 정보"} description="를 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
-                        <atoms.Input name="name" label="이름" onChange={handleChange} />
-                        <atoms.Input name="id" label="주민등록번호" onChange={handleChange} />
-                        <atoms.Input name="address" label="주소" onChange={handleChange} />
-                        <atoms.Input name="contact" label="연락처" onChange={handleChange} />
+                        <atoms.Input name="name" defaultValue={(data.creditor_name || data.debtor_name) || ""} label="이름" onChange={handleChange} />
+                        <atoms.Input name="id" defaultValue={(data.creditor_id || data.debtor_id) || ""} label="주민등록번호" onChange={handleChange} />
+                        <atoms.Input name="address" defaultValue={(data.creditor_address || data.debtor_address) || ""} label="주소" onChange={handleChange} />
+                        <atoms.Input name="contact" defaultValue={(data.creditor_contact || data.debtor_contact) || ""} label="연락처" onChange={handleChange} />
                     </form>
                 </div>
             </div>
