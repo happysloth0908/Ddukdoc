@@ -332,4 +332,31 @@ public class ContractService {
         documentRepository.save(document);
     }
 
+
+    @Transactional
+    public void returnDocument(Integer userId, Integer documentId, String returnReason){
+
+        // Document 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+        
+        // 사용자 검증 (수신자인지 검증)
+        if(document.getRecipient()==null || !document.getRecipient().getId().equals(userId)){
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 문서 상태 검증
+        if(!document.getStatus().equals(DocumentStatus.WAITING)){
+            throw new CustomException(ErrorCode.INVALID_DOCUMENT_STATUS, "status", document.getStatus())
+                    .addParameter("documentId", documentId);
+        }
+        
+        // 반송 이유 업데이트
+        document.updateReturnReason(returnReason);
+        
+        // 문서 상태 업데이트
+        document.updateStatus(DocumentStatus.RETURNED);
+    }
+
 }
