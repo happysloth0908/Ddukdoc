@@ -1,28 +1,39 @@
-import { ChevronLeft } from 'lucide-react';
-// import { useEffect } from 'react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-interface HeaderProps {
-  children: string;
-}
-
-export const Header = ({ children }: HeaderProps) => {
+export const Header = () => {
   const navigate = useNavigate();
+  const pathname = useLocation().pathname;
 
   // 뒤로 가기 눌렀을 때
   const onClick = () => {
     if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate("/");
+      navigate('/');
     }
   };
 
+  const getTitleByPath = () => {
+    if (pathname.startsWith('/docs')) return '문서 작성';
+    if (pathname.startsWith('/mypage')) return '나의 문서';
+    if (pathname.startsWith('/forgery')) return '위변조 확인';
+    return '';
+  };
+
   return (
-    <div className="z-100 container sticky left-0 top-0 flex items-center">
-      <ChevronLeft onClick={onClick} />
-      <span className="text-xs">뒤로 가기</span>
-      <div className="absolute left-1/2 -translate-x-1/2">{children}</div>
+    <div className="flex w-full justify-center">
+      {!pathname.startsWith('/login') && !(pathname === '/') && (
+        <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
+          <ArrowLeft className="text-primary-300" onClick={onClick} />
+          <span className="text-md"></span>
+          <div className="w-full flex-1 text-center text-info-small">
+            {getTitleByPath()}
+          </div>
+          <LogOut className="invisible text-primary-300" />
+        </div>
+      )}
     </div>
   );
 };
