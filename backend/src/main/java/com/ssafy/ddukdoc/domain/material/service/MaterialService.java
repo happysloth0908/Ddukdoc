@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.material.service;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.material.dto.response.MaterialDetailResponseDto;
+import com.ssafy.ddukdoc.domain.material.dto.response.MaterialDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.material.dto.response.MaterialListResponseDto;
 import com.ssafy.ddukdoc.domain.material.entity.DocumentEvidence;
 import com.ssafy.ddukdoc.domain.material.repository.MaterialRepository;
@@ -12,16 +13,22 @@ import com.ssafy.ddukdoc.global.common.util.FileValidationUtil;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class MaterialService {
 
@@ -143,6 +150,52 @@ public class MaterialService {
 
         // 추가자료 삭제
         materialRepository.delete(material);
+    }
+
+    public MaterialDownloadResponseDto downloadMaterial(Integer userId, Integer documentId){
+
+        // 문서 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 사용자 접근 권한 확인 (문서 생성자 또는 수신자만 다운로드 가능)
+        if (!(document.getCreator().getId().equals(userId) || document.getRecipient().getId().equals(userId))) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 추가자료 목록 조회
+        List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
+        if(documentEvidenceList.isEmpty()){
+            throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, "documentId", documentId);
+        }
+
+        // Zip 파일 생성
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        try (ZipOutputStream zipStream = new ZipOutputStream(byteStream)) {
+            for (DocumentEvidence evidence : documentEvidenceList) {
+                try {
+                    // S3에서 파일 자료 복호화 및 다운로드
+                    byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(evidence.getFilePath());
+
+                    // Zip 파일 엔트리 생성
+                    ZipEntry zipEntry = new ZipEntry(evidence.getTitle());
+                    zipStream.putNextEntry(zipEntry);
+                    zipStream.write(fileContent);
+                    zipStream.closeEntry();
+                } catch (IOException e) {
+                    log.error("자료 파일 처리 실패 - 증빙 제목: {}. 에러: {}", evidence.getTitle(), e.getMessage(), e);
+                    throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, "documentId", documentId)
+                            .addParameter("materialId", evidence.getId());
+                }
+            }
+            zipStream.finish();
+        } catch (IOException e) {
+            log.error("ZIP 파일 생성 실패 - documentId: {}. 에러: {}", documentId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.MATERIAL_ZIP_CONVERT_ERROR, "documentId", documentId)
+                    .addParameter("예외 메세지", e.getMessage());
+        }
+        return MaterialDownloadResponseDto.of(document, byteStream.toByteArray());
     }
 
 }
