@@ -1,6 +1,6 @@
 package com.ssafy.ddukdoc.global.error.handler;
 
-import com.ssafy.ddukdoc.global.common.response.ApiResponse;
+import com.ssafy.ddukdoc.global.common.response.CommonResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -29,7 +28,7 @@ public class GlobalExceptionHandler {
      * 또는: throw new CustomException(ErrorCode.XXX, "paramName", paramValue)
      */
     @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<ApiResponse<Object>> handleCustomException(CustomException e, HttpServletRequest request) {
+    protected ResponseEntity<CommonResponse<Object>> handleCustomException(CustomException e, HttpServletRequest request) {
         if (!e.getParameters().isEmpty()) {
             log.error("[CustomException] {} {}: {} - Parameters: {}",
                     request.getMethod(),
@@ -45,7 +44,7 @@ public class GlobalExceptionHandler {
             );
         }
 
-        return ApiResponse.error(e.getErrorCode());
+        return CommonResponse.error(e.getErrorCode());
     }
 
     /**
@@ -53,7 +52,7 @@ public class GlobalExceptionHandler {
      * 발생 조건: @Valid 어노테이션이 지정된 파라미터의 유효성 검증 실패 시
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValidException(
+    protected ResponseEntity<CommonResponse<Object>> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e, HttpServletRequest request) {
 
         FieldError fieldError = e.getBindingResult().getFieldError();
@@ -68,7 +67,7 @@ public class GlobalExceptionHandler {
                 defaultMessage,
                 rejectedValue
         );
-        return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE, field + " : " + defaultMessage);
+        return CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE, rejectedValue + " : " + defaultMessage);
     }
 
     /**
@@ -76,10 +75,10 @@ public class GlobalExceptionHandler {
      * 발생 조건: 매핑되지 않은 URL로 요청이 들어올 때
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    protected ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(
+    protected ResponseEntity<CommonResponse<Object>> handleNoResourceFoundException(
             NoResourceFoundException e, HttpServletRequest request) {
         log.warn("[ResourceNotFound] {} {}", request.getMethod(), request.getRequestURI());
-        return ApiResponse.error(ErrorCode.RESOURCE_NOT_FOUND);
+        return CommonResponse.error(ErrorCode.RESOURCE_NOT_FOUND);
     }
 
     /**
@@ -89,13 +88,13 @@ public class GlobalExceptionHandler {
      * 2. 비즈니스 로직에서 throw new IllegalArgumentException() 사용 시
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(
+    protected ResponseEntity<CommonResponse<Object>> handleIllegalArgumentException(
             IllegalArgumentException e, HttpServletRequest request) {
         // HTTP 메소드 이름 관련 예외는 보안 시도로 간주
         if (e.getMessage() != null && e.getMessage().contains("HTTP method names must be tokens")) {
             log.warn("[InvalidRequest] Malformed HTTP method from IP: {}",
                     request.getRemoteAddr());
-            return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE);
+            return CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE);
         }
 
         // 다른 IllegalArgumentException은 기존대로 처리
@@ -103,7 +102,7 @@ public class GlobalExceptionHandler {
                 request.getMethod(),
                 request.getRequestURI(),
                 e.getMessage());
-        return ApiResponse.error(ErrorCode.INVALID_INPUT_VALUE);
+        return CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE);
     }
 
     /**
@@ -111,7 +110,7 @@ public class GlobalExceptionHandler {
      * 발생 조건: @PreAuthorize 등의 보안 어노테이션으로 접근이 거부될 때
      */
     @ExceptionHandler(AuthorizationDeniedException.class)
-    protected ResponseEntity<ApiResponse<Object>> handleAuthorizationDeniedException(
+    protected ResponseEntity<CommonResponse<Object>> handleAuthorizationDeniedException(
             AuthorizationDeniedException e, HttpServletRequest request) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -127,11 +126,11 @@ public class GlobalExceptionHandler {
 
         // 익명 사용자인 경우
         if (auth instanceof AnonymousAuthenticationToken) {
-            return ApiResponse.error(ErrorCode.UNAUTHORIZED_ACCESS);
+            return CommonResponse.error(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
         // 인증은 됐지만 권한이 없는 경우
-        return ApiResponse.error(ErrorCode.FORBIDDEN_ACCESS);
+        return CommonResponse.error(ErrorCode.FORBIDDEN_ACCESS);
     }
 
     /**
@@ -139,13 +138,13 @@ public class GlobalExceptionHandler {
      * 발생 조건: 위 핸들러에서 처리되지 않은 모든 예외 발생 시
      */
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ApiResponse<Object>> handleException(Exception e, HttpServletRequest request) {
+    protected ResponseEntity<CommonResponse<Object>> handleException(Exception e, HttpServletRequest request) {
         log.error("[UnhandledException] {} {}: {}",
                 request.getMethod(),
                 request.getRequestURI(),
                 e.getMessage(),
                 e);
-        return ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
+        return CommonResponse.error(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -153,12 +152,12 @@ public class GlobalExceptionHandler {
      * 발생 조건: spring.servlet.multipart.max-file-size 또는 request-size 초과
      */
     @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class})
-    protected ResponseEntity<ApiResponse<Object>> handleMaxUploadSizeExceededException(
+    protected ResponseEntity<CommonResponse<Object>> handleMaxUploadSizeExceededException(
             Exception e, HttpServletRequest request) {
         log.warn("[MaxUploadSizeExceeded] {} {} - {}",
                 request.getMethod(),
                 request.getRequestURI(),
                 e.getMessage());
-        return ApiResponse.error(ErrorCode.MATERIAL_SIZE_EXCEEDED);
+        return CommonResponse.error(ErrorCode.MATERIAL_SIZE_EXCEEDED);
     }
 }
