@@ -149,7 +149,7 @@ export const FileUpload: FC<FileUploadProps> = ({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="py-10 text-info-large">
+      <div className="py-10 text-info-large font-bold">
         <div className="">검증할 문서를</div>
         <div className="">업로드해주세요!</div>
       </div>
