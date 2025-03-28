@@ -34,7 +34,7 @@ function App() {
           {/* 마이페이지 */}
           <Route path="/mypage/*" element={<MyPage />} />
           {/* 위변조 검사 */}
-          <Route path="/forgery" element={<ForgeryInspection />} />
+          <Route path="/forgery/*" element={<ForgeryInspection />} />
         </Routes>
       </div>
     </div>
