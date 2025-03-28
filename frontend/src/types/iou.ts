@@ -12,12 +12,12 @@ export default interface iouData {
     late_interest_rate: number;
     loss_of_benefit_conditions: number;
     special_terms?: string; // 선택 항목
-    creditor_name: string | null;
-    creditor_address: string | null;
-    creditor_contact: string | null;
-    creditor_id: string | null;
-    debtor_name: string | null;
-    debtor_address: string | null;
-    debtor_contact: string | null;
-    debtor_id: string | null;
+    creditor_name: string;
+    creditor_address: string;
+    creditor_contact: string;
+    creditor_id: string;
+    debtor_name: string;
+    debtor_address: string;
+    debtor_contact: string;
+    debtor_id: string;
 }
