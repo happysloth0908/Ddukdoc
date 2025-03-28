@@ -1,22 +1,35 @@
-import { useState, DragEvent, useEffect, ChangeEvent } from 'react';
+import { useState, DragEvent, useEffect, ChangeEvent, FC } from 'react';
 import LongButton from '@/components/atoms/buttons/LongButton';
-import api from '@/apis/axios';
-import { AxiosError } from 'axios';
+// import api from '@/apis/axios';
+// import { AxiosError } from 'axios';
 
-interface forgeryTestResponseProps {
-  success: boolean;
-  data: string; // success/fail
-  error: string;
-  timestamp: string;
+// interface forgeryTestResponseProps {
+//   success: boolean;
+//   data: string; // success/fail
+//   error: string;
+//   timestamp: string;
+// }
+
+interface FileUploadProps {
+  onFileSelect: (file: File | null) => void;
+  onUploadClick: () => void;
+  externalError?: string | null;
 }
 
-export const FileUpload = () => {
+export const FileUpload: FC<FileUploadProps> = ({
+  onFileSelect,
+  onUploadClick,
+  externalError,
+}) => {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [internalError, setInternalError] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [forgeryTestResponse, setForgeryTestResponse] =
-    useState<forgeryTestResponseProps>();
+  // const [forgeryTestResponse, setForgeryTestResponse] =
+  //   useState<forgeryTestResponseProps>();
+
+  // 현재 표시할 에러 (내부 에러 또는 외부에서 전달된 에러)
+  const error = externalError || internalError;
 
   // PDF URL에 '#toolbar=0' 파라미터를 추가하여 툴바 숨기기
   useEffect(() => {
@@ -31,13 +44,18 @@ export const FileUpload = () => {
     }
   }, [file]);
 
+  // 파일이 변경될 때마다 부모 컴포넌트에 알림
+  useEffect(() => {
+    onFileSelect(file);
+  }, [file, onFileSelect]);
+
   // 파일 타입 검증 함수
   const validateFile = (file: File): boolean => {
     if (file.type !== 'application/pdf') {
-      setError('PDF 파일만 업로드 가능합니다.');
+      setInternalError('PDF 파일만 업로드 가능합니다.');
       return false;
     }
-    setError(null);
+    setInternalError(null);
     return true;
   };
 
@@ -81,27 +99,32 @@ export const FileUpload = () => {
 
   const removeFile = () => {
     setFile(null);
-    setError(null);
+    setInternalError(null);
     setPdfUrl(null);
   };
 
-  const onUploadClick = async () => {
-    if (!file) return;
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await api.post('/api/verification', formData);
-      setForgeryTestResponse(response.data);
-      console.log('API 응답:', response.data);
-    } catch (e) {
-      if (e instanceof AxiosError) {
-        setError(
-          e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
-        );
-      } else {
-        setError('알 수 없는 오류가 발생했습니다.');
-      }
-    }
+  // const onUploadClick = async () => {
+  //   if (!file) return;
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append('file', file);
+  //     const response = await api.post('/api/verification', formData);
+  //     setForgeryTestResponse(response.data);
+  //     console.log('API 응답:', response.data);
+  //   } catch (e) {
+  //     if (e instanceof AxiosError) {
+  //       setError(
+  //         e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
+  //       );
+  //     } else {
+  //       setError('알 수 없는 오류가 발생했습니다.');
+  //     }
+  //   }
+  // };
+
+  const onNextClick = () => {
+    // 부모 컴포넌트의 onUploadClick 함수 호출
+    onUploadClick();
   };
 
   // A4 비율 계산 (가로:세로 = 1:1.414)
@@ -196,7 +219,7 @@ export const FileUpload = () => {
           </div>
         )}
       </div>
-      <div className="mb-20" onClick={onUploadClick}>
+      <div className="mb-20" onClick={onNextClick}>
         <LongButton colorType="black">다음</LongButton>
       </div>
     </div>
