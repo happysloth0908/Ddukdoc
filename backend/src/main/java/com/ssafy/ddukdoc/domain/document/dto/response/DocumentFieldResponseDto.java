@@ -25,7 +25,7 @@ public class DocumentFieldResponseDto {
     @Schema(example = "사업 운영 자금")
     private String fieldValue;
 
-    public static DocumentFieldResponseDto of(DocumentFieldValue documentFieldValue){
+    public static DocumentFieldResponseDto of(DocumentFieldValue documentFieldValue,String decryptedValue){
         return DocumentFieldResponseDto.builder()
                 .fieldId(documentFieldValue.getField().getId())
                 .roleId(documentFieldValue.getField().getRole().getId())
@@ -34,7 +34,7 @@ public class DocumentFieldResponseDto {
                 .type(documentFieldValue.getField().getType())
                 .order(documentFieldValue.getField().getDisplayOrder())
                 .group(documentFieldValue.getField().getFieldGroup())
-                .fieldValue(documentFieldValue.getFieldValue())
+                .fieldValue(decryptedValue)
                 .build();
     }
 }

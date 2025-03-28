@@ -211,4 +211,31 @@ public class S3Util {
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "파일 다운로드 및 복호화 중 오류: " + e.getMessage());
         }
     }
+
+    // S3에 업로드 된 파일 삭제
+    public void deleteFileFromS3(String s3Path){
+        try{
+            String fileKey;
+
+            // S3 URL에서 파일 키 추출
+            if (s3Path.contains("/eftoj1/")) {
+                fileKey = "eftoj1/" + s3Path.split("/eftoj1/")[1];
+            } else {
+                log.warn("잘못된 파일 경로 형식: {}", s3Path);
+                throw new CustomException(ErrorCode.FILE_PATH_ERROR, "filePath", s3Path);
+            }
+
+            // S3에서 파일 삭제
+            amazonS3.deleteObject(bucket, fileKey);
+            log.info("파일 삭제 성공: {}", fileKey);
+
+        } catch (AmazonS3Exception e) {
+            log.error("S3 파일 삭제 중 오류 발생: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filePath", s3Path);
+        } catch (Exception e) {
+            log.error("파일 삭제 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filePath", s3Path);
+        }
+
+    }
 }

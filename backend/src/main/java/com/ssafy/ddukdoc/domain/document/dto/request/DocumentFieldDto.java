@@ -12,8 +12,6 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class DocumentFieldDto {
     @NotNull(message = "필드 ID는 필수입니다.")
     @Schema(example = "1")
@@ -36,4 +34,21 @@ public class DocumentFieldDto {
                 .fieldValue(this.fieldValue)
                 .build();
     }
+
+    public DocumentFieldValue toEntity(Document document, TemplateField field, User filledBy,String fieldValue) {
+        return DocumentFieldValue.builder()
+                .document(document)
+                .field(field)
+                .filledBy(filledBy)
+                .fieldValue(fieldValue)
+                .build();
+    }
+    public static DocumentFieldDto of(DocumentFieldValue value,String fieldValue) {
+        return DocumentFieldDto.builder()
+                .fieldId(value.getField().getId())
+                .name(value.getField().getName())
+                .fieldValue(fieldValue)
+                .build();
+    }
+
 }

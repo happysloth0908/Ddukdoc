@@ -62,4 +62,18 @@ public class Document extends BaseEntity {
     public void updateRecipient(User recipient){
         this.recipient = recipient;
     }
+    /**
+     * 문서 경로 변경 메서드
+     * @param filePath 변경할 상태
+     */
+    public void updateFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    /**
+     * 문서 반송 이유 업데이트 메소드
+     * @param returnReason 반송 사유
+     */
+    public void updateReturnReason(String returnReason) {this.returnReason = returnReason;}
+
 }
