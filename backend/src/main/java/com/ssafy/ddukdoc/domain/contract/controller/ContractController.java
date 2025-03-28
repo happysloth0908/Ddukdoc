@@ -1,8 +1,10 @@
 package com.ssafy.ddukdoc.domain.contract.controller;
 
+import com.ssafy.ddukdoc.domain.contract.dto.request.ContractReturnRequestDto;
 import com.ssafy.ddukdoc.domain.contract.dto.request.RecipientInfoRequestDto;
 import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentSaveResponseDto;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
 import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -38,7 +40,7 @@ public class ContractController {
 
     @PostMapping(value = "/{templateCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Integer>> saveInfo(
+    public ResponseEntity<ApiResponse<DocumentSaveResponseDto>> saveInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable String templateCode,
             @RequestPart("jsonData") @Valid DocumentSaveRequestDto requestDto,
@@ -86,6 +88,19 @@ public class ContractController {
         }
 
         contractService.saveRecipientInfo(documentId, requestDto, userId, signatureFile);
+        return ApiResponse.ok();
+    }
+
+    // 사용자의 문서 반송
+    @PatchMapping("/return/{doc_id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> returnDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId,
+            @Valid @RequestBody ContractReturnRequestDto contractReturnRequestDto){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        contractService.returnDocument(userId, documentId, contractReturnRequestDto.getReturnReason());
         return ApiResponse.ok();
     }
 }

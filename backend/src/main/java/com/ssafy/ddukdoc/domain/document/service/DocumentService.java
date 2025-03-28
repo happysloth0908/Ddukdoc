@@ -18,6 +18,7 @@ import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
+import com.ssafy.ddukdoc.global.common.util.AESUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -39,6 +41,7 @@ public class DocumentService {
     private final UserDocRoleRepository userDocRoleRepository;
     private final RoleRepository roleRepository;
     private final S3Util s3Util;
+    private final AESUtil aesUtil;
 
     public CustomPage<DocumentListResponseDto> getDocumentList(Integer userId, DocumentSearchRequestDto documentSearchRequestDto, Pageable pageable){
         Page<Document> documentList = documentRepository.findDocumentListByUserId(
@@ -70,7 +73,7 @@ public class DocumentService {
         }
         
         // 문서 필드값 조회
-        List<DocumentFieldValue> fieldValues = documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId);
+        List<DocumentFieldResponseDto> fieldValues = getDecryptData(documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId));
 
         // 사용자 역할 정보와 서명 정보 추출
         UserRoleResponseDto userRoleInfo = extractUserRoleInfo(document);
@@ -78,6 +81,21 @@ public class DocumentService {
 
         return DocumentDetailResponseDto.of(document, fieldValues, signatureInfo, userRoleInfo);
     }
+
+    //문서 데이터 복호화
+    public List<DocumentFieldResponseDto> getDecryptData(List<DocumentFieldValue> fieldValues){
+        List<DocumentFieldResponseDto> decryptedData = fieldValues.stream()
+                .map(value -> {
+                    // 암호화된 필드 값 복호화
+                    String decryptedValue = aesUtil.decrypt(value.getFieldValue());
+                    // DocumentFieldResponseDto 객체로 변환
+                    return DocumentFieldResponseDto.of(value, decryptedValue);
+                })
+                .collect(Collectors.toList());
+
+        return decryptedData;
+    }
+
 
     @Transactional
     public void deleteDocument(Integer userId, Integer documentId){
