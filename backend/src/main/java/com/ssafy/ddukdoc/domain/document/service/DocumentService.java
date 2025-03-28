@@ -3,10 +3,7 @@ package com.ssafy.ddukdoc.domain.document.service;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSearchRequestDto;
-import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDetailResponseDto;
-import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
-import com.ssafy.ddukdoc.domain.document.dto.response.SignatureResponseDto;
-import com.ssafy.ddukdoc.domain.document.dto.response.UserRoleResponseDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.*;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
@@ -20,6 +17,7 @@ import com.ssafy.ddukdoc.domain.user.entity.UserDocRoleStatus;
 import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
+import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +38,7 @@ public class DocumentService {
     private final UserRepository userRepository;
     private final UserDocRoleRepository userDocRoleRepository;
     private final RoleRepository roleRepository;
+    private final S3Util s3Util;
 
     public CustomPage<DocumentListResponseDto> getDocumentList(Integer userId, DocumentSearchRequestDto documentSearchRequestDto, Pageable pageable){
         Page<Document> documentList = documentRepository.findDocumentListByUserId(
@@ -208,6 +207,30 @@ public class DocumentService {
                 .orElse(null);
 
         return SignatureResponseDto.of(creatorSignature, recipientSignature);
+    }
+
+    // 문서 다운로드
+    public DocumentDownloadResponseDto downloadDocument(Integer userId, Integer documentId){
+
+        // 문서 정보 조회
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // 사용자 조회 (발신자, 수신자만 다운 가능)
+        if(!(document.getCreator().getId().equals(userId) || document.getRecipient().getId().equals(userId))){
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 문서 상태 조회 (서명완료일때만 다운로드 가능)
+        if(!document.getStatus().equals(DocumentStatus.SIGNED)){
+            throw new CustomException(ErrorCode.DOCUMENT_NOT_SIGNED, "documentStatus", document.getStatus())
+                    .addParameter("documentId", documentId);
+        }
+
+        // S3에서 파일 다운로드
+        byte[] content = s3Util.downloadAndDecryptFileToBytes(document.getFilePath());
+        return DocumentDownloadResponseDto.of(document, content);
     }
 
 }
