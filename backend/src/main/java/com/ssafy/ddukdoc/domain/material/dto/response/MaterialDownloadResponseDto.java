@@ -12,7 +12,7 @@ public class MaterialDownloadResponseDto {
 
     public static MaterialDownloadResponseDto of(Document document, byte[] zipContent){
         return MaterialDownloadResponseDto.builder()
-                .fileTitle(document.getTitle())
+                .fileTitle(document.getTitle().replaceAll("\\s+", "_"))
                 .zipBytes(zipContent)
                 .build();
     }

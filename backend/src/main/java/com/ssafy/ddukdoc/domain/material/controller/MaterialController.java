@@ -89,6 +89,7 @@ public class MaterialController {
         MaterialDownloadResponseDto materialDownloadResponseDto = materialService.downloadMaterial(userId, documentId);
 
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf("application/zip"));
         headers.setContentDisposition(
                 ContentDisposition.attachment()
                         .filename(materialDownloadResponseDto.getFileTitle()+".zip", StandardCharsets.UTF_8)
