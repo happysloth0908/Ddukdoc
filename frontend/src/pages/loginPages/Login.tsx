@@ -1,4 +1,4 @@
-import { KakaoLoginButton } from './loginComponents/kakaoLoginButton';
+import { KakaoLoginButton } from './loginChildren/kakaoLoginButton';
 import Login from '@/assets/images/login';
 
 export const LoginPage = () => {
