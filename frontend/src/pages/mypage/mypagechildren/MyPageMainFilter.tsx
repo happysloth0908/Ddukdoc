@@ -56,7 +56,7 @@ const MyPageMainFilter = ({
       <Input
         placeholder="검색어를 입력해주세요"
         value={searchKeyword}
-        onChange={setSearchKeyword}
+        onChange={(e) => setSearchKeyword(e.target.value)}
         className="w-full"
       />
 
@@ -111,8 +111,8 @@ const MyPageMainFilter = ({
           날짜 범위
         </label>
         <DateInput
-          value={selectedDate}
-          onChange={setSelectedDate}
+          // value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
           className="w-full"
         />
       </div>

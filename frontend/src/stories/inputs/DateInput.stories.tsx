@@ -1,29 +1,38 @@
-import { useState } from 'react';
-import { StoryFn, Meta } from '@storybook/react';
-import DateInput, {
-  DateInputProps,
-} from '../../components/atoms/inputs/DateInput';
+import { Meta, StoryObj } from '@storybook/react';
+import DateInput, { DateInputProps } from '@/components/atoms/inputs/DateInput';
+import { ChangeEvent } from 'react';
 
-export default {
-  title: 'Components/Inputs/DateInput',
+const meta: Meta<typeof DateInput> = {
+  title: 'Components/DateInput',
   component: DateInput,
-} as Meta;
-
-const Template: StoryFn<DateInputProps> = (args) => {
-  const [value, setValue] = useState(args.value || '');
-  return <DateInput {...args} value={value} onChange={setValue} />;
+  argTypes: {
+    label: { control: 'text' },
+    minDate: { control: 'text' },
+    maxDate: { control: 'text' },
+    disabled: { control: 'boolean' },
+  },
 };
 
-export const Default = Template.bind({});
-Default.args = {
-  label: '날짜 선택',
-  value: '',
+export default meta;
+
+const Template = (args: DateInputProps) => {
+
+  return <DateInput {...args} onChange={(e: ChangeEvent<HTMLInputElement>) => e} />;
 };
 
-export const WithDateRange = Template.bind({});
-WithDateRange.args = {
-  label: '날짜 선택 (범위 지정)',
-  value: '',
-  minDate: '2024-01-01',
-  maxDate: '2024-12-31',
+export const Default: StoryObj<typeof DateInput> = {
+  render: Template,
+  args: {
+    label: 'Select a date',
+    minDate: '2023-01-01',
+    maxDate: '2030-12-31',
+  },
+};
+
+export const Disabled: StoryObj<typeof DateInput> = {
+  render: Template,
+  args: {
+    label: 'Disabled Date Input',
+    disabled: true,
+  },
 };

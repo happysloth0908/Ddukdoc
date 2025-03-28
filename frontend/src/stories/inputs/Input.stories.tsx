@@ -1,34 +1,39 @@
+import { Meta, StoryObj } from '@storybook/react';
+import Input, { InputProps } from '@/components/atoms/inputs/Input';
 import { useState } from 'react';
-import { StoryFn, Meta } from '@storybook/react';
-import Input, { InputProps } from '../../components/atoms/inputs/Input.tsx';
 
-export default {
-  title: 'Components/Inputs/Input',
+const meta: Meta<typeof Input> = {
+  title: 'Components/Input',
   component: Input,
-} as Meta;
-
-const Template: StoryFn<InputProps> = (args) => {
-  const [value, setValue] = useState(args.value || '');
-  return <Input {...args} value={value} onChange={setValue} />;
+  argTypes: {
+    label: { control: 'text' },
+    placeholder: { control: 'text' },
+    helperText: { control: 'text' },
+    disabled: { control: 'boolean' },
+  },
 };
 
-export const Default = Template.bind({});
-Default.args = {
-  label: 'Default Input',
-  placeholder: '텍스트를 입력해 주세요...',
-  value: '',
+export default meta;
+
+const Template = (args: InputProps) => {
+  const [value, setValue] = useState('');
+
+  return <Input {...args} value={value} onChange={(e) => setValue(e.target.value)} />;
 };
 
-export const WithHelperText = Template.bind({});
-WithHelperText.args = {
-  label: 'Input with Helper Text',
-  placeholder: '텍스트를 입력해 주세요...',
-  helperText: '도움말 텍스트 (현재 컴포넌트에선 렌더링 되지 않음)',
-  value: '',
+export const Default: StoryObj<typeof Input> = {
+  render: Template,
+  args: {
+    label: 'Default Label',
+    placeholder: 'Enter text...',
+  },
 };
 
-export const WithoutLabel = Template.bind({});
-WithoutLabel.args = {
-  placeholder: '라벨 없이 입력...',
-  value: '',
+export const Disabled: StoryObj<typeof Input> = {
+  render: Template,
+  args: {
+    label: 'Disabled Input',
+    placeholder: 'Cannot type...',
+    disabled: true,
+  },
 };

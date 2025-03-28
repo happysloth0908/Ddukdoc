@@ -79,15 +79,16 @@ export const DocsWrite = () => {
         <CSSTransition
           key={location.pathname}
           nodeRef={nodeRef}
-          timeout={3000}
+          timeout={300}
           classNames={`page-${direction}`}
           unmountOnExit
         >
           <div ref={nodeRef} className="absolute flex w-full h-full">
             <Routes>
               <Route index element={<docsWriteChildren.DocsChoose templateCode={templateCode} onTemplateCode={setTemplateCode} />} />
-              <Route path='role' element={<docsWriteChildren.DocsRoleChoose role={role} onRole={setRole} />} />
               <Route path='check' element={<docsWriteChildren.DocsCheck curTemplate={templateCode} />} />
+              <Route path='role' element={<docsWriteChildren.DocsRoleChoose templateCode={templateCode} role={role} onRole={setRole} />} />
+              <Route path='detail/*' element={<docsWriteChildren.DocsWriteDetail role={role} />}/>
             </Routes>
           </div>
         </CSSTransition>
