@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DocumentSaveResponseDto {
-    private int pinCode;
-    private int documentId;
+    private Integer pinCode;
+    private Integer documentId;
 
     public static DocumentSaveResponseDto of(int pinCode, int documentId){
         return DocumentSaveResponseDto.builder()
