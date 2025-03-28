@@ -61,7 +61,9 @@ public class MaterialController {
     // 기타 자료 상세 조회
     @GetMapping("/{doc_id}/{material_id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<MaterialDetailResponseDto>> getMaterialDetail(
+    @Operation(summary = "기타 자료 상세 조회", description = "문서에 첨부된 기타 자료의 상세 정보를 조회합니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.MATERIAL_NOT_FOUND, ErrorCode.MATERIAL_NOT_IMAGE, ErrorCode.FILE_DOWNLOAD_ERROR})
+    public ResponseEntity<CommonResponse<MaterialDetailResponseDto>> getMaterialDetail(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId,
             @PathVariable("material_id") Integer materialId){
@@ -73,14 +75,15 @@ public class MaterialController {
     // 기타 자료 삭제
     @DeleteMapping("/{doc_id}/{material_id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> deleteMaterial(
+    @Operation(summary = "기타 자료 삭제", description = "문서에 첨부된 기타 자료를 삭제합니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.MATERIAL_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.FILE_DELETE_ERROR})
+    public ResponseEntity<CommonResponse<Void>> deleteMaterial(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId,
             @PathVariable("material_id") Integer materialId){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         materialService.deleteMaterial(userId, documentId, materialId);
-        return ApiResponse.ok();
+        return CommonResponse.ok();
     }
-
 }

@@ -26,7 +26,7 @@ public class AuthController {
 
     @GetMapping("/{provider}/login")
     @Operation(summary = "소셜 로그인 처리", description = "소셜 로그인 인증 후 자동으로 호출되는 API입니다.\n\n이 API는 직접 호출하지 않으며, 소셜 로그인 과정에서 자동으로 호출됩니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_OAUTH_PROVIDER})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_OAUTH_PROVIDER, ErrorCode.OAUTH_SERVER_ERROR})
     public ResponseEntity<CommonResponse<OAuthLoginResponse>> socialLogin(
             @PathVariable String provider,
             @RequestParam String code,

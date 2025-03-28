@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -83,7 +82,9 @@ public class ContractController {
 
     @PostMapping(value = "/{documentId}/signature", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> saveRecipientSignature(
+    @Operation(summary = "수신자 서명 저장", description = "문서의 수신자 서명 및 필드 정보를 저장합니다.")
+    @ApiErrorCodeExamples({ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.DECRYPTION_ERROR, ErrorCode.FILE_DOWNLOAD_ERROR, ErrorCode.PDF_GENERATION_ERROR, ErrorCode.FILE_UPLOAD_ERROR})
+    public ResponseEntity<CommonResponse<Void>> saveRecipientSignature(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Integer documentId,
             @RequestPart("jsonData") @Valid
@@ -94,23 +95,25 @@ public class ContractController {
 
         // 서명 파일 null 또는 비어있는지 확인
         if (signatureFile == null || signatureFile.isEmpty()) {
-            return ApiResponse.error(ErrorCode.SIGNATURE_FILE_NOT_FOUND);
+            return CommonResponse.error(ErrorCode.SIGNATURE_FILE_NOT_FOUND);
         }
 
         contractService.saveRecipientInfo(documentId, requestDto, userId, signatureFile);
-        return ApiResponse.ok();
+        return CommonResponse.ok();
     }
 
     // 사용자의 문서 반송
     @PatchMapping("/return/{doc_id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> returnDocument(
+    @Operation(summary = "문서 반송", description = "사용자가 문서를 반송 처리합니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.INVALID_DOCUMENT_STATUS})
+    public ResponseEntity<CommonResponse<Void>> returnDocument(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId,
             @Valid @RequestBody ContractReturnRequestDto contractReturnRequestDto){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         contractService.returnDocument(userId, documentId, contractReturnRequestDto.getReturnReason());
-        return ApiResponse.ok();
+        return CommonResponse.ok();
     }
 }
