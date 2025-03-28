@@ -6,25 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { apiClient } from '@/apis/mypage';
 import MyPageMainFilter from './MyPageMainFilter';
 import BottomRollup from '@/components/atoms/inputs/BottomRollup';
+import { DocData, ApiResponse } from '@/types/mypage';
 
-interface DocData {
-  id: number;
-  template_id: number;
-  template_code: string;
-  template_name: string;
-  title: string;
-  status: string;
-  creator_id: number;
-  creator_name: string;
-  recipient_id: number;
-  recipient_name: string;
-  created_at: string;
-  updated_at: string;
-  return_reason: string | null;
-}
-
-interface ApiResponse {
-  success: boolean;
+interface apiResponse extends ApiResponse {
   data: {
     content: DocData[];
     page_number: number;
@@ -34,7 +18,6 @@ interface ApiResponse {
     first: boolean;
     last: boolean;
   };
-  error: null;
 }
 
 interface SearchParams {
@@ -61,9 +44,10 @@ const MyPageMain = () => {
         ...(params.selectedDate && { date: params.selectedDate }),
       }).toString();
 
-      const response = await apiClient.get<ApiResponse>(
+      const response = await apiClient.get<apiResponse>(
         `/api/docs?${queryParams}`
       );
+      console.log(response.data.data.content);
       setDocs(response.data.data.content);
     } catch (error) {
       console.error('문서 목록을 불러오는데 실패했습니다:', error);
@@ -113,9 +97,9 @@ const MyPageMain = () => {
         <div className="space-y-4 overflow-y-auto">
           {docs.map((doc) => (
             <div
-              key={doc.id}
+              key={doc.document_id}
               className="cursor-pointer"
-              onClick={() => navigate(`docs/${doc.id}`)} // ✅ 클릭 시 라우팅
+              onClick={() => navigate(`docs/${doc.document_id}`)} // ✅ 클릭 시 라우팅
             >
               <DocsCard
                 data={doc}
