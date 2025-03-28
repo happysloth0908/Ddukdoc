@@ -179,7 +179,7 @@ public class MaterialService {
                     byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(evidence.getFilePath());
 
                     // Zip 파일 엔트리 생성
-                    ZipEntry zipEntry = new ZipEntry(evidence.getTitle());
+                    ZipEntry zipEntry = new ZipEntry(evidence.getTitle()+"."+evidence.getMimeType());
                     zipStream.putNextEntry(zipEntry);
                     zipStream.write(fileContent);
                     zipStream.closeEntry();
