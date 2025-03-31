@@ -4,6 +4,10 @@ import iouData from '@/types/iou';
 interface ioudocsStore {
     data: iouData;
     setData: (newData: Partial<iouData>) => void;
+    creditor_signature: string;
+    debtor_signature: string;
+    setCreditorSignature: (signature: string) => void;
+    setDebtorSignature: (signature: string) => void;
 }
 
 export const useIOUDocsStore = create<ioudocsStore>((set) => ({
@@ -33,4 +37,8 @@ export const useIOUDocsStore = create<ioudocsStore>((set) => ({
     setData: (newData) => set((state) => ({
         data: { ...state.data, ...newData }
     })),
+    creditor_signature: "",
+    debtor_signature: "",
+    setCreditorSignature: (creditor_signature) => set({ creditor_signature }),
+    setDebtorSignature: (debtor_signature) => set({ debtor_signature }),
 }));
