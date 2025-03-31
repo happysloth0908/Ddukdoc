@@ -4,8 +4,9 @@ import { DocsWriteMoney } from './IOUWriteDetails/DocsWriteMoney';
 import { DocsWriteRate } from './IOUWriteDetails/DocsWriteRate';
 import { DocsWriteBank } from './IOUWriteDetails/DocsWriteBank';
 import { DocsWriteSpecial } from './IOUWriteDetails/DocsWriteSpecial';
-import iouData from '@/types/iou';
+import { DocsWriteSignature } from './IOUWriteDetails/DocsWriteSignature';
 
+import iouData from '@/types/iou';
 import { useIOUDocsStore } from '@/store/docs';
 // import { useRef } from 'react';
 
@@ -62,6 +63,7 @@ export const DocsWriteDetail = ({role}: {role: string}) => {
                 <Route path='G1/rate' element={<DocsWriteRate data={tempData.current} handleData={handleTempData} />} />
                 <Route path='G1/bank' element={<DocsWriteBank data={tempData.current} handleData={handleTempData} />} />
                 <Route path='G1/special' element={<DocsWriteSpecial data={tempData.current} handleData={handleData} />} />
+                <Route path='G1/signature' element={<DocsWriteSignature role={role} />} />
             </Routes>
         </div>
     );

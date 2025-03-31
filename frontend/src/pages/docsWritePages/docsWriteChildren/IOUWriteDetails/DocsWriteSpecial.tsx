@@ -34,7 +34,7 @@ export const DocsWriteSpecial = ({data, handleData}: {data: iouData, handleData:
     
     return (
         <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={4} totalStage={5} />
+            <atoms.ProgressBar curStage={5} totalStage={6} />
             <div className="flex-1 flex justify-center items-center">
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"특약 사항"} description="을 입력하고 있어요" />

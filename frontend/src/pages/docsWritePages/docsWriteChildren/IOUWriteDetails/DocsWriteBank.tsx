@@ -35,7 +35,7 @@ export const DocsWriteBank = ({data, handleData}: {data: iouData, handleData: (n
 
     return (
         <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={3} totalStage={5} />
+            <atoms.ProgressBar curStage={4} totalStage={6} />
             <div className="flex-1 flex justify-center items-center">
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"계좌 정보"} description="를 입력하고 있어요" />

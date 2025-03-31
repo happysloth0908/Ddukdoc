@@ -39,7 +39,7 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
 
     return (
         <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={1} totalStage={5} />
+            <atoms.ProgressBar curStage={1} totalStage={6} />
             <div className="flex-1 flex justify-center items-center">
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={role+" 정보"} description="를 입력하고 있어요" />
