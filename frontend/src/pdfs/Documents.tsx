@@ -1,7 +1,7 @@
 import { useIOUDocsStore } from "@/store/docs";
 
 export const Documents = ({ templateCode }: { templateCode: string }) => {
-  const { data } = useIOUDocsStore();
+  const { data, creditor_signature, debtor_signature } = useIOUDocsStore();
 
   const formatDate = (dateString: string) => {
       if (!dateString) return { year: '', month: '', day: '' };
@@ -18,8 +18,8 @@ export const Documents = ({ templateCode }: { templateCode: string }) => {
 
   if (templateCode === "G1") {
     return (
-        <div className="flex-1">
-            <h1 className="text-2xl font-bold text-center mb-8">차 용 증</h1>
+        <div className="border p-2 text-xs max-h-[70%] overflow-scroll">
+            <h1 className="text-xl font-bold text-center mb-8">차 용 증</h1>
     
             <div className="mb-6">
                 <table className="w-full border-collapse mb-6">
@@ -107,21 +107,31 @@ export const Documents = ({ templateCode }: { templateCode: string }) => {
             
             <div className="flex justify-between mt-8">
                 <div className="w-5/12">
-                <h3 className="text-lg font-bold mb-2">채 권 자</h3>
+                <h3 className="text-sm font-bold mb-2">채 권 자</h3>
                 <p className="mb-1">성 명: {data.creditor_name}</p>
                 <p className="mb-1">주 소: {data.creditor_address}</p>
                 <p className="mb-1">연락처: {data.creditor_contact}</p>
                 <p className="mb-1">주민등록번호: {data.creditor_id}</p>
-                <p className="mt-8 mb-1">서명: _________________</p>
+                <p className="mt-8 mb-1">서명: {
+                    creditor_signature ? 
+                    <img src={creditor_signature} alt="채권자 서명" /> :
+                    "_________________"
+                    }
+                </p>
                 </div>
                 
                 <div className="w-5/12">
-                <h3 className="text-lg font-bold mb-2">채 무 자</h3>
+                <h3 className="text-sm font-bold mb-2">채 무 자</h3>
                 <p className="mb-1">성 명: {data.debtor_name}</p>
                 <p className="mb-1">주 소: {data.debtor_address}</p>
                 <p className="mb-1">연락처: {data.debtor_contact}</p>
                 <p className="mb-1">주민등록번호: {data.debtor_id}</p>
-                <p className="mt-8 mb-1">서명: _________________</p>
+                <p className="mt-8 mb-1">서명: {
+                    debtor_signature ? 
+                    <img src={debtor_signature} alt="채권자 서명" /> :
+                    "_________________"
+                    }
+                </p>
                 </div>
             </div>
         </div>
