@@ -24,16 +24,19 @@ export const Header = () => {
 
   return (
     <div className="flex w-full justify-center">
-      {!pathname.startsWith('/login') && !(pathname === '/') && (
-        <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
-          <ArrowLeft className="text-primary-300" onClick={onClick} />
-          <span className="text-md"></span>
-          <div className="w-full flex-1 text-center text-info-small">
-            {getTitleByPath()}
+      {!pathname.startsWith('/login') &&
+        !(pathname === '/') &&
+        !(pathname === '/ssafy') &&
+        !(pathname === '/ssafy/login/first') && (
+          <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
+            <ArrowLeft className="text-primary-300" onClick={onClick} />
+            <span className="text-md"></span>
+            <div className="w-full flex-1 text-center text-info-small">
+              {getTitleByPath()}
+            </div>
+            <LogOut className="invisible text-primary-300" />
           </div>
-          <LogOut className="invisible text-primary-300" />
-        </div>
-      )}
+        )}
     </div>
   );
 };
