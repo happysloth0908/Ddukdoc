@@ -32,8 +32,6 @@ public class DocsController {
     private final DocumentService documentService;
     private final AuthenticationUtil authenticationUtil;
 
-    // 문서 상세 조회
-
 
     @GetMapping("")
     @PreAuthorize("isAuthenticated()")
