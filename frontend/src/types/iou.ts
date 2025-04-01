@@ -1,4 +1,5 @@
 export default interface iouData {
+    title: string;
     loan_purpose: string;
     loan_date: string; // YYYY-MM-DD
     principal_amount_text: string;
