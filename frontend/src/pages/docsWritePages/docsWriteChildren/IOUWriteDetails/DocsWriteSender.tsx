@@ -5,6 +5,7 @@ import { useState } from "react";
 
 export const DocsWriteSender = ({role, data, handleData}: {role: string, data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
     const [formData, setFormData] = useState({
+        title: data.title || "",
         name: (data.creditor_name || data.debtor_name) || "",
         id: (data.creditor_id || data.debtor_id) || "",
         address: (data.creditor_address || data.debtor_address) || "",
@@ -19,15 +20,15 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
     };
     
     const handleSenderData = () => {
-        console.log("이전 데이터:", data);
-        console.log("입력된 데이터:", formData);
 
         const updatedData = role === "채권자" ? {
+            title: formData.title,
             creditor_name: formData.name,
             creditor_id: formData.id,
             creditor_address: formData.address,
             creditor_contact: formData.contact,
         } : {
+            title: formData.title,
             debtor_name: formData.name,
             debtor_id: formData.id,
             debtor_address: formData.address,
@@ -44,6 +45,7 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={role+" 정보"} description="를 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
+                        <atoms.Input name="title" defaultValue={(data.title) || ""} label="문서 제목" onChange={handleChange} />
                         <atoms.Input name="name" defaultValue={(data.creditor_name || data.debtor_name) || ""} label="이름" onChange={handleChange} />
                         <atoms.Input name="id" defaultValue={(data.creditor_id || data.debtor_id) || ""} label="주민등록번호" onChange={handleChange} />
                         <atoms.Input name="address" defaultValue={(data.creditor_address || data.debtor_address) || ""} label="주소" onChange={handleChange} />

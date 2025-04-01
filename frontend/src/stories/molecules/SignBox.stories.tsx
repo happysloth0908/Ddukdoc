@@ -36,7 +36,7 @@ export const Default: Story = {
           backgroundColor: '#fff',
         }}
       >
-        <SignBox />
+        <SignBox next='test' role='test' />
       </div>
     </div>
   ),
