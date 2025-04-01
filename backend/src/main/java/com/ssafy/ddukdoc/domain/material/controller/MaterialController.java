@@ -8,14 +8,12 @@ import com.ssafy.ddukdoc.global.common.response.ApiResponse;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import com.ssafy.ddukdoc.global.util.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -87,15 +85,15 @@ public class MaterialController {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         MaterialDownloadResponseDto materialDownloadResponseDto = materialService.downloadMaterial(userId, documentId);
+        String fileName = UriUtils.encode(materialDownloadResponseDto.getFileTitle()+".zip", StandardCharsets.UTF_8);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf("application/zip"));
-        headers.setContentDisposition(
-                ContentDisposition.attachment()
-                        .filename(materialDownloadResponseDto.getFileTitle()+".zip", StandardCharsets.UTF_8)
-                        .build()
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename(fileName)
+                .build()
         );
-        return ResponseEntity.ok().headers(headers).body(materialDownloadResponseDto.getZipBytes());
+        return new ResponseEntity<>(materialDownloadResponseDto.getZipBytes(), headers, HttpStatus.OK);
     }
 
 }
