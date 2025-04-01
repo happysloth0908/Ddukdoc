@@ -4,22 +4,10 @@ import { AdditionalFile } from '@/components/molecules/cards/AdditionalFile.tsx'
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiClient } from '@/apis/mypage.ts';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
+import { ApiResponse, FileData } from '@/types/mypage.ts';
 
-interface ApiResponse {
-  success: boolean;
+interface apiResponse extends ApiResponse {
   data: FileData[];
-  error: null;
-  timestamp: string;
-}
-
-interface FileData {
-  id: number;
-  title: string;
-  user_id: number;
-  user_name: string;
-  format: string;
-  created_at: string;
-  updated_at: string;
 }
 
 const EtcFiles = () => {
@@ -29,7 +17,7 @@ const EtcFiles = () => {
 
   const fetchFiles = async () => {
     try {
-      const response = await apiClient.get<ApiResponse>(`/api/materials/${id}`);
+      const response = await apiClient.get<apiResponse>(`/api/materials/${id}`);
       setFiles(response.data.data);
     } catch (error) {
       console.error(error);
@@ -42,6 +30,13 @@ const EtcFiles = () => {
 
   return (
     <div className="flex h-screen flex-col">
+      <button
+        onClick={() => {
+          fetchFiles();
+        }}
+      >
+        새로고침
+      </button>
       <div className="mt-10 px-4">
         <DocsDescription
           title={'추가 자료 목록'}
@@ -54,9 +49,9 @@ const EtcFiles = () => {
       <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
         {files.map((file) => (
           <div
-            key={file.id}
+            key={file.material_id}
             className="cursor-pointer"
-            onClick={() => navigate(`${file.id}`)}
+            onClick={() => navigate(`${file.material_id}`)} // 클릭 시 라우팅
           >
             <AdditionalFile data={file} />
           </div>
