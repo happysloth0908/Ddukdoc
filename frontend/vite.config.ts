@@ -1,10 +1,19 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'url';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/ssafy-api': {
+        target: 'https://project.ssafy.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ssafy-api/, ''),
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -26,7 +35,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-})
+});
