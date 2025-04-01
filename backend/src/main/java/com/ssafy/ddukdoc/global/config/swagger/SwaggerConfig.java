@@ -71,7 +71,7 @@ public class SwaggerConfig {
 
         Server localServer = new Server();
         localServer.setUrl("http://localhost:8080/");
-        localServer.setDescription("실 운용 서버입니다.(개발자용 토큰 사용 불가)");
+        localServer.setDescription("localhost 테스트용입니다.");
 
         return new OpenAPI()
                 .info(apiInfo())

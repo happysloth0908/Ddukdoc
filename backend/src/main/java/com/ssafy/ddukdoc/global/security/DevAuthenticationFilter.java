@@ -54,8 +54,6 @@ public class DevAuthenticationFilter extends OncePerRequestFilter {
 
                 // SecurityContext에 인증 객체 설정
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                log.info("개발 환경: 테스트 사용자 인증 적용 ID={}", testUserId);
             } catch (NumberFormatException e) {
                 log.error("개발 환경: 테스트 사용자 ID 형식 오류", e);
             }
