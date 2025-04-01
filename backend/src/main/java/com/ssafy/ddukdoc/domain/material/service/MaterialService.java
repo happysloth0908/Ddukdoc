@@ -167,7 +167,7 @@ public class MaterialService {
         // 추가자료 목록 조회
         List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
         if(documentEvidenceList.isEmpty()){
-            throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, "documentId", documentId);
+            throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_EMPTY, "documentId", documentId);
         }
 
         // Zip 파일 생성
