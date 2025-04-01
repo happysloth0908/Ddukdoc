@@ -13,8 +13,6 @@ export default defineConfig({
           react: ['react', 'react-dom'],
           // UI 라이브러리
           ui: ['lucide-react', 'react-router-dom', 'react-transition-group'],
-          // PDF 라이브러리
-          pdf: ['@react-pdf/renderer'],
           // 유틸리티
           utility: ['axios'],
           // 개발 도구
