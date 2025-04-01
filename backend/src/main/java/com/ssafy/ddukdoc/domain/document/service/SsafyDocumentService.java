@@ -12,12 +12,15 @@ import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.util.AESUtil;
+import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ public class SsafyDocumentService {
     private final SignatureRepository signatureRepository;
     private final DocumentFieldValueRepository documentFieldValueRepository;
     private final AESUtil aesUtil;
+    private final S3Util s3Util;
 
     public CustomPage<SsafyDocumentResponseDto> getDocsList(Integer userId, SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto, Pageable pageable) {
         Page<Document> documentList = documentRepository.findSsafyDocumentList(
@@ -57,11 +61,14 @@ public class SsafyDocumentService {
         Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId)
                                 .addParameter("userId", userId));
+
+        byte[] fileBytes = s3Util.downloadAndDecryptFileToBytes(signature.getFilePath());
+        String fileContent = Base64.getEncoder().encodeToString(fileBytes);
         
         // 문서 필드 값 조회
         List<DocumentFieldResponseDto> fieldValues =  getDecryptData(documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId));
 
-        return SsafyDocumentDetailResponseDto.of(document, fieldValues, signature.getFilePath());
+        return SsafyDocumentDetailResponseDto.of(document, fieldValues, fileContent);
     }
 
     // 문서 데이터 복호화

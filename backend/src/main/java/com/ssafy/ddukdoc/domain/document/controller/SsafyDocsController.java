@@ -48,7 +48,7 @@ public class SsafyDocsController {
     @GetMapping("/{doc_id}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary="싸피 문서 상세 조회", description = "doc_id를 통한 싸피 상세 문서를 조회합니다")
-    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH})
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.FILE_DOWNLOAD_ERROR})
     public ResponseEntity<CommonResponse<SsafyDocumentDetailResponseDto>> getSsafyDocumentDetail(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId){
