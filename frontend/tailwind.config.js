@@ -5,6 +5,8 @@ export default {
     extend: {
       backgroundImage: {
         backgroundswirl: "url('/src/assets/images/mainPage/background.svg')",
+        'blue-gradient':
+          'linear-gradient(to bottom, white 0%, #E5FBFF 65%, #9AE2FF 100%)',
       },
       backgroundSize: {
         cover: 'cover',

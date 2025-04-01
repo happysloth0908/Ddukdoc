@@ -1,11 +1,12 @@
 import { Route, Routes, useLocation } from 'react-router-dom';
 import molecules from '@/components/molecules';
 import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
-import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
+import { MainMenuPage } from '@/pages/mainPage/MainMenu';
 // import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
+import { SsafyLogin } from './pages/ssafyLoginPages/SsafyLogin';
 
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
@@ -14,9 +15,14 @@ import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspect
 function App() {
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
+  const isSsafy =
+    location.pathname === '/ssafy/login/first' ||
+    location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
-    : 'bg-bg-default';
+    : isSsafy
+      ? 'bg-blue-gradient'
+      : 'bg-bg-default';
 
   return (
     <div className="flex h-dvh w-dvw items-center justify-center">
@@ -35,6 +41,8 @@ function App() {
           <Route path="/mypage/*" element={<MyPage />} />
           {/* 위변조 검사 */}
           <Route path="/forgery/*" element={<ForgeryInspection />} />
+          {/* SSAFY 로그인 */}
+          <Route path="/ssafy/login/*" element={<SsafyLogin />} />
         </Routes>
       </div>
     </div>
