@@ -154,16 +154,13 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "ls -la /home/ubuntu/docker-compose-dev.yml || true"
-                        sh "docker rm -f backend-dev || true"
-
-                        // Docker Compose 대신 직접 실행 시도
                         if (env.DEPLOY_ENV == 'production') {
-                            // 프로덕션 환경 배포
                             try {
-                                sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d backend-prod"
+                                sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
+                                sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate backend-prod"
                             } catch (Exception e) {
                                 echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
+                                sh "docker rm -f backend-prod || true"
                                 sh """
                             docker run -d --name backend-prod \
                             --network app-network \
@@ -178,9 +175,10 @@ pipeline {
                             // 개발 환경 배포
                             try {
                                 sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml config"
-                                sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d backend-dev"
+                                sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-dev"
                             } catch (Exception e) {
                                 echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
+                                sh "docker rm -f backend-dev || true"
                                 sh """
                             docker run -d --name backend-dev \
                             --network app-network \
