@@ -7,6 +7,7 @@ import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Sign;
 import org.web3j.utils.Numeric;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -25,12 +26,11 @@ public class SignatureUtil {
      */
     public String createSignature(String requestor, String name, String docUri, String docHash, String privateKey) throws Exception {
         // 서명할 데이터 객체 생성
-        Map<String, Object> data = Map.of(
-                "requestor", requestor,
-                "name", name,
-                "docUri", docUri,
-                "docHash", docHash
-        );
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("requestor", requestor);
+        data.put("name", name);
+        data.put("docUri", docUri);
+        data.put("docHash", docHash);
 
         // 데이터를 JSON 문자열로 변환
         String jsonData = objectMapper.writeValueAsString(data);
@@ -47,7 +47,6 @@ public class SignatureUtil {
         String r = Numeric.toHexString(signatureData.getR());
         String s = Numeric.toHexString(signatureData.getS());
         String v = Numeric.toHexString(signatureData.getV());
-        System.out.println("서명 : " +r.substring(2) + s.substring(2) + v.substring(2));
         // 0x 접두사 + r(64자) + s(64자) + v(2자)
         return "0x" + r.substring(2) + s.substring(2) + v.substring(2);
     }
@@ -62,8 +61,7 @@ public class SignatureUtil {
      * @return 서명이 포함된 요청 객체
      * @throws Exception JSON 변환 또는 서명 생성 중 오류 발생 시
      */
-    public Map<String, Object> createSignedRequest(String requestor, String name, String docHash, String privateKey) throws Exception {
-        String docUri = ""; // 빈 문자열로 고정
+    public Map<String, Object> createSignedRequest(String requestor, String name,String docUri, String docHash, String privateKey) throws Exception {
         String signature = createSignature(requestor, name, docUri, docHash, privateKey);
 
         return Map.of(
