@@ -25,6 +25,7 @@ public enum ErrorCode {
     DOCUMENT_NOT_RETURNED(HttpStatus.BAD_REQUEST, "D003", "반송되지 않은 문서입니다"),
     USER_DOC_ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "D004", "사용자의 문서 역할을 찾을 수 없습니다"),
     INVALID_DOCUMENT_STATUS(HttpStatus.BAD_REQUEST,"D005" ,"문서의 상태가 서명대기가 아닙니다." ),
+    DOCUMENT_NOT_SIGNED(HttpStatus.BAD_REQUEST, "D006", "서명완료되지 않은 문서입니다"),
 
     // Role
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "존재하지 않는 문서 역할입니다"),

@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.document.controller;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSearchRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.request.PinCodeRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDetailResponseDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.DocumentService;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
@@ -18,10 +19,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
+
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
@@ -87,5 +91,26 @@ public class DocsController {
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         documentService.verifyPinCode(userId, documentId, pinCodeRequestDto.getPinCode());
         return CommonResponse.ok();
+    }
+
+    // 문서 PDF 다운로드
+    @GetMapping("/{doc_id}/download")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "문서 PDF 다운로드", description = "문서 저장 시, PDF로 다운로드 받을 수 있는 API입니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.DOCUMENT_NOT_SIGNED, ErrorCode.FILE_DOWNLOAD_ERROR})
+    public ResponseEntity<byte[]> downloadPdf(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId) {
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        DocumentDownloadResponseDto downloadDocumentDto = documentService.downloadDocument(userId, documentId);
+        String fileName = UriUtils.encode(downloadDocumentDto.getDocumentTitle() + ".pdf", StandardCharsets.UTF_8);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename(fileName)
+                .build());
+        return new ResponseEntity<>(downloadDocumentDto.getDocumentContent(), headers, HttpStatus.OK);
     }
 }
