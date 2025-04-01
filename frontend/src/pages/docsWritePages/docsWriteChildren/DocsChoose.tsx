@@ -1,8 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import atoms from '@/components/atoms';
 import DefaultIcons from "@/assets/images/default";
 
 export const DocsChoose = ({ templateCode, onTemplateCode }: { templateCode: string, onTemplateCode: (code: string) => void}) => {
+  
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const handleSelect = (id: string) => {
     onTemplateCode(id);
@@ -32,7 +35,7 @@ export const DocsChoose = ({ templateCode, onTemplateCode }: { templateCode: str
           className='text-info-small'
         />
       </div>
-      <Link to="check">
+      <Link to="check" state={{ from: currentPath }}>
         <atoms.LongButton className='mb-20' children="다음" colorType='black' />
       </Link>
     </div>

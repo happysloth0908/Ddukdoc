@@ -52,6 +52,7 @@
 }
 
 body {
+  touch-action: pan-y;
   font-family: "interop";
 }
 
