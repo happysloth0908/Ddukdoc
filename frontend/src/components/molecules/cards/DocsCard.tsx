@@ -1,22 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import atoms from '@/components/atoms';
+import { DocData } from '@/types/mypage.ts';
 
 interface DocsCardProps {
-  data: {
-    id: number;
-    template_id: number;
-    template_code: string;
-    template_name: string;
-    title: string;
-    status: string;
-    creator_id: number;
-    creator_name: string;
-    recipient_id: number;
-    recipient_name: string;
-    created_at: string;
-    updated_at: string;
-    return_reason: string | null;
-  };
+  data: DocData;
   calls: string;
   onDelete?: (id: number) => void; // 삭제 핸들러 props (선택)
 }
@@ -44,7 +31,7 @@ export const DocsCard = ({ data, calls, onDelete }: DocsCardProps) => {
 
   const handleDelete = () => {
     setIsMenuOpen(false);
-    if (onDelete) onDelete(data.id);
+    if (onDelete) onDelete(data.document_id);
   };
 
   return (
@@ -74,7 +61,7 @@ export const DocsCard = ({ data, calls, onDelete }: DocsCardProps) => {
       >
         <div
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="flex cursor-pointer flex-col gap-y-[2px]"
+          className="flex h-6 w-6 cursor-pointer flex-col items-center justify-center gap-y-[2px]"
         >
           <div className="h-[5px] w-[5px] rounded-full bg-[#B6B6B6]"></div>
           <div className="h-[5px] w-[5px] rounded-full bg-[#B6B6B6]"></div>
@@ -82,7 +69,7 @@ export const DocsCard = ({ data, calls, onDelete }: DocsCardProps) => {
         </div>
 
         {isMenuOpen && (
-          <div className="absolute right-0 top-6 z-10 mt-2 w-20 rounded border border-gray-200 bg-white shadow-md">
+          <div className="absolute right-4 top-2 z-10 mt-2 w-20 rounded border border-gray-200 bg-white shadow-md">
             <button
               onClick={handleDelete}
               className="flex w-full items-center justify-center px-3 py-2 text-left text-sm text-red-500 hover:bg-gray-100"

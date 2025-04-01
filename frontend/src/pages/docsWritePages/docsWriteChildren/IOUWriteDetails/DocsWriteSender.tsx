@@ -1,39 +1,16 @@
 import { Link } from "react-router-dom";
 import atoms from "@/components/atoms";
 import iouData from '@/types/iou';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const DocsWriteSender = ({role, data, handleData}: {role: string, data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
     const [formData, setFormData] = useState({
+        title: data.title || "",
         name: (data.creditor_name || data.debtor_name) || "",
         id: (data.creditor_id || data.debtor_id) || "",
         address: (data.creditor_address || data.debtor_address) || "",
         contact: (data.creditor_contact || data.debtor_contact) || "",
     });
-
-    // 부모 데이터가 업데이트되면 formData를 동기화 (빈 값일 때만 업데이트)
-    // useEffect(() => {
-    //     if (!formData.name && !formData.id && !formData.address && !formData.contact) {
-    //         setFormData(role === "채권자"
-    //             ? {
-    //                 name: data.creditor_name || "",
-    //                 id: data.creditor_id || "",
-    //                 address: data.creditor_address || "",
-    //                 contact: data.creditor_contact || "",
-    //             }
-    //             : {
-    //                 name: data.debtor_name || "",
-    //                 id: data.debtor_id || "",
-    //                 address: data.debtor_address || "",
-    //                 contact: data.debtor_contact || "",
-    //             }
-    //         );
-    //     }
-    // }, [data, role]);
-    useEffect(() => {
-        console.log("나는 자식");
-        console.log(formData);
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -43,15 +20,15 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
     };
     
     const handleSenderData = () => {
-        console.log("이전 데이터:", data);
-        console.log("입력된 데이터:", formData);
 
         const updatedData = role === "채권자" ? {
+            title: formData.title,
             creditor_name: formData.name,
             creditor_id: formData.id,
             creditor_address: formData.address,
             creditor_contact: formData.contact,
         } : {
+            title: formData.title,
             debtor_name: formData.name,
             debtor_id: formData.id,
             debtor_address: formData.address,
@@ -63,15 +40,16 @@ export const DocsWriteSender = ({role, data, handleData}: {role: string, data: i
 
     return (
         <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={1} totalStage={5} />
+            <atoms.ProgressBar curStage={1} totalStage={6} />
             <div className="flex-1 flex justify-center items-center">
                 <div className="w-full m-1 flex flex-col gap-y-20">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={role+" 정보"} description="를 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
-                        <atoms.Input name="name" label="이름" onChange={handleChange} />
-                        <atoms.Input name="id" label="주민등록번호" onChange={handleChange} />
-                        <atoms.Input name="address" label="주소" onChange={handleChange} />
-                        <atoms.Input name="contact" label="연락처" onChange={handleChange} />
+                        <atoms.Input name="title" defaultValue={(data.title) || ""} label="문서 제목" onChange={handleChange} />
+                        <atoms.Input name="name" defaultValue={(data.creditor_name || data.debtor_name) || ""} label="이름" onChange={handleChange} />
+                        <atoms.Input name="id" defaultValue={(data.creditor_id || data.debtor_id) || ""} label="주민등록번호" onChange={handleChange} />
+                        <atoms.Input name="address" defaultValue={(data.creditor_address || data.debtor_address) || ""} label="주소" onChange={handleChange} />
+                        <atoms.Input name="contact" defaultValue={(data.creditor_contact || data.debtor_contact) || ""} label="연락처" onChange={handleChange} />
                     </form>
                 </div>
             </div>

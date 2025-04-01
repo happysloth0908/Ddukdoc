@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { KakaoLoginButton } from '@/pages/loginPages/loginComponents/kakaoLoginButton';
+import { KakaoLoginButton } from '@/pages/loginPages/loginChildren/kakaoLoginButton';
 const meta = {
   title: 'Components/Login/KakaoLoginButton',
   component: KakaoLoginButton,

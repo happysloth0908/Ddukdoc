@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
-const url = import.meta.env.VITE_MSW_URL;
-// const url = import.meta.env.VITE_API_URL;
+// const url = import.meta.env.VITE_MSW_URL;
+const url = import.meta.env.VITE_API_URL;
 
 export const mypageHandlers = [
   // Intercept "GET https://example.com/user" requests...
@@ -171,6 +171,64 @@ export const mypageHandlers = [
         last: false,
       },
       error: null,
+    });
+  }),
+
+  http.get(`${url}/api/docs/1`, () => {
+    return HttpResponse.json({
+      success: true, // boolean - API 호출 성공 여부
+      data: {
+        docs_info: {
+          id: 1, // number - 문서 고유 식별자
+          template_id: 1, // string - 문서 종류 id
+          template_code: 'G1', // string - 문서 종류 code
+          template_name: '차용증', // string - 문서 종류 이름
+          title: '3.11 신지혜 차용증', // string - 문서 제목
+          status: '서명 대기', // string - 문서 현재 상태
+          creator_id: 1234, // number - 발신자 ID
+          creator_name: '홍길동', // string - 발신자 이름
+          recipient_id: 5678, // number - 수신자 ID
+          recipient_name: '김철수', // string - 수신자 이름
+          created_at: '2024-12-04T15:30:00Z', // string (ISO 8601) - 생성 시간
+          updated_at: '2024-12-04T16:05:20Z', // string (ISO 8601) - 수정 시간
+          return_reason: null, // string | null - 반송 사유 (없을 경우 null)
+        },
+        field: [
+          {
+            field_id: 1, // number - 문서 필드 ID
+            role_id: 2, //number - 1: 공통 , 2: 채권자, 3: 채무자, 4: 고용인 , 5: 고용주, 6: 교육생
+            field_name: 'company_name', // string - 필드 식별 이름
+            is_required: true, // boolean - 필수 입력 여부
+            type: 'checkbox', // string - 필드 유형 (checkbox, text, date 등)
+            order: 3, // number - 화면 표시 순서
+            group: '채무자 정보', // string - 필드 그룹
+            field_value: '홍길동', // string - 실제 입력 값
+          },
+          // 여러 필드가 배열로 제공됨
+        ],
+        signature: {
+          creator_signature: 'xxx.png', // string | null - 발신자 서명 이미지 경로 (없을 경우 null)
+          recipient_signature: null, // string | null - 수신자 서명 이미지 경로 (없을 경우 null)
+        },
+        user_role_info: {
+          creator_role_id: 2, //number - 2: 채권자, 3: 채무자, 4: 고용인 , 5: 고용주, 6: 교육생
+          recipient_role_id: 3, //number - 2: 채권자, 3: 채무자, 4: 고용인 , 5: 고용주, 6: 교육생
+        },
+      },
+      error: null, // string | null - 오류 메시지 (오류가 없을 경우 null)
+      timestamp: '2024-12-04T16:10:22Z', // string (ISO 8601) - 응답 생성 시간
+    });
+  }),
+
+  http.get(`${url}/api/docs/2`, () => {
+    return HttpResponse.json({
+      success: false,
+      data: null,
+      error: {
+        code: 'P002',
+        message: '핀코드 입력이 필요합니다.',
+      },
+      timestamp: '2024-12-04 16:09:12', // timestamp - 에러 발생 시각
     });
   }),
 

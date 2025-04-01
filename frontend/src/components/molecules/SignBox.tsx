@@ -1,12 +1,27 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ShortButton from '../atoms/buttons/ShortButton';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
+import { useIOUDocsStore } from '@/store/docs';
 
-export const SignBox: React.FC = () => {
+interface SignBoxProps {
+  next: string;
+  role: string;
+}
+
+export const SignBox: React.FC<SignBoxProps> = ({next, role}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
+
+  const setSignature = useIOUDocsStore((state) =>
+    role === "채권자" ? state.setCreditorSignature : state.setDebtorSignature
+  );
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   // 회전 시 캔버스 이미지 복사 및 복원
   const handleRotate = () => {
@@ -158,6 +173,14 @@ export const SignBox: React.FC = () => {
     }, 100);
   }, []);
 
+  const saveSignature = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const signatureData = canvas.toDataURL('image/png'); // PNG 데이터로 변환
+    setSignature(signatureData); // Zustand에 저장
+    navigate(next, {state: { from: currentPath}});
+  };
+
   const renderCanvas = () => (
     <div className="relative w-full flex-1 rounded-lg border border-black bg-gray-200">
       <canvas
@@ -186,6 +209,7 @@ export const SignBox: React.FC = () => {
             children={'서명 완료'}
             colorType={'black'}
             className={'text-gray-white'}
+            onClick={saveSignature}
           />
           <div
             onClick={handleRotate}
@@ -222,7 +246,7 @@ export const SignBox: React.FC = () => {
           children={'서명 완료'}
           colorType={'black'}
           className={'mx-0 text-gray-white'}
-          onClick={() => {}}
+          onClick={saveSignature}
         />
         <div
           onClick={handleRotate}

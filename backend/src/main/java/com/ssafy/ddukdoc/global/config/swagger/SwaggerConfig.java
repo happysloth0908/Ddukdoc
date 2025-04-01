@@ -17,6 +17,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,11 +60,25 @@ public class SwaggerConfig {
                         .description("개발 환경에서 사용되는 사용자 ID (숫자)")
                 );
 
+        // 서버 URL 설정
+        Server devServer = new Server();
+        devServer.setUrl("https://ddukdoc.shop");
+        devServer.setDescription("개발용 서버입니다.");
+
+        Server prodServer = new Server();
+        prodServer.setUrl("https://j12b108.p.ssafy.io/");
+        prodServer.setDescription("실 운용 서버입니다.(개발자용 토큰 사용 불가)");
+
+        Server localServer = new Server();
+        localServer.setUrl("http://localhost:8080/");
+        localServer.setDescription("localhost 테스트용입니다.");
+
         return new OpenAPI()
                 .info(apiInfo())
                 .addSecurityItem(cookieSecurityRequirement) // 쿠키 인증 요구사항 추가
                 .addSecurityItem(devHeaderSecurityRequirement) // 개발자 헤더 인증 요구사항 추가
-                .components(components);
+                .components(components)
+                .servers(List.of(devServer, prodServer, localServer));
     }
 
     @Bean

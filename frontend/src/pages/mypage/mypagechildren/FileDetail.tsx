@@ -1,23 +1,10 @@
 import { useParams } from 'react-router-dom';
 import { apiClient } from '@/apis/mypage.ts';
 import { useEffect, useState } from 'react';
+import { ApiResponse, FileData } from '@/types/mypage.ts';
 
-interface ApiResponse {
-  success: boolean;
+interface apiResponse extends ApiResponse {
   data: FileData;
-  error: null;
-  timestamp: string;
-}
-
-interface FileData {
-  material_id: number;
-  title: string;
-  user_id: number;
-  user_name: string;
-  file_url: string;
-  format: string;
-  created_at: string;
-  updated_at: string;
 }
 
 const FileDetail = () => {
@@ -27,7 +14,7 @@ const FileDetail = () => {
   const [file, setFile] = useState<FileData | null>(null);
 
   const fetchFile = async () => {
-    const response = await apiClient.get<ApiResponse>(
+    const response = await apiClient.get<apiResponse>(
       `api/materials/${id}/${fileId}`
     );
     setFile(response.data.data);
