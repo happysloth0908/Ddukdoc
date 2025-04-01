@@ -61,6 +61,11 @@ dependencies {
 
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
+	// Web3j 의존성
+	implementation 'org.web3j:core:4.9.4'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+
 }
 
 tasks.named('test') {
