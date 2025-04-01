@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
-import com.amazonaws.Response;
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.SsafyDocumentService;
@@ -38,10 +37,10 @@ public class SsafyDocsController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "싸피 문서 목록 조회", description = "싸피 사용자가 접근 가능한 문서 목록을 조회합니다  \n\n **각 필드는 필수값이 아닙니다!** \n\n sort: asc / desc")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE})
-    public ResponseEntity<CommonResponse<CustomPage<SsafyDocumentResponseDto>>> getDocsList (
+    public ResponseEntity<CommonResponse<CustomPage<SsafyDocumentResponseDto>>> getDocsList(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @ModelAttribute SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto,
-            @PageableDefault(sort = "createdAt",direction = Sort.Direction.DESC) Pageable pageable){
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         return CommonResponse.ok(ssafyDocumentService.getDocsList(userId, ssafyDocumentSearchRequestDto, pageable));

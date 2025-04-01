@@ -16,7 +16,7 @@ public class SsafyDocumentService {
 
     private final DocumentRepository documentRepository;
 
-    public CustomPage<SsafyDocumentResponseDto> getDocsList(Integer userId, SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto, Pageable pageable){
+    public CustomPage<SsafyDocumentResponseDto> getDocsList(Integer userId, SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto, Pageable pageable) {
         Page<Document> documentList = documentRepository.findSsafyDocumentList(
                 ssafyDocumentSearchRequestDto.getTemplateCode(),
                 ssafyDocumentSearchRequestDto.getKeyword(),
