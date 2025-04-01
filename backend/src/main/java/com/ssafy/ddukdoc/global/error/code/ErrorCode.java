@@ -40,6 +40,9 @@ public enum ErrorCode {
     MATERIAL_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "M003", "파일 용량을 초과했습니다"),
     MATERIAL_NOT_FOUND(HttpStatus.NOT_FOUND, "M004", "존재하지 않는 파일입니다"),
     MATERIAL_NOT_IMAGE(HttpStatus.BAD_REQUEST, "M005","이미지 파일만 조회 가능합니다"),
+    MATERIAL_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "M006", "자료를 다운로드 중 오류가 발생했습니다"),
+    MATERIAL_ZIP_CONVERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "M007", "ZIP 파일 생성 중 오류가 발생했습니다"),
+    MATERIAL_DOWNLOAD_EMPTY(HttpStatus.BAD_REQUEST, "M008","다운로드 할 수 있는 자료가 없습니다"),
 
     // Auth
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
