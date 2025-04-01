@@ -10,7 +10,7 @@ const MyPage = () => (
   <Routes>
     <Route index element={<MyPageMain />} />
     <Route path="docs/:id" element={<DocDetail />} />
-    <Route path="pin" element={<PinInput />} />
+    <Route path="pin/:id" element={<PinInput />} />
     <Route path="docs/:id/files" element={<EtcFiles />} />
     <Route path="docs/:id/files/:fileId" element={<FileDetail />} />
   </Routes>
