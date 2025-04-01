@@ -1,6 +1,9 @@
 package com.ssafy.ddukdoc.global.common.util.blockchain;
 
 import com.ssafy.ddukdoc.domain.contract.dto.request.BlockChainStoreRequestDto;
+import com.ssafy.ddukdoc.domain.contract.dto.response.BlockchainDocumentResponseDto;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -29,8 +32,8 @@ public class BlockchainUtil {
     public Map<String, Object> storeDocument(BlockChainStoreRequestDto requestData) {
         String url = baseUrl + contractAddress + "/documents";
 
-        log.error("블록체인 API 호출 URL: {}", url);
-        log.error("요청 데이터: {}", requestData);
+        log.debug("블록체인 API 호출 URL: {}", url);
+        log.debug("요청 데이터: {}", requestData);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
@@ -42,5 +45,38 @@ public class BlockchainUtil {
                 Map.class
         );
         return response.getBody();
+    }
+
+    /**
+     * 문서 이름으로 블록체인에서 문서 조회
+     *
+     * @param documentName 조회할 문서 이름
+     * @return 문서 정보 또는 null (문서가 없는 경우)
+     */
+    public BlockchainDocumentResponseDto getDocumentByName(String documentName) {
+        String url = baseUrl + contractAddress + "/documents"+ documentName;
+
+        log.debug("문서 조회 URL: {}", url);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        headers.set("Accept", "application/json");
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<BlockchainDocumentResponseDto> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    BlockchainDocumentResponseDto.class
+            );
+
+            log.debug("문서 조회 응답: {}", response.getBody());
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("문서 조회 중 오류 발생: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR,"reason",e.getCause());
+        }
     }
 }

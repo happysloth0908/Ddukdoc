@@ -174,11 +174,11 @@ public class PdfGeneratorUtil {
     }
 
     private BlockchainSaveResult saveDocumentinBlockchain(byte[] pdfData,TemplateCode templateCode, String hash){
-        log.error("saveDocumentinBlockchain 메서드 시작"); // 이 줄이 출력되는지 확인
 
         try{
             // 문서 이름 생성
             String docName = generateUniqueDocName(templateCode);
+            log.debug("문서 이름 : {}",docName);
             // 서명 생성
             String signature = signatureUtil.createSignature(requestor, docName, "", hash, privateKey);
             // 블록체인 객체 생성
