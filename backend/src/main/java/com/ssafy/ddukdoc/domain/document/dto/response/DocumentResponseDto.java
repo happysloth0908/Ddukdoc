@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 public class DocumentResponseDto {
     @Schema(example = "1")
-    private Integer id;
+    private Integer documentId;
+    @Schema(example = "3")
+    private Integer templateId;
     @Schema(example = "G1")
-    private String templateId;
+    private String templateCode;
     @Schema(example = "차용증")
     private String templateName;
     @Schema(example = "소운이 200만원 빌린 차용증")
@@ -37,8 +39,9 @@ public class DocumentResponseDto {
 
     public static DocumentResponseDto of(Document document){
         return DocumentResponseDto.builder()
-                .id(document.getId())
-                .templateId(document.getTemplate().getCode())
+                .documentId(document.getId())
+                .templateId(document.getTemplate().getId())
+                .templateCode(document.getTemplate().getCode())
                 .templateName(document.getTemplate().getName())
                 .title(document.getTitle())
                 .status(document.getStatus().getDescription())
