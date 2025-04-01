@@ -41,7 +41,7 @@ public class SsafyDocsController {
     public ResponseEntity<CommonResponse<CustomPage<SsafyDocumentResponseDto>>> getDocsList (
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @ModelAttribute SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto,
-            @PageableDefault(sort = "createAt",direction = Sort.Direction.DESC) Pageable pageable){
+            @PageableDefault(sort = "createdAt",direction = Sort.Direction.DESC) Pageable pageable){
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         return CommonResponse.ok(ssafyDocumentService.getDocsList(userId, ssafyDocumentSearchRequestDto, pageable));
