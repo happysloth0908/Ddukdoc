@@ -6,6 +6,7 @@ import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentListResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.DocumentService;
+import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExample;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
@@ -95,6 +96,8 @@ public class DocsController {
     // 문서 PDF 다운로드
     @GetMapping("/{doc_id}/download")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "문서 PDF 다운로드", description = "문서 저장 시, PDF로 다운로드 받을 수 있는 API입니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.DOCUMENT_NOT_SIGNED})
     public ResponseEntity<byte[]> downloadPdf(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId){
