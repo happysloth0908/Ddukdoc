@@ -45,28 +45,28 @@ public class SsafyDocumentService {
         return new CustomPage<>(documentList.map(SsafyDocumentResponseDto::of));
     }
 
-    public SsafyDocumentDetailResponseDto getSsafyDocumentDetail(Integer userId, Integer documentId){
+    public SsafyDocumentDetailResponseDto getSsafyDocumentDetail(Integer userId, Integer documentId) {
 
         // Document 검증
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
         // User 검증
-        if(!document.getCreator().getId().equals(userId)){
+        if (!document.getCreator().getId().equals(userId)) {
             throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId)
                     .addParameter("documentId", documentId);
         }
-        
-        // 서명 조회 >> 이거 base64로 다운받도록 하기
+
+        // 서명 조회
         Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId)
-                                .addParameter("userId", userId));
+                        .addParameter("userId", userId));
 
         byte[] fileBytes = s3Util.downloadAndDecryptFileToBytes(signature.getFilePath());
         String fileContent = Base64.getEncoder().encodeToString(fileBytes);
-        
+
         // 문서 필드 값 조회
-        List<DocumentFieldResponseDto> fieldValues =  getDecryptData(documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId));
+        List<DocumentFieldResponseDto> fieldValues = getDecryptData(documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId));
 
         return SsafyDocumentDetailResponseDto.of(document, fieldValues, fileContent);
     }
