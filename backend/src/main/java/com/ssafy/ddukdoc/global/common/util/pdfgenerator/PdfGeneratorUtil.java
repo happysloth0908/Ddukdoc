@@ -8,15 +8,20 @@ import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
+import com.ssafy.ddukdoc.domain.contract.dto.request.BlockChainStoreRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.util.HashUtil;
+import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
+import com.ssafy.ddukdoc.global.common.util.blockchain.SignatureUtil;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.DocumentGenerator;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.DocumentGeneratorFactory;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -24,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -33,10 +39,18 @@ import org.springframework.core.io.ResourceLoader;
 @RequiredArgsConstructor
 public class PdfGeneratorUtil {
 
+    @Value("${blockchain.address}")
+    private String requestor;
+
+    @Value("${blockchain.private-key}")
+    private String privateKey;
+
     private static final String FONT_NAME = "fonts/malgun.ttf";
     private static final float MARGIN = 50; //문서 여백
     private final HashUtil hashUtil;
     private final ResourceLoader resourceLoader;
+    private final SignatureUtil signatureUtil;
+    private final BlockchainUtil blockchainUtil;
 
     /**
      * 템플릿 코드와 필드 값, 서명 데이터를 기반으로 PDF를 생성합니다.
@@ -132,8 +146,14 @@ public class PdfGeneratorUtil {
 
             // PDF 데이터의 해시값 계산
             String hash = generatePdfHash(pdfData);
+            String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
+
+            //서명 생성 후 블록체인 저장
+            BlockchainSaveResult saveResponse = saveDocumentinBlockchain(pdfData,templateCode,docHashWithPrefix);
 
             // PDF 메타데이터에 해시값 추가
+
+
             // 추 후 블록체인 ID 값으로 변경 예정
             try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfData));
                  ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
@@ -143,7 +163,8 @@ public class PdfGeneratorUtil {
 
                 // 메타데이터에 해시값 추가
                 PdfDocumentInfo info = pdfDocument.getDocumentInfo();
-                info.setMoreInfo("documentHash", hash);
+                info.setMoreInfo("TransactionId",saveResponse.getTransactionHash());
+                info.setMoreInfo("docName",saveResponse.getDocumentName());
 
                 pdfDocument.close();
 
@@ -155,6 +176,45 @@ public class PdfGeneratorUtil {
             // generatePdf() 메서드에서 발생하는 IOException 처리
             throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "PDF generation failed", e.getMessage());
         }
+    }
+
+    private BlockchainSaveResult saveDocumentinBlockchain(byte[] pdfData,TemplateCode templateCode, String hash){
+        log.error("saveDocumentinBlockchain 메서드 시작"); // 이 줄이 출력되는지 확인
+
+        try{
+            // 문서 이름 생성
+            String docName = generateUniqueDocName(templateCode);
+
+            // 서명 생성
+            String signature = signatureUtil.createSignature(requestor, docName, "", hash, privateKey);
+
+            // 블록체인 객체 생성
+            BlockChainStoreRequestDto storeData = new BlockChainStoreRequestDto(requestor,docName,"",hash,signature);
+
+            // 블록체인 API 호출
+            Map<String, Object> blockchainResponse = blockchainUtil.storeDocument(storeData);
+
+            // 블록체인 트랜잭션 ID 추출
+            String transactionHash = (String) blockchainResponse.get("transactionHash");
+
+            return new BlockchainSaveResult(pdfData,transactionHash,hash,docName,blockchainResponse);
+        }catch(Exception e){
+            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR,"reason",e.getMessage());
+        }
+
+    }
+
+    /**
+     * 유니크한 문서 이름을 생성합니다.
+     *
+     * @param templateCode 템플릿 코드
+     * @return 유니크한 문서 이름
+     */
+    private String generateUniqueDocName(TemplateCode templateCode) {
+        // UUID + 템플릿 코드 + 타임스탬프 조합으로 유니크한 이름 생성
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        return templateCode.name() + "_" + uuid + "_" + timestamp;
     }
 
 }
