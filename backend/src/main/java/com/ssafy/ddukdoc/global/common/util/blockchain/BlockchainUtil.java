@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.global.common.util.blockchain;
 
 import com.ssafy.ddukdoc.domain.contract.dto.request.BlockChainStoreRequestDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class BlockchainUtil {
     private final RestTemplate restTemplate = new RestTemplate();
@@ -27,18 +29,18 @@ public class BlockchainUtil {
     public Map<String, Object> storeDocument(BlockChainStoreRequestDto requestData) {
         String url = baseUrl + contractAddress + "/documents";
 
+        log.error("블록체인 API 호출 URL: {}", url);
+        log.error("요청 데이터: {}", requestData);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
         HttpEntity<BlockChainStoreRequestDto> requestEntity = new HttpEntity<>(requestData, headers);
-
         ResponseEntity<Map> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 requestEntity,
                 Map.class
         );
-
         return response.getBody();
     }
 }

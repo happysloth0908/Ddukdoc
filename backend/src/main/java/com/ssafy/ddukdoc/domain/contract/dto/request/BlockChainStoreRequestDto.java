@@ -26,6 +26,12 @@ public class BlockChainStoreRequestDto {
 
     @Override
     public String toString() {
-        return super.toString();
+        return "BlockChainStoreRequestDto{" +
+                "requestor='" + requestor + '\'' +
+                ", name='" + name + '\'' +
+                ", docUri='" + docUri + '\'' +
+                ", docHash='" + docHash + '\'' +
+                ", signature='" + signature + '\'' +
+                '}';
     }
 }

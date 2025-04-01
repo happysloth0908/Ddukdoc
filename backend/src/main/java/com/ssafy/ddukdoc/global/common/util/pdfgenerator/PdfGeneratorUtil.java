@@ -15,8 +15,6 @@ import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.util.HashUtil;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
 import com.ssafy.ddukdoc.global.common.util.blockchain.SignatureUtil;
-import com.ssafy.ddukdoc.global.common.util.pdfgenerator.DocumentGenerator;
-import com.ssafy.ddukdoc.global.common.util.pdfgenerator.DocumentGeneratorFactory;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -152,9 +150,6 @@ public class PdfGeneratorUtil {
             BlockchainSaveResult saveResponse = saveDocumentinBlockchain(pdfData,templateCode,docHashWithPrefix);
 
             // PDF 메타데이터에 해시값 추가
-
-
-            // 추 후 블록체인 ID 값으로 변경 예정
             try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfData));
                  ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
 
@@ -184,16 +179,13 @@ public class PdfGeneratorUtil {
         try{
             // 문서 이름 생성
             String docName = generateUniqueDocName(templateCode);
-
             // 서명 생성
             String signature = signatureUtil.createSignature(requestor, docName, "", hash, privateKey);
-
             // 블록체인 객체 생성
             BlockChainStoreRequestDto storeData = new BlockChainStoreRequestDto(requestor,docName,"",hash,signature);
 
             // 블록체인 API 호출
             Map<String, Object> blockchainResponse = blockchainUtil.storeDocument(storeData);
-
             // 블록체인 트랜잭션 ID 추출
             String transactionHash = (String) blockchainResponse.get("transactionHash");
 
