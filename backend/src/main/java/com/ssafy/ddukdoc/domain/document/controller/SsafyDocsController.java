@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.SsafyDocumentService;
@@ -17,10 +18,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
+
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,6 +58,27 @@ public class SsafyDocsController {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         return CommonResponse.ok(ssafyDocumentService.getSsafyDocumentDetail(userId, documentId));
+    }
+
+    @GetMapping("/{doc_id}/download")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "싸피 문서 다운로드", description = "doc_id를 통한 싸피 문서를 다운로드합니다")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.FILE_DOWNLOAD_ERROR})
+    public ResponseEntity<byte[]> downloadSsafyDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        DocumentDownloadResponseDto downloadResponseDto = ssafyDocumentService.downloadSsafyDocument(userId, documentId);
+        String fileName = UriUtils.encode(downloadResponseDto.getDocumentTitle()+".pdf", StandardCharsets.UTF_8);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename(fileName)
+                .build());
+
+        return new ResponseEntity<>(downloadResponseDto.getDocumentContent(), headers, HttpStatus.OK);
     }
 
 }
