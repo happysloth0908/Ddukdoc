@@ -1,7 +1,7 @@
-import BigButton from './BigButton';
+import BigButton from './mainChildren/BigButton';
 import Login from '@/assets/images/login';
 import MainPage from '@/assets/images/mainPage';
-import SmallButton from './SmallButton';
+import SmallButton from './mainChildren/SmallButton';
 import { Link } from 'react-router-dom';
 import { getToken } from '@/apis/auth';
 
@@ -9,7 +9,7 @@ export const MainMenuPage = () => {
   const token = async () => {
     const res = await getToken();
     console.log(res);
-  }
+  };
 
   token();
 
