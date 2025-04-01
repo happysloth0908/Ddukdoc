@@ -39,11 +39,11 @@ public class MaterialService {
     private final S3Util s3Util;
 
     @Transactional
-    public void uploadMaterial(Integer userId, Integer documentId, String title, MultipartFile file){
+    public void uploadMaterial(Integer userId, Integer documentId, String title, MultipartFile file) {
 
         // Document 조회, 엔티티를 id로 조회 했을때 없으면 예외 발생
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
         // User 조회
         User user = userRepository.findById(userId)
@@ -51,7 +51,7 @@ public class MaterialService {
 
         // 파일 검증
         String fileExtension = fileValidationUtil.isValidFileExtension(file);
-        
+
         // S3에 파일 업로드 (암호화)
         String fileUrl = s3Util.uploadEncryptedFile(file, "material");
 
@@ -68,17 +68,17 @@ public class MaterialService {
     }
 
 
-    public List<MaterialListResponseDto> getMaterialList(Integer userId, Integer documentId){
-        
+    public List<MaterialListResponseDto> getMaterialList(Integer userId, Integer documentId) {
+
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
                 (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
-           throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                   .addParameter("documentId", documentId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
         }
 
         // 문서 내 등록된 추가자료 모두 조회
@@ -89,11 +89,11 @@ public class MaterialService {
                 .collect(Collectors.toList());
     }
 
-    public MaterialDetailResponseDto getMaterialDetail(Integer userId, Integer documentId, Integer materialId){
+    public MaterialDetailResponseDto getMaterialDetail(Integer userId, Integer documentId, Integer materialId) {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
@@ -104,8 +104,8 @@ public class MaterialService {
 
         // 추가자료 검증
         DocumentEvidence material = materialRepository.findById(materialId)
-                .orElseThrow(()-> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
-        
+                .orElseThrow(() -> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
+
         // 이미지만 상세 조회 가능
         if (!fileValidationUtil.isImageExtension(material.getMimeType())) {
             throw new CustomException(ErrorCode.MATERIAL_NOT_IMAGE, "fileFormat", material.getMimeType())
@@ -121,11 +121,11 @@ public class MaterialService {
     }
 
     @Transactional
-    public void deleteMaterial(Integer userId, Integer documentId, Integer materialId){
+    public void deleteMaterial(Integer userId, Integer documentId, Integer materialId) {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
@@ -136,12 +136,12 @@ public class MaterialService {
 
         // 추가자료 검증
         DocumentEvidence material = materialRepository.findById(materialId)
-                .orElseThrow(()-> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
 
         // 추가자료 생성자 검증
-        if(!material.getUser().getId().equals(userId)){
+        if (!material.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                    .addParameter("documentId",documentId)
+                    .addParameter("documentId", documentId)
                     .addParameter("materialId", materialId);
         }
 
@@ -152,11 +152,11 @@ public class MaterialService {
         materialRepository.delete(material);
     }
 
-    public MaterialDownloadResponseDto downloadMaterial(Integer userId, Integer documentId){
+    public MaterialDownloadResponseDto downloadMaterial(Integer userId, Integer documentId) {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
         // 사용자 접근 권한 확인 (문서 생성자 또는 수신자만 다운로드 가능)
         if (!(document.getCreator().getId().equals(userId) || document.getRecipient().getId().equals(userId))) {
@@ -166,7 +166,7 @@ public class MaterialService {
 
         // 추가자료 목록 조회
         List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
-        if(documentEvidenceList.isEmpty()){
+        if (documentEvidenceList.isEmpty()) {
             throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_EMPTY, "documentId", documentId);
         }
 
@@ -179,7 +179,7 @@ public class MaterialService {
                     byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(evidence.getFilePath());
 
                     // Zip 파일 엔트리 생성
-                    ZipEntry zipEntry = new ZipEntry(evidence.getTitle()+"."+evidence.getMimeType());
+                    ZipEntry zipEntry = new ZipEntry(evidence.getTitle() + "." + evidence.getMimeType());
                     zipStream.putNextEntry(zipEntry);
                     zipStream.write(fileContent);
                     zipStream.closeEntry();
