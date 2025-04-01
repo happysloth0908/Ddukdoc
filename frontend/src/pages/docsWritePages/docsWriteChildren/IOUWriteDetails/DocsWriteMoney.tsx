@@ -30,18 +30,15 @@ const numberToKorean = (num: number): string => {
 export const DocsWriteMoney = ({data, handleData}: {data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
 
     const [formData, setFormData] = useState({
-        loan_purpose: "",
-        loan_date: "",
-        principal_amount_numeric: "",
+        loan_purpose: data.loan_purpose || "",
+        loan_date: data.loan_date || "",
+        principal_amount_numeric: data.principal_amount_numeric.toString() || "",
     });
     
     const [koreanAmount, setKoreanAmount] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-
-        
         if (name === "principal_amount_numeric") {
             const num = parseInt(value.replace(/[^0-9]/g, ""), 10);
             if (!isNaN(num)) {
@@ -50,6 +47,11 @@ export const DocsWriteMoney = ({data, handleData}: {data: iouData, handleData: (
                 setKoreanAmount("");
             }
         }
+        if (value != null) {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+
+        
     };
     
     const handleSenderData = () => {
@@ -68,14 +70,14 @@ export const DocsWriteMoney = ({data, handleData}: {data: iouData, handleData: (
 
     return (
         <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={2} totalStage={5} />
+            <atoms.ProgressBar curStage={2} totalStage={6} />
             <div className="flex-1 flex justify-center items-center">
                 <div className="w-full m-1 flex flex-col gap-y-6">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"차용, 원금 정보"} description="를 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
-                        <atoms.Input name="loan_purpose" label="차용 목적" onChange={handleChange} />
-                        <atoms.DateInput name="loan_date" label="차용 일자" onChange={handleChange} />
-                        <atoms.Input name="principal_amount_numeric" label="원금 (숫자 입력)" onChange={handleChange} />
+                        <atoms.Input name="loan_purpose" defaultValue={data.loan_purpose || ""} label="차용 목적" onChange={handleChange} />
+                        <atoms.DateInput name="loan_date" defaultValue={data.loan_date || ""} label="차용 일자" onChange={handleChange} />
+                        <atoms.Input name="principal_amount_numeric" defaultValue={data.principal_amount_numeric || ""} label="원금 (숫자 입력)" onChange={handleChange} />
                         {koreanAmount && <p className="text-lg font-bold text-gray-700">{koreanAmount}</p>}
                         </form>
                 </div>
