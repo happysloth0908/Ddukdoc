@@ -7,16 +7,18 @@ import { useState } from "react";
 export const DocsWriteRate = ({data, handleData}: {data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
 
     const [formData, setFormData] = useState({
-        interest_rate: "",
-        repayment_date: "",
-        interest_payment_date: "",
-        late_interest_rate: "",
-        loss_of_benefit_conditions: "",
+        interest_rate: data.interest_rate.toString() || "",
+        repayment_date: data.repayment_date || "",
+        interest_payment_date: data.interest_payment_date.toString() || "",
+        late_interest_rate: data.late_interest_rate.toString() || "",
+        loss_of_benefit_conditions: data.loss_of_benefit_conditions.toString() || "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (value != null) {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
     };
     
     const handleSenderData = () => {
@@ -36,16 +38,16 @@ export const DocsWriteRate = ({data, handleData}: {data: iouData, handleData: (n
 
     return (
         <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={2} totalStage={5} />
+            <atoms.ProgressBar curStage={3} totalStage={6} />
             <div className="flex-1 flex justify-center items-center">
                 <div className="w-full m-1 flex flex-col gap-y-6">
                     <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"차용, 원금 정보"} description="를 입력하고 있어요" />
                     <form className="flex flex-col gap-y-6">
-                        <atoms.Input name="interest_rate" label="이자율" onChange={handleChange} />
-                        <atoms.Input name="repayment_date" label="원금 변제일" onChange={handleChange} />
-                        <atoms.Input name="interest_payment_date" label="이자 지급일 (매월)" onChange={handleChange} />
-                        <atoms.Input name="late_interest_rate" label="지연 이자율" onChange={handleChange} />
-                        <atoms.Input name="loss_of_benefit_conditions" label="기한 이익 상실 연체 횟수" onChange={handleChange} />
+                        <atoms.Input name="interest_rate" defaultValue={data.interest_rate.toString() || ""} label="이자율" onChange={handleChange} />
+                        <atoms.DateInput name="repayment_date" defaultValue={data.repayment_date || ""} label="원금 변제일" onChange={handleChange} />
+                        <atoms.Input name="interest_payment_date" defaultValue={data.interest_payment_date.toString() || ""} label="이자 지급일 (매월)" onChange={handleChange} />
+                        <atoms.Input name="late_interest_rate" defaultValue={data.late_interest_rate.toString() || ""} label="지연 이자율" onChange={handleChange} />
+                        <atoms.Input name="loss_of_benefit_conditions" defaultValue={data.loss_of_benefit_conditions.toString() || ""} label="기한 이익 상실 연체 횟수" onChange={handleChange} />
                         </form>
                 </div>
             </div>
