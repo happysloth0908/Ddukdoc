@@ -5,6 +5,7 @@ import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentSaveResponseDto;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
@@ -70,7 +71,7 @@ public class ContractService {
         return fieldResponses;
     }
     @Transactional
-    public int saveDocument(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
+    public DocumentSaveResponseDto saveDocument(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile){
 
         TemplateCode templateCode = TemplateCode.fromString(codeStr);
         //사용자 조회
@@ -97,7 +98,9 @@ public class ContractService {
         //userID 저장
         saveUserDocRole(saveDocument,user,requestDto.getRoleId());
 
-        return pin;
+        DocumentSaveResponseDto responseDto = DocumentSaveResponseDto.of(pin,saveDocument.getId());
+
+        return responseDto;
     }
 
     private void saveUserDocRole(Document document, User user, int roleId) {
@@ -330,6 +333,33 @@ public class ContractService {
         document.updateStatus(DocumentStatus.SIGNED);
         document.updateFilePath(pdfPath);
         documentRepository.save(document);
+    }
+
+
+    @Transactional
+    public void returnDocument(Integer userId, Integer documentId, String returnReason){
+
+        // Document 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(()-> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+        
+        // 사용자 검증 (수신자인지 검증)
+        if(document.getRecipient()==null || !document.getRecipient().getId().equals(userId)){
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 문서 상태 검증
+        if(!document.getStatus().equals(DocumentStatus.WAITING)){
+            throw new CustomException(ErrorCode.INVALID_DOCUMENT_STATUS, "status", document.getStatus())
+                    .addParameter("documentId", documentId);
+        }
+        
+        // 반송 이유 업데이트
+        document.updateReturnReason(returnReason);
+        
+        // 문서 상태 업데이트
+        document.updateStatus(DocumentStatus.RETURNED);
     }
 
 }
