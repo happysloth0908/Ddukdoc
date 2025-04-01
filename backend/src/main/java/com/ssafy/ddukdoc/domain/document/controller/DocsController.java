@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 
 @RestController
@@ -92,12 +92,13 @@ public class DocsController {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         DocumentDownloadResponseDto downloadDocumentDto = documentService.downloadDocument(userId, documentId);
+        String fileName = UriUtils.encode(downloadDocumentDto.getDocumentTitle()+".pdf", StandardCharsets.UTF_8);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDisposition(ContentDisposition.attachment()
-                .filename(downloadDocumentDto.getDocumentTitle() + ".pdf", StandardCharsets.UTF_8)
+                .filename(fileName)
                 .build());
-        return new ResponseEntity<>(downloadDocumentDto.getDocumentContent(), headers, HttpStatus.OK);
+       return new ResponseEntity<>(downloadDocumentDto.getDocumentContent(), headers, HttpStatus.OK);
     }
 }
