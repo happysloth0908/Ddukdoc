@@ -9,6 +9,10 @@ public class DocumentGeneratorFactory {
         switch (templateCode){
             case G1:
                 return new LoanAgreementGenerator();
+            case S1:
+                return new LaptopExportGenerator();
+            case S3:
+                return new AttendanceFormGenerator();
             default:
                 throw new CustomException(ErrorCode.TEMPLATE_NOT_FOUND);
         }
