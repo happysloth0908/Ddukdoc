@@ -70,4 +70,10 @@ public class Document extends BaseEntity {
         this.filePath = filePath;
     }
 
+    /**
+     * 문서 반송 이유 업데이트 메소드
+     * @param returnReason 반송 사유
+     */
+    public void updateReturnReason(String returnReason) {this.returnReason = returnReason;}
+
 }
