@@ -92,6 +92,8 @@ public class MaterialController {
     // 기타 자료 다운로드
     @GetMapping("/{doc_id}/download")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "기타 자료 다운로드", description = "문서에 첨부된 기타 자료들을 zip 파일로 다운로드합니다.")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.MATERIAL_DOWNLOAD_ERROR, ErrorCode.MATERIAL_ZIP_CONVERT_ERROR})
     public ResponseEntity<byte[]> downloadMaterial(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId){
