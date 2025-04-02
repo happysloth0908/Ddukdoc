@@ -61,6 +61,9 @@ dependencies {
 
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
+
+	implementation 'org.json:json:20210307'
+
 }
 
 tasks.named('test') {
