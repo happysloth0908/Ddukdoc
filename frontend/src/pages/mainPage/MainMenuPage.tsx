@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { getCookie, deleteCookie } from '@/utils/cookies';
 
 export const MainMenuPage = () => {
-  const { user, checkAuthStatus } = useAuthStore();
+  const { isLoggedIn, checkAuthStatus } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export const MainMenuPage = () => {
   }, [checkAuthStatus]);
 
   useEffect(() => {
-    if (user) {
+    if (isLoggedIn) {
       // localStorage에서 리다이렉트 경로 가져오기
       // const redirectPath = localStorage.getItem('auth_redirect_path');
       const redirectPath = getCookie('auth_redirect_path');
@@ -28,7 +28,7 @@ export const MainMenuPage = () => {
         navigate(redirectPath);
       }
     }
-  }, [user, navigate]);
+  }, [isLoggedIn, navigate]);
 
   const token = async () => {
     const res = await getToken();
