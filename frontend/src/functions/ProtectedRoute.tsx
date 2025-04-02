@@ -1,6 +1,8 @@
 import { useEffect, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { setCookie } from '@/utils/cookies';
+// import { useCookies } from '@/hooks/useCookies';
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading, checkAuthStatus } = useAuthStore();
@@ -20,11 +22,7 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   if (!user) {
     const isSsafy = location.pathname.includes('ssafy');
     const loginPath = isSsafy ? '/ssafy/login' : '/login';
-
-    console.log('전체 location 객체:', location);
-    console.log('location.pathname:', location.pathname);
-    console.log('location.href:', window.location.href);
-    localStorage.setItem('auth_redirect_path', location.pathname);
+    setCookie('auth_redirect_path', location.pathname);
     return <Navigate to={loginPath} replace />;
   }
 

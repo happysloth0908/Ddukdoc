@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getToken } from '@/apis/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useEffect } from 'react';
+import { getCookie, deleteCookie } from '@/utils/cookies';
 
 export const MainMenuPage = () => {
   const { user, checkAuthStatus } = useAuthStore();
@@ -18,11 +19,12 @@ export const MainMenuPage = () => {
   useEffect(() => {
     if (user) {
       // localStorage에서 리다이렉트 경로 가져오기
-      const redirectPath = localStorage.getItem('auth_redirect_path');
+      // const redirectPath = localStorage.getItem('auth_redirect_path');
+      const redirectPath = getCookie('auth_redirect_path');
 
       if (redirectPath) {
         // 사용 후 삭제
-        localStorage.removeItem('auth_redirect_path');
+        deleteCookie('auth_redirect_path');
         navigate(redirectPath);
       }
     }
