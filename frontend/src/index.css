@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 폰트 추가 */
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-ExtraBold.otf") format("otf");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Bold.otf") format("otf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-SemiBold.otf") format("otf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Medium.otf") format("otf");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Regular.otf") format("otf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Light.otf") format("otf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-ExtraLight.otf") format("otf");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "interop";
+  src: url("@/assets/fonts/Interop-Thin.otf") format("otf");
+  font-weight: 100;
+}
+
+body {
+  touch-action: pan-y;
+  font-family: "interop";
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* 슬라이드 인/아웃 애니메이션 */
+.page-right-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.page-right-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
+}
+.page-right-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+.page-right-exit-active {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: transform 300ms ease-in, opacity 300ms ease-in;
+}
+
+/* 왼쪽에서 오른쪽으로 슬라이드 인 */
+.page-left-enter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.page-left-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
+}
+.page-left-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+.page-left-exit-active {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 300ms ease-in, opacity 300ms ease-in;
+}
