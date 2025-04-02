@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.document.service;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentFieldResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
@@ -83,5 +84,22 @@ public class SsafyDocumentService {
                 .collect(Collectors.toList());
 
         return decryptedData;
+    }
+
+    public DocumentDownloadResponseDto downloadSsafyDocument(Integer userId, Integer documentId){
+
+        // Document 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // User 검증 (생성자만 다운 가능)
+        if (!document.getCreator().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // S3에서 파일 다운로드
+        byte[] content = s3Util.downloadAndDecryptFileToBytes(document.getFilePath());
+        return DocumentDownloadResponseDto.of(document, content);
     }
 }
