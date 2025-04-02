@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.document.service;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentUpdateRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentFieldResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Base64;
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SsafyDocumentService {
 
     private final DocumentRepository documentRepository;
@@ -101,5 +105,25 @@ public class SsafyDocumentService {
         // S3에서 파일 다운로드
         byte[] content = s3Util.downloadAndDecryptFileToBytes(document.getFilePath());
         return DocumentDownloadResponseDto.of(document, content);
+    }
+
+    @Transactional
+    public void updateSsafyDocument(Integer userId, Integer documentId, SsafyDocumentUpdateRequestDto updateRequestDto, MultipartFile multipartFile){
+
+        // Document 검증
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+
+        // User 검증 (생성자만 다운 가능)
+        if (!document.getCreator().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId)
+                    .addParameter("documentId", documentId);
+        }
+
+        // 문서 제목 업데이트
+        
+        // 필드 값 업데이트
+
+
     }
 }

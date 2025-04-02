@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentUpdateRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
@@ -22,6 +23,7 @@ import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -79,6 +81,21 @@ public class SsafyDocsController {
                 .build());
 
         return new ResponseEntity<>(downloadResponseDto.getDocumentContent(), headers, HttpStatus.OK);
+    }
+
+    @PutMapping("/{doc_id}")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "싸피 문서 수정", description = "doc_id를 통한 싸피 문서를 수정합니다")
+    @ApiErrorCodeExamples({})
+    public ResponseEntity<CommonResponse<Void>> updateSsafyDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId,
+            @RequestPart("jsonData") @Valid SsafyDocumentUpdateRequestDto updateRequestDto,
+            @RequestPart(value = "signature", required = false) MultipartFile multipartFile) {
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        ssafyDocumentService.updateSsafyDocument(userId, documentId, updateRequestDto, multipartFile);
+        return CommonResponse.ok();
     }
 
 }
