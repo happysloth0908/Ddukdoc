@@ -54,18 +54,12 @@ public class DevAuthenticationFilter extends OncePerRequestFilter {
 
                 // SecurityContext에 인증 객체 설정
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (NumberFormatException e) {
                 log.error("개발 환경: 테스트 사용자 ID 형식 오류", e);
             }
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        // 소셜 로그인 경로는 필터 적용하지 않음
-        String path = request.getServletPath();
-        return path.startsWith("/api/oauth");
     }
 }

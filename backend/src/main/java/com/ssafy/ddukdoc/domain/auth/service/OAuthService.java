@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OAuthService {
     private final Map<Provider, OAuthStrategy> oAuthStrategyMap;
@@ -31,6 +31,7 @@ public class OAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRedisService authRedisService;
 
+    @Transactional
     public LoginResult handleOAuthLogin(Provider provider, String code) {
 
         // 1. 전략 가져오기
