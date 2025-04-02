@@ -53,7 +53,7 @@ public class DocsController {
     @GetMapping("/{doc_id}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "문서 상세 조회", description = "doc_id를 통한 상세 문서를 조회합니다.")
-    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND})
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FILE_DOWNLOAD_ERROR, ErrorCode.DECRYPTION_ERROR})
     public ResponseEntity<CommonResponse<DocumentDetailResponseDto>> getDoc(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId) {
