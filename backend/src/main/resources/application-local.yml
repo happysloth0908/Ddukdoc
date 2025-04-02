@@ -18,14 +18,14 @@ spring:
     redis:
       host: localhost
 
-
-
 logging.level:
-  org.hibernate.SQL: info
+  org.hibernate.SQL: debug
+  org.hibernate.type.descriptor.sql: trace
 
 logging:
   level:
     com.zaxxer.hikari.HikariConfig: DEBUG
+    com.ssafy.ddukdoc: DEBUG
     com.ssafy.ddukdoc.global.config.WebClientConfig: DEBUG
     com.zaxxer.hikari: TRACE
 
