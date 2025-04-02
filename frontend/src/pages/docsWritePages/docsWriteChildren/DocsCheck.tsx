@@ -1,5 +1,5 @@
 import atoms from "@/components/atoms"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Documents } from "@/pdfs/Documents";
 import { contractSave } from "@/apis/docsWrite";
 import { useIOUDocsStore } from "@/store/docs";
@@ -9,6 +9,7 @@ export const DocsCheck = ({ curTemplate, role }: { curTemplate: string, role: st
     
   const { data, creditor_signature, debtor_signature } = useIOUDocsStore();
   const location = useLocation();
+  const navigate = useNavigate();
   const previousPage = location.state?.from || "알 수 없음";
 
   console.log(previousPage);
@@ -153,6 +154,7 @@ export const DocsCheck = ({ curTemplate, role }: { curTemplate: string, role: st
     // ✅ SDK 초기화 확인 후 공유
     if (window.Kakao && window.Kakao.isInitialized()) {
       shareToKakao(data.creditor_name || data.debtor_name, response.data.pin_code, curTemplate == "G1" ? "차용증" : "근로계약서");
+      navigate("/docs/share", { state: { docId: response.data.doc_id }});
     } else {
       console.error("Kakao SDK가 초기화되지 않았습니다.");
     }

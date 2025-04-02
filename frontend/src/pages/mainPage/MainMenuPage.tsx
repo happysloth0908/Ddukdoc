@@ -2,14 +2,38 @@ import BigButton from './BigButton';
 import Login from '@/assets/images/login';
 import MainPage from '@/assets/images/mainPage';
 import SmallButton from './SmallButton';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getToken } from '@/apis/auth';
+import { useAuthStore } from '@/store/authStore';
+import { useEffect } from 'react';
+import { getCookie, deleteCookie } from '@/utils/cookies';
 
 export const MainMenuPage = () => {
+  const { isLoggedIn, checkAuthStatus } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // localStorage에서 리다이렉트 경로 가져오기
+      // const redirectPath = localStorage.getItem('auth_redirect_path');
+      const redirectPath = getCookie('auth_redirect_path');
+
+      if (redirectPath) {
+        // 사용 후 삭제
+        deleteCookie('auth_redirect_path');
+        navigate(redirectPath);
+      }
+    }
+  }, [isLoggedIn, navigate]);
+
   const token = async () => {
     const res = await getToken();
     console.log(res);
-  }
+  };
 
   token();
 
