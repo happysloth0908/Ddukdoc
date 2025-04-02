@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.SsafyDocumentService;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
@@ -19,10 +20,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +42,18 @@ public class SsafyDocsController {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         return CommonResponse.ok(ssafyDocumentService.getDocsList(userId, ssafyDocumentSearchRequestDto, pageable));
+    }
+
+    @GetMapping("/{doc_id}")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary="싸피 문서 상세 조회", description = "doc_id를 통한 싸피 상세 문서를 조회합니다")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.FILE_DOWNLOAD_ERROR})
+    public ResponseEntity<CommonResponse<SsafyDocumentDetailResponseDto>> getSsafyDocumentDetail(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId){
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        return CommonResponse.ok(ssafyDocumentService.getSsafyDocumentDetail(userId, documentId));
     }
 
 }
