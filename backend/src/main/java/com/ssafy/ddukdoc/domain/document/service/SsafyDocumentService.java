@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.domain.document.service;
 
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
+import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentUpdateRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
@@ -15,6 +16,7 @@ import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.util.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
+import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +42,7 @@ public class SsafyDocumentService {
     private final DocumentFieldValueRepository documentFieldValueRepository;
     private final AESUtil aesUtil;
     private final S3Util s3Util;
+    private final PdfGeneratorUtil pdfGeneratorUtil;
 
     public CustomPage<SsafyDocumentResponseDto> getDocsList(Integer userId, SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto, Pageable pageable) {
         Page<Document> documentList = documentRepository.findSsafyDocumentList(
@@ -114,15 +119,58 @@ public class SsafyDocumentService {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
 
-        // User 검증 (생성자만 다운 가능)
+        // User 검증 (생성자)
         if (!document.getCreator().getId().equals(userId)) {
             throw new CustomException(ErrorCode.CREATOR_NOT_MATCH, "userId", userId)
                     .addParameter("documentId", documentId);
         }
 
-        // 문서 제목 업데이트
+        // 1. 문서 제목 업데이트
+        document.updateTitle(updateRequestDto.getTitle());
         
-        // 필드 값 업데이트
+        // 2. 필드 값 업데이트 (DB에서 필드정보들을 불러와서 id로 매칭 후 값 업데이트)
+        List<DocumentFieldValue> currentFieldValues = documentFieldValueRepository.findAllByDocumentIdOrderByFieldDisplayOrder(documentId);
+        for(DocumentFieldDto fieldDto : updateRequestDto.getData()){
+            DocumentFieldValue fieldValue = currentFieldValues.stream()
+                    .filter(fv -> fv.getField().getId().equals(fieldDto.getFieldId()))
+                    .findFirst()
+                    .orElseThrow(()-> new CustomException(ErrorCode.TEMPLATE_FIELD_NOT_FOUND, "fieldId", fieldDto.getFieldId())
+                            .addParameter("fieldName", fieldDto.getName())
+                            .addParameter("documentId", documentId)
+                            .addParameter("userId", userId));
+
+            String encryptedValue = aesUtil.encrypt(fieldDto.getFieldValue());
+            fieldValue.updateFieldValue(encryptedValue);
+            documentFieldValueRepository.save(fieldValue);
+        }
+
+        // 3. 서명 업데이트
+        if(multipartFile != null && !multipartFile.isEmpty()){
+            Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId)
+                            .addParameter("userId", userId));
+
+            // 기존 서명 S3에서 삭제
+            s3Util.deleteFileFromS3(signature.getFilePath());
+
+            // 서명파일 암호화 하여 S3에 업로드 및 서명 업데이트
+            String dirName = "signature/"+document.getId()+"/"+userId;
+            String newPath = s3Util.uploadEncryptedFile(multipartFile, dirName);
+            signature.updateFilePath(newPath);
+            signatureRepository.save(signature);
+        }
+
+//        Map<Integer,byte[]> signatureData = new HashMap<>();
+//        signatureData.put(documentId,multipartFile.getBytes());
+        
+        // 4. 업데이트 된 내용으로 PDF 생성 및 저장
+//        byte[] pdfWithHash = pdfGeneratorUtil.generatePdfForHash(
+//                document.getTemplate().getCode(),
+//                updateRequestDto.getData(),
+//                signatureData
+//        );
+//
+        // 5. Document FilePath 업데이트
 
 
     }
