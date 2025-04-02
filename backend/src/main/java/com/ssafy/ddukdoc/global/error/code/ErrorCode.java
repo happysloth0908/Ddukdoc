@@ -76,7 +76,10 @@ public enum ErrorCode {
     INVALID_ENCRYPTION_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR,"H001","지원하지 않는 해시 암호화 알고리즘입니다."),
 
     //PDF
-    PDF_GENERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"P001" ,"PDF 생성에 실패하였습니다." );
+    PDF_GENERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"P001" ,"PDF 생성에 실패하였습니다." ),
+
+    // API
+    EXTERNAL_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E001", "외부 API 호출 중 오류가 발생했습니다");
 
     private final HttpStatus status;
     private final String code;

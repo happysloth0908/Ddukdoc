@@ -1,0 +1,69 @@
+package com.ssafy.ddukdoc.domain.share.service;
+
+import com.ssafy.ddukdoc.domain.share.constants.MMConstants;
+import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
+import com.ssafy.ddukdoc.global.error.exception.CustomException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ShareService {
+
+    private final WebClient webClient;
+
+    public MMLoginResponse mattermostLogin(MMLoginRequest loginRequest) {
+        try {
+
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("login_id", loginRequest.getId());
+            requestBody.put("password", loginRequest.getPassword());
+
+            ResponseEntity<Map> response = webClient.post()
+                    .uri(MMConstants.MATTERMOST_API_URL + MMConstants.MM_LOGIN_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .toEntity(Map.class)
+                    .block();
+
+            if (response == null || response.getBody() == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+            }
+
+            // 응답 헤더에서 토큰 추출
+            String token = response.getHeaders().getFirst("Token");
+            if (token == null) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 토큰을 받아올 수 없습니다.");
+            }
+
+            // 응답 본문에서 사용자 ID 추출
+            String userId = (String) response.getBody().get("id");
+            if (userId == null) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 사용자 ID를 받아올 수 없습니다.");
+            }
+
+            return MMLoginResponse.of(userId, token);
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
+            }
+            log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+}
