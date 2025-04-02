@@ -135,7 +135,16 @@ pipeline {
                             sh 'node -v'
                             sh 'npm -v'
                             sh 'npm install'
-                            sh 'BUILD_PATH=./${DEPLOY_ENV} npm run build'
+                            sh 'npm run build'
+
+                            sh 'ls -la ${DEPLOY_ENV}/'
+
+                            // dist 폴더가 있는지 확인
+                            sh 'ls -la dist/ || echo "dist 폴더가 없습니다"'
+
+                            // 환경에 맞게 dist 폴더 이름 변경 (이미 있으면 먼저 삭제)
+                            sh 'rm -rf ${DEPLOY_ENV} || true'
+                            sh 'mv dist ${DEPLOY_ENV}'
                             sh 'ls -la ${DEPLOY_ENV}/'
                         }
                     } catch (Exception e) {
