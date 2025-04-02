@@ -136,7 +136,14 @@ pipeline {
                             sh 'npm -v'
                             sh 'npm install'
                             sh 'npm run build'
-                            sh 'ls -la build/' // 혹은 'ls -la dist/'
+
+                            // dist 폴더가 있는지 확인
+                            sh 'ls -la dist/ || echo "dist 폴더가 없습니다"'
+
+                            // 환경에 맞게 dist 폴더 이름 변경 (이미 있으면 먼저 삭제)
+                            sh "rm -rf ${env.DEPLOY_ENV} || true"
+                            sh "mv dist ${env.DEPLOY_ENV}"
+                            sh "ls -la ${env.DEPLOY_ENV}/"
                         }
                     } catch (Exception e) {
                         env.FAILURE_STAGE = 'Frontend 빌드'
@@ -209,7 +216,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        dir('frontend/dist') {
+                        dir("frontend/${env.DEPLOY_ENV}") {
                             // 배포 경로 확인 및 생성
                             sh "mkdir -p ${env.DEPLOY_PATH}"
                             sh "rm -rf ${env.DEPLOY_PATH}/*"
