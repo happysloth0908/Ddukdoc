@@ -137,8 +137,6 @@ pipeline {
                             sh 'npm install'
                             sh 'npm run build'
 
-                            sh 'ls -la ${DEPLOY_ENV}/'
-
                             // dist 폴더가 있는지 확인
                             sh 'ls -la dist/ || echo "dist 폴더가 없습니다"'
 
