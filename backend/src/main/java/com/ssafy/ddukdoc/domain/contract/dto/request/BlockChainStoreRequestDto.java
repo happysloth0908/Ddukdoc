@@ -2,12 +2,12 @@ package com.ssafy.ddukdoc.domain.contract.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.ToString;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
+@ToString
 public class BlockChainStoreRequestDto {
     // 요청자 주소 (토큰 소유자 또는 컨트롤러)
     private String requestor;
@@ -24,14 +24,4 @@ public class BlockChainStoreRequestDto {
     // 서명 (요청 데이터에 대한 서명)
     private String signature;
 
-    @Override
-    public String toString() {
-        return "BlockChainStoreRequestDto{" +
-                "requestor='" + requestor + '\'' +
-                ", name='" + name + '\'' +
-                ", docUri='" + docUri + '\'' +
-                ", docHash='" + docHash + '\'' +
-                ", signature='" + signature + '\'' +
-                '}';
-    }
 }
