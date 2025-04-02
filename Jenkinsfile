@@ -135,8 +135,8 @@ pipeline {
                             sh 'node -v'
                             sh 'npm -v'
                             sh 'npm install'
-                            sh 'npm run build'
-                            sh 'ls -la build/' // 혹은 'ls -la dist/'
+                            sh 'BUILD_PATH=./${DEPLOY_ENV} npm run build'
+                            sh 'ls -la ${DEPLOY_ENV}/'
                         }
                     } catch (Exception e) {
                         env.FAILURE_STAGE = 'Frontend 빌드'
@@ -209,7 +209,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        dir('frontend/dist') {
+                        dir('frontend/${env.DEPLOY_ENV}') {
                             // 배포 경로 확인 및 생성
                             sh "mkdir -p ${env.DEPLOY_PATH}"
                             sh "rm -rf ${env.DEPLOY_PATH}/*"
