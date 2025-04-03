@@ -53,7 +53,7 @@ export default defineConfig({
           {
             // 그 외 API는 네트워크 우선
             urlPattern: /^https:\/\/api/,
-            handler: 'NetworkFirst',
+            handler: 'NetworkOnly',
             options: {
               cacheName: 'api-cache',
             },
@@ -61,10 +61,9 @@ export default defineConfig({
           {
             // 뚝딱뚝Doc API는 네트워크 우선
             urlPattern: /^https:\/\/ddukdoc\.shop\/api\//,
-            handler: 'NetworkFirst',
+            handler: 'NetworkOnly',
             options: {
               cacheName: 'ddukdoc-api',
-              networkTimeoutSeconds: 10, // 네트워크 요청이 10초 초과 시 캐시 사용
             },
           },
         ],
