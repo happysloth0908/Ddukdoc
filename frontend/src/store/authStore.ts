@@ -8,12 +8,13 @@ interface AuthState {
   checkAuthStatus: () => Promise<void>;
   logout: () => Promise<void>;
 }
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
   loading: true,
   error: null,
 
   checkAuthStatus: async () => {
+    if (get().loading) return;
     try {
       set({ loading: true });
       // 백엔드에서 제공하는 인증 상태 확인 API 호출

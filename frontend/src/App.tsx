@@ -6,20 +6,12 @@ import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
 import { LoginPage } from '@/pages/loginPages/Login';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
-import { useAuthStore } from './store/authStore';
-import { useEffect } from 'react';
 import { ProtectedRoute } from './functions/ProtectedRoute';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
 // }
 
 function App() {
-  const { checkAuthStatus } = useAuthStore();
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
-
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
   const bgClass = isMainRoute
