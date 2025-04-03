@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -213,20 +214,35 @@ public class DocumentService {
     private SignatureResponseDto extractSignatureInfo(Document document) {
         List<Signature> signatures = signatureRepository.findAllByDocumentId(document.getId());
 
-        String creatorSignature = signatures.stream()
+        String creatorSignaturePath = signatures.stream()
                 .filter(s -> document.getCreator() != null && s.getUser().getId().equals(document.getCreator().getId()))
                 .map(Signature::getFilePath)
                 .findFirst()
                 .orElse(null);
 
-        String recipientSignature = signatures.stream()
+        String recipientSignaturePath = signatures.stream()
                 .filter(s -> document.getRecipient() != null && s.getUser().getId().equals(document.getRecipient().getId()))
                 .map(Signature::getFilePath)
                 .findFirst()
                 .orElse(null);
 
+        // 복호화
+        String creatorSignature = decryptSignature(creatorSignaturePath);
+        String recipientSignature = decryptSignature(recipientSignaturePath);
+
         return SignatureResponseDto.of(creatorSignature, recipientSignature);
     }
+
+    private String decryptSignature(String filePath) {
+        if (filePath == null) {
+            return null;
+        }
+        // 복호화
+        byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(filePath);
+        // Base64 인코딩으로 return
+        return Base64.getEncoder().encodeToString(fileContent);
+    }
+
 
     // 문서 다운로드
     public DocumentDownloadResponseDto downloadDocument(Integer userId, Integer documentId) {
