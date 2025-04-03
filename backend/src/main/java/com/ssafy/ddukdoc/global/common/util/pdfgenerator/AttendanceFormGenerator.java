@@ -3,6 +3,7 @@ import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
@@ -185,6 +186,8 @@ public class AttendanceFormGenerator implements DocumentGenerator{
                 .setMarginBottom(20);
         document.add(datePara);
 
+        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
         // 증빙서류 섹션
         Paragraph proofTitle = new Paragraph("[별첨] 증빙서류")
                 .setFont(font)
@@ -195,40 +198,73 @@ public class AttendanceFormGenerator implements DocumentGenerator{
 
         // 증빙서류 이미지 (있는 경우)
         String proofDocuments = fieldMap.get("proof_documents");
-        if (proofDocuments != null && !proofDocuments.isEmpty()) {
+        if (proofDocuments != null && !proofDocuments.isEmpty() && !proofDocuments.equals("[]")) {
             try {
+                // 로그 추가 - 디버깅 용도
+                System.out.println("증빙서류 JSON: " + proofDocuments);
+
                 // JSON 배열 형태로 저장된 이미지 URL 또는 Base64 데이터를 파싱
                 JSONArray proofArray = new JSONArray(proofDocuments);
+                System.out.println("증빙서류 수: " + proofArray.length());
+
                 for (int i = 0; i < proofArray.length(); i++) {
                     String imageData = proofArray.getString(i);
+                    System.out.println("이미지 데이터 " + (i+1) + ": " + imageData.substring(0, Math.min(50, imageData.length())) + "...");
 
-                    // Base64 또는 URL인 경우를 처리
-                    if (imageData.startsWith("data:image")) {
-                        // Base64 데이터에서 메타데이터 제거 (예: "data:image/jpeg;base64,")
-                        String base64Data = imageData.substring(imageData.indexOf(",") + 1);
-                        byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                    try {
+                        // Base64 또는 URL인 경우를 처리
+                        if (imageData.startsWith("data:image")) {
+                            // Base64 데이터에서 메타데이터 제거 (예: "data:image/jpeg;base64,")
+                            String base64Data = imageData.substring(imageData.indexOf(",") + 1);
+                            byte[] imageBytes = Base64.getDecoder().decode(base64Data);
 
-                        // 이미지 추가
-                        Image proofImage = new Image(ImageDataFactory.create(imageBytes))
-                                .setWidth(UnitValue.createPercentValue(80))
-                                .setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER)
-                                .setMarginBottom(10);
-                        document.add(proofImage);
-                    } else if (imageData.startsWith("http")) {
-                        // URL인 경우
-                        Image proofImage = new Image(ImageDataFactory.create(imageData))
-                                .setWidth(UnitValue.createPercentValue(80))
-                                .setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER)
-                                .setMarginBottom(10);
-                        document.add(proofImage);
+                            // 이미지 추가
+                            Image proofImage = new Image(ImageDataFactory.create(imageBytes))
+                                    .setWidth(UnitValue.createPercentValue(40))
+                                    .setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER)
+                                    .setMarginBottom(10);
+                            document.add(proofImage);
+                            System.out.println("Base64 이미지 추가 성공");
+                        } else if (imageData.startsWith("http")) {
+                            // 테스트 환경에서 외부 URL에 접근할 수 없으므로 로컬 이미지 사용
+                            // 실제 운영 환경에서는 아래 주석을 해제하고 사용
+                            Image proofImage = new Image(ImageDataFactory.create(imageData))
+                                    .setWidth(UnitValue.createPercentValue(80))
+                                    .setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.CENTER)
+                                    .setMarginBottom(10);
+                            document.add(proofImage);
+                            System.out.println("URL 이미지 추가 성공");
+                        } else {
+                            // 이미지 데이터가 Base64나 URL 형식이 아닌 경우
+                            Paragraph errorParagraph = new Paragraph("지원하지 않는 이미지 형식: " + imageData.substring(0, Math.min(20, imageData.length())) + "...")
+                                    .setFont(font)
+                                    .setItalic();
+                            document.add(errorParagraph);
+                        }
+                    } catch (Exception e) {
+                        // 각 이미지 처리 중 발생한 예외를 개별적으로 처리
+                        Paragraph errorParagraph = new Paragraph("이미지 " + (i+1) + " 처리 중 오류: " + e.getMessage())
+                                .setFont(font)
+                                .setItalic();
+                        document.add(errorParagraph);
+                        e.printStackTrace(); // 콘솔에 스택 트레이스 출력
                     }
                 }
             } catch (Exception e) {
-                Paragraph errorParagraph = new Paragraph("증빙서류 표시 오류: " + e.getMessage())
+                // JSON 파싱 또는 기타 일반 예외 처리
+                Paragraph errorParagraph = new Paragraph("증빙서류 처리 중 오류 발생: " + e.getMessage())
                         .setFont(font)
                         .setItalic();
                 document.add(errorParagraph);
+                e.printStackTrace(); // 콘솔에 스택 트레이스 출력
             }
+        } else {
+            // 증빙서류가 없거나 빈 배열인 경우
+            Paragraph noProofParagraph = new Paragraph("제출된 증빙서류가 없습니다.")
+                    .setFont(font)
+                    .setItalic()
+                    .setTextAlignment(TextAlignment.CENTER);
+            document.add(noProofParagraph);
         }
     }
 }
