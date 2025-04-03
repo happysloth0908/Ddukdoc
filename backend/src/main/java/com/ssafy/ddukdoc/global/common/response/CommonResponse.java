@@ -260,4 +260,18 @@ public class CommonResponse<T> {
                 new ErrorResponse(errorCode.getCode(), errorCode.getMessage())
         );
     }
+
+
+    /**
+     * 제공된 오류 코드의 세부 정보, 사용자 지정 데이터로 오류 응답을 생성합니다.
+     * @param error 상태, 코드 및 메시지를 포함하는 오류 코드
+     * @param data 사용자가 추가한 데이터 정보
+     * @param <T> 응답 데이터의 타입
+     * @return API 오류 응답을 포함하는 ResponseEntity
+     */
+    public static <T> ResponseEntity<CommonResponse<T>> error(ErrorCode error, T data) {
+        return ResponseEntity
+                .status(error.getStatus())
+                .body(new CommonResponse<>(false, data, new ErrorResponse(error.getCode(), error.getMessage())));
+    }
 }
