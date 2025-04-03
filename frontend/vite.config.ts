@@ -35,35 +35,11 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            // 정적 리소스는 캐싱
-            urlPattern: /\.(?:js|css|html|png|jpg|jpeg|svg)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-resources',
-            },
-          },
-          {
-            // 외부 API 요청은 네트워크 우선 (Kakao 로그인 예외 처리)
-            urlPattern: /^https:\/\/kauth\.kakao\.com\//,
-            handler: 'NetworkOnly', // 무조건 네트워크로 요청
-            options: {
-              cacheName: 'kakao-api',
-            },
-          },
-          {
-            // 그 외 API는 네트워크 우선
-            urlPattern: /^https:\/\/api/,
+            // 모든 요청은 무조건 네트워크
+            urlPattern: /.*$/,
             handler: 'NetworkOnly',
             options: {
-              cacheName: 'api-cache',
-            },
-          },
-          {
-            // 뚝딱뚝Doc API는 네트워크 우선
-            urlPattern: /^https:\/\/ddukdoc\.shop\/api\//,
-            handler: 'NetworkOnly',
-            options: {
-              cacheName: 'ddukdoc-api',
+              cacheName: 'no-cache',
             },
           },
         ],
