@@ -1,7 +1,9 @@
 package com.ssafy.ddukdoc.domain.share.controller;
 
 import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
+import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
 import com.ssafy.ddukdoc.domain.share.service.ShareService;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
@@ -27,10 +29,39 @@ public class ShareController {
     @PostMapping("/mm/login")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "MM 로그인", description = "id와 password를 통해 SSAFY MatterMost에 로그인합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMLoginResponse>> mattermostLogin(
             @RequestBody MMLoginRequest loginRequest) {
 
         return CommonResponse.ok(shareService.mattermostLogin(loginRequest));
     }
+
+    @PostMapping("/mm/team")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "MM 팀 목록 조회", description = "userId와 token을 통해 SSAFY MatterMost의 팀 목록을 조회합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<MMTeamResponse>> mattermostTeam(
+            @RequestBody MMTeamRequest teamRequest) {
+
+        return CommonResponse.ok(shareService.mattermostTeam(teamRequest));
+    }
+
+
+    @PostMapping("/mm/login-and-team")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "MM 로그인 및 팀 목록 조회", description = "id와 password를 통해 SSAFY MatterMost에 로그인하고, 팀 목록을 조회하여 반환합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<MMTeamResponse>> mattermostLoginAndTeam(
+            @RequestBody MMLoginRequest loginRequest) {
+
+        MMLoginResponse mmLoginResponse = shareService.mattermostLogin(loginRequest);
+        MMTeamRequest teamRequest = MMTeamRequest.of(mmLoginResponse.getUserId(), mmLoginResponse.getToken());
+
+        return CommonResponse.ok(shareService.mattermostTeam(teamRequest));
+    }
+
+    // user 검색
+
+    // message 전송
+    // 파일 등록 (컨트롤러 아닌듯)
 }

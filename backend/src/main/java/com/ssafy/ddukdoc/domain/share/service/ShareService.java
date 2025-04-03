@@ -2,11 +2,14 @@ package com.ssafy.ddukdoc.domain.share.service;
 
 import com.ssafy.ddukdoc.domain.share.constants.MMConstants;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
+import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,17 +32,17 @@ public class ShareService {
 
     public MMLoginResponse mattermostLogin(MMLoginRequest loginRequest) {
         try {
-
             Map<String, String> requestBody = new HashMap<>();
             requestBody.put("login_id", loginRequest.getId());
             requestBody.put("password", loginRequest.getPassword());
 
-            ResponseEntity<Map> response = webClient.post()
+            ResponseEntity<Map<String, Object>> response = webClient.post()
                     .uri(MMConstants.MATTERMOST_API_URL + MMConstants.MM_LOGIN_URL)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
-                    .toEntity(Map.class)
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
                     .block();
 
             if (response == null || response.getBody() == null) {
@@ -57,6 +62,39 @@ public class ShareService {
             }
 
             return MMLoginResponse.of(userId, token);
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
+            }
+            log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+
+    public MMTeamResponse mattermostTeam(MMTeamRequest teamRequest) {
+        try {
+            ResponseEntity<List<Map<String, Object>>> response = webClient.get()
+                    .uri(MMConstants.MATTERMOST_API_URL + "/users/" + teamRequest.getUserId() + "/teams")
+                    .header("Authorization", "Token " + teamRequest.getToken())
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                    .block();
+
+            if (response == null || response.getBody() == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+            }
+
+            List<Map<String, Object>> teamsList = response.getBody();
+            List<MMTeamResponse.MMTeam> teams = new ArrayList<>();
+
+            for (Map<String, Object> team : teamsList) {
+                String teamId = (String) team.get("id");
+                String displayName = (String) team.get("display_name");
+                teams.add(MMTeamResponse.MMTeam.of(teamId, displayName));
+            }
+
+            return MMTeamResponse.of(teamRequest.getUserId(), teamRequest.getToken() ,teams);
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
