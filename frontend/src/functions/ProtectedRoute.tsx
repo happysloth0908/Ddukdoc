@@ -9,10 +9,8 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoggedIn && !loading) {
-      checkAuthStatus();
-    }
-  }, [isLoggedIn, loading, checkAuthStatus]);
+    checkAuthStatus();
+  }, []);
 
   if (loading) {
     return <div>로딩 중...</div>;
