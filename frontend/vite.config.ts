@@ -1,38 +1,39 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+// import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath } from 'url';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-      manifest: {
-        name: '뚝딱뚝Doc',
-        short_name: 'DDDD',
-        description: '복잡한 문서, 한번에 뚝딱!',
-        // start_url: "https://ddukdoc.shop/",
-        // display_override: ["standalone"],
-        display: "standalone",
-        theme_color: '#ffffff',
-        icons: [
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      }
-    })],
+    // VitePWA({
+    //   registerType: 'autoUpdate',
+    //   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+    //   manifest: {
+    //     name: '뚝딱뚝Doc',
+    //     short_name: 'DDDD',
+    //     description: '복잡한 문서, 한번에 뚝딱!',
+    //     // start_url: "https://ddukdoc.shop/",
+    //     // display_override: ["standalone"],
+    //     display: "standalone",
+    //     theme_color: '#ffffff',
+    //     icons: [
+    //       {
+    //         src: 'pwa-512x512.png',
+    //         sizes: '512x512',
+    //         type: 'image/png'
+    //       },
+    //       {
+    //         src: 'pwa-512x512.png',
+    //         sizes: '512x512',
+    //         type: 'image/png',
+    //         purpose: 'any maskable'
+    //       }
+    //     ]
+    //   }
+    // })
+  ],
   build: {
     rollupOptions: {
       output: {
