@@ -1,38 +1,75 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath } from 'url';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    // VitePWA({
-    //   registerType: 'autoUpdate',
-    //   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-    //   manifest: {
-    //     name: '뚝딱뚝Doc',
-    //     short_name: 'DDDD',
-    //     description: '복잡한 문서, 한번에 뚝딱!',
-    //     // start_url: "https://ddukdoc.shop/",
-    //     // display_override: ["standalone"],
-    //     display: "standalone",
-    //     theme_color: '#ffffff',
-    //     icons: [
-    //       {
-    //         src: 'pwa-512x512.png',
-    //         sizes: '512x512',
-    //         type: 'image/png'
-    //       },
-    //       {
-    //         src: 'pwa-512x512.png',
-    //         sizes: '512x512',
-    //         type: 'image/png',
-    //         purpose: 'any maskable'
-    //       }
-    //     ]
-    //   }
-    // })
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      manifest: {
+        name: '뚝딱뚝Doc',
+        short_name: 'DDDD',
+        description: '복잡한 문서, 한번에 뚝딱!',
+        // start_url: "https://ddukdoc.shop/",
+        // display_override: ["standalone"],
+        display: "standalone",
+        theme_color: '#ffffff',
+        icons: [
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        runtimeCaching: [
+          {
+            // 정적 리소스는 캐싱
+            urlPattern: /\.(?:js|css|html|png|jpg|jpeg|svg)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-resources',
+            },
+          },
+          {
+            // 외부 API 요청은 네트워크 우선 (Kakao 로그인 예외 처리)
+            urlPattern: /^https:\/\/kauth\.kakao\.com\//,
+            handler: 'NetworkOnly', // 무조건 네트워크로 요청
+            options: {
+              cacheName: 'kakao-api',
+            },
+          },
+          {
+            // 그 외 API는 네트워크 우선
+            urlPattern: /^https:\/\/api/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+            },
+          },
+          {
+            // 뚝딱뚝Doc API는 네트워크 우선
+            urlPattern: /^https:\/\/ddukdoc\.shop\/api\//,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'ddukdoc-api',
+              networkTimeoutSeconds: 10, // 네트워크 요청이 10초 초과 시 캐시 사용
+            },
+          },
+        ],
+      },
+    })
   ],
   build: {
     rollupOptions: {
