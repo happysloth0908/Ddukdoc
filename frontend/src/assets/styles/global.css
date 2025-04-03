@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 추후 스크롤바 방지 설정을 위해 남겨둠*/

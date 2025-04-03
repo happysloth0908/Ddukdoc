@@ -32,4 +32,21 @@ public interface DocumentRepository extends JpaRepository<Document, Integer> {
             Pageable pageable
     );
 
+
+    @Query("SELECT d " +
+            "FROM Document d " +
+            "JOIN d.template t " +
+            "JOIN d.creator c " +
+            "WHERE (:templateCode IS NULL OR t.code = :templateCode) " +
+            "AND (:keyword IS NULL OR d.title LIKE CONCAT('%', :keyword, '%')) " +
+            "AND (:createdAt IS NULL OR FUNCTION('DATE', d.createdAt) = FUNCTION('DATE', :createdAt)) " +
+            "AND d.status != 'DELETED' " +
+            "AND d.creator.id = :userId")
+    Page<Document> findSsafyDocumentList(
+            @Param("templateCode") String templateCode,
+            @Param("keyword") String keyword,
+            @Param("createdAt") LocalDateTime createdAt,
+            @Param("userId") Integer userId,
+            Pageable pageable);
+
 }
