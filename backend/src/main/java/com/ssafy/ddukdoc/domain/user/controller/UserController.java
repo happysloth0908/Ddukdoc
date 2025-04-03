@@ -15,10 +15,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -57,5 +54,13 @@ public class UserController {
         ResponseCookie deletedRefreshTokenCookie = CookieUtil.deleteRefreshTokenCookie();
 
         return CommonResponse.okWithCookie(deletedAccessTokenCookie, deletedRefreshTokenCookie);
+    }
+
+    @GetMapping("/status")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "로그인 상태 확인", description = "로그인 상태를 확인합니다. 없으면 401")
+    @ApiErrorCodeExamples({ErrorCode.UNAUTHORIZED_ACCESS})
+    public ResponseEntity<CommonResponse<Void>> checkLoginStatus() {
+        return CommonResponse.ok();
     }
 }

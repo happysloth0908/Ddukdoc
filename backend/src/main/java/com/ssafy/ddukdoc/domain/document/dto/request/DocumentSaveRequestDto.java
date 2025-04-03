@@ -30,6 +30,14 @@ public class DocumentSaveRequestDto {
     @NotNull(message = "문서 입력 data는 필수입니다.")
     private List<DocumentFieldDto> data;
 
+    public Document toEntity(User creator, Template templateId,TemplateCode templateCode) {
+        return Document.builder()
+                .title(this.title)
+                .creator(creator)
+                .template(templateId)
+                .status(DocumentStatus.getInitialStatus(templateCode))
+                .build();
+    }
 
     public Document toEntity(User creator, Template templateId, int pin, TemplateCode templateCode) {
         return Document.builder()
