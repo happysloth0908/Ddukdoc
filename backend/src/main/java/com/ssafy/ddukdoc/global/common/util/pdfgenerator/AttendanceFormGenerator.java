@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 public class AttendanceFormGenerator implements DocumentGenerator{
-    private static final int APPLICANT_ROLE_ID = 5;
+    private static final int APPLICANT_ROLE_ID = 6;
 
     @Override
     public void generateDocument(Document document,
