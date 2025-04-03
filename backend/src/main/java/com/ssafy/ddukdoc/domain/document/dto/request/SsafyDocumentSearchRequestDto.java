@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class SsafyDocumentSearchRequestDto {
 
     @Pattern(regexp = "^[A-Z]\\d$", message = "templateCode는 알파벳 대문자 한 글자와 숫자 한 자리 형식이어야 합니다.")
-    @Schema(example = "G1")
+    @Schema(example = "S1")
     private String templateCode;
 
     @Size(max = 50, message = "keyword는 최대 50자까지 가능합니다.")

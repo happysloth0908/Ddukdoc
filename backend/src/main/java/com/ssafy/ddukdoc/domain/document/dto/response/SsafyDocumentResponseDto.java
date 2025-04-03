@@ -16,7 +16,7 @@ public class SsafyDocumentResponseDto {
     private Integer documentId;
     @Schema(example = "3")
     private Integer templateId;
-    @Schema(example = "G1")
+    @Schema(example = "S1")
     private String templateCode;
     @Schema(example = "출결소명서")
     private String templateName;
