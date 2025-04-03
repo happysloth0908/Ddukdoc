@@ -1,12 +1,10 @@
 package com.ssafy.ddukdoc.domain.share.controller;
 
-import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMMessageRequest;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
+import com.ssafy.ddukdoc.domain.share.dto.request.*;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMChannelResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMUserResponse;
 import com.ssafy.ddukdoc.domain.share.service.ShareService;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
@@ -72,12 +70,21 @@ public class ShareController {
 
         return CommonResponse.ok(shareService.mattermostChannel(channelRequest));
     }
-    // user 검색
+
+    @PostMapping("/mm/user")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "MM 사용자 목록 조회", description = "검색어를 통해 SSAFY MatterMost의 사용자 목록을 조회합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<MMUserResponse>> mattermostUser(
+            @RequestBody MMUserRequest userRequest) {
+
+        return CommonResponse.ok(shareService.mattermostUser(userRequest));
+    }
 
     @PostMapping("/mm/message")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "MM 메시지 전송", description = "userId와 token을 통해 SSAFY MatterMost에 메시지를 전송합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFile(
             @RequestBody MMMessageRequest messageRequest) {
 

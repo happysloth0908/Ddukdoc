@@ -3,13 +3,11 @@ package com.ssafy.ddukdoc.domain.share.service;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.share.constants.MMConstants;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMMessageRequest;
-import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
+import com.ssafy.ddukdoc.domain.share.dto.request.*;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMChannelResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMUserResponse;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -25,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,7 +88,8 @@ public class ShareService {
                     .uri(MMConstants.API_URL + "/users/" + teamRequest.getUserId() + "/teams")
                     .header(MMConstants.AUTH, MMConstants.TOKEN + teamRequest.getToken())
                     .retrieve()
-                    .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                    .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
+                    })
                     .block();
 
             if (response == null || response.getBody() == null) {
@@ -105,7 +105,7 @@ public class ShareService {
                 teams.add(MMTeamResponse.MMTeam.of(teamId, displayName));
             }
 
-            return MMTeamResponse.of(teamRequest.getUserId(), teamRequest.getToken() ,teams);
+            return MMTeamResponse.of(teamRequest.getUserId(), teamRequest.getToken(), teams);
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
@@ -123,7 +123,8 @@ public class ShareService {
                             "/teams/" + channelRequest.getTeamId() + "/channels")
                     .header(MMConstants.AUTH, MMConstants.TOKEN + channelRequest.getToken())
                     .retrieve()
-                    .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                    .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
+                    })
                     .block();
 
             if (response == null || response.getBody() == null) {
@@ -185,7 +186,8 @@ public class ShareService {
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
                     .retrieve()
-                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
                     .block();
 
             if (fileUploadResponse == null || fileUploadResponse.getBody() == null) {
@@ -215,7 +217,8 @@ public class ShareService {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(messageBody)
                     .retrieve()
-                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
                     .block();
 
             if (messageResponse == null || messageResponse.getBody() == null) {
@@ -227,6 +230,53 @@ public class ShareService {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 메시지 전송 중 오류 발생: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public MMUserResponse mattermostUser(MMUserRequest userRequest) {
+        try {
+            String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                    .path(MMConstants.SEARCH_USER_URL)
+                    .queryParam("name", userRequest.getKeyword())
+                    .build()
+                    .toUriString();
+
+            ResponseEntity<Map<String, Object>> response = webClient.get()
+                    .uri(uri)
+                    .header(MMConstants.AUTH, MMConstants.TOKEN + userRequest.getToken())
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
+                    .block();
+
+            if (response == null || response.getBody() == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+            }
+
+            List<Map<String, Object>> usersList = (List<Map<String, Object>>) response.getBody().get("users");
+
+            if (usersList == null) {
+                return MMUserResponse.of(new ArrayList<>());
+            }
+
+            List<MMUserResponse.MMUser> users = new ArrayList<>();
+
+            for (Map<String, Object> user : usersList) {
+                String id = (String) user.get("id");
+                String username = (String) user.get("username");
+                String nickname = (String) user.get("nickname");
+
+                users.add(MMUserResponse.MMUser.of(id, username, nickname));
+            }
+
+            return MMUserResponse.of(users);
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
+            }
+            log.error("MatterMost 사용자 검색 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
