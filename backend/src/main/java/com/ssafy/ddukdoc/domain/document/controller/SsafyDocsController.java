@@ -83,7 +83,7 @@ public class SsafyDocsController {
         return new ResponseEntity<>(downloadResponseDto.getDocumentContent(), headers, HttpStatus.OK);
     }
 
-    @PutMapping("/{doc_id}")
+    @PutMapping(value = "/{doc_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "싸피 문서 수정", description = "doc_id를 통한 싸피 문서를 수정합니다")
     @ApiErrorCodeExamples({})

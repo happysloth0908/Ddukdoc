@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.document.service;
 
+import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
@@ -13,9 +14,12 @@ import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
+import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.util.AESUtil;
+import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
+import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -37,12 +42,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class SsafyDocumentService {
 
+    private static final int SSSAFY_ROLE_ID = 6;
     private final DocumentRepository documentRepository;
     private final SignatureRepository signatureRepository;
     private final DocumentFieldValueRepository documentFieldValueRepository;
     private final AESUtil aesUtil;
     private final S3Util s3Util;
     private final PdfGeneratorUtil pdfGeneratorUtil;
+    private final BlockchainUtil blockchainUtil;
 
     public CustomPage<SsafyDocumentResponseDto> getDocsList(Integer userId, SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto, Pageable pageable) {
         Page<Document> documentList = documentRepository.findSsafyDocumentList(
@@ -144,10 +151,52 @@ public class SsafyDocumentService {
             documentFieldValueRepository.save(fieldValue);
         }
 
-        // 3. 서명 업데이트
-        if(multipartFile != null && !multipartFile.isEmpty()){
-            Signature signature = signatureRepository.findByDocumentIdAndUserId(documentId, userId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId)
+        // 3. 서명 업데이트 및 서명 맵 생성
+        updateSignature(document, userId, multipartFile);
+        Map<Integer,byte[]> signature = new HashMap<>();
+        try {
+            signature.put(SSSAFY_ROLE_ID,multipartFile.getBytes());
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", documentId);
+        }
+
+
+        // 4. 업데이트 된 내용으로 PDF 생성 및 저장
+        byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
+                TemplateCode.fromString(document.getTemplate().getCode()),
+                updateRequestDto.getData(),
+                signature
+        );
+
+
+        // 5. 문서 해시 생성 및 블록체인 저장
+        BlockchainSaveResult blockChainResultDto = blockchainUtil.saveDocumentInBlockchain(pdfData, TemplateCode.fromString(document.getTemplate().getCode()));
+
+        // 6. 문서 Meta data추가
+        byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,blockChainResultDto);
+
+        // 8. 암호화된 PDF 저장
+        String newPdfPath = saveEncryptedPdf(pdfWithHash, document);
+        
+        // 9. S3에서 기존 PDF 삭제
+        s3Util.deleteFileFromS3(document.getFilePath());
+
+        // 10. Document FilePath 업데이트
+        document.updateFilePath(newPdfPath);
+
+        documentRepository.save(document);
+    }
+
+    /**
+     * 서명 업데이트 메소드 (기존 서명 삭제 후 재암호화)
+     * @param document 문서 엔티티
+     * @param userId 사용자 아이디
+     * @param signatureFile 서명파일
+     */
+    private void updateSignature(Document document, Integer userId, MultipartFile signatureFile) {
+        if(signatureFile != null && !signatureFile.isEmpty()){
+            Signature signature = signatureRepository.findByDocumentIdAndUserId(document.getId(), userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.SIGNATURE_FILE_NOT_FOUND, "documentId", document.getId())
                             .addParameter("userId", userId));
 
             // 기존 서명 S3에서 삭제
@@ -155,23 +204,28 @@ public class SsafyDocumentService {
 
             // 서명파일 암호화 하여 S3에 업로드 및 서명 업데이트
             String dirName = "signature/"+document.getId()+"/"+userId;
-            String newPath = s3Util.uploadEncryptedFile(multipartFile, dirName);
+            String newPath = s3Util.uploadEncryptedFile(signatureFile, dirName);
             signature.updateFilePath(newPath);
             signatureRepository.save(signature);
         }
+    }
 
-//        Map<Integer,byte[]> signatureData = new HashMap<>();
-//        signatureData.put(documentId,multipartFile.getBytes());
-        
-        // 4. 업데이트 된 내용으로 PDF 생성 및 저장
-//        byte[] pdfWithHash = pdfGeneratorUtil.generatePdfForHash(
-//                document.getTemplate().getCode(),
-//                updateRequestDto.getData(),
-//                signatureData
-//        );
-//
-        // 5. Document FilePath 업데이트
+    /**
+     * PDF 암호화 메서드
+     * @param pdfData 생성된 PDF Data
+     * @param document document 엔티티
+     * @return 암호화된 S3 file Path
+     */
+    private String saveEncryptedPdf(byte[] pdfData, Document document) {
 
+        MultipartFile multipartFile = MultipartFileUtils.createMultipartFile(
+                "document.pdf",
+                "document.pdf",
+                "application/pdf",
+                pdfData
+        );
 
+        // PDF 파일을 암호화하여 S3에 업로드
+        return s3Util.uploadEncryptedFile(multipartFile, "documents/" + document.getId());
     }
 }
