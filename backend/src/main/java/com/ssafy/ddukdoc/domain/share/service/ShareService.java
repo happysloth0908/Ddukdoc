@@ -46,8 +46,13 @@ public class ShareService {
             requestBody.put("login_id", loginRequest.getId());
             requestBody.put("password", loginRequest.getPassword());
 
+            String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                    .path(MMConstants.LOGIN_URL)
+                    .build()
+                    .toUriString();
+
             ResponseEntity<Map<String, Object>> response = webClient.post()
-                    .uri(MMConstants.API_URL + MMConstants.LOGIN_URL)
+                    .uri(uri)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
@@ -84,8 +89,15 @@ public class ShareService {
 
     public MMTeamResponse mattermostTeam(MMTeamRequest teamRequest) {
         try {
+            String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                    .path("/users")
+                    .path("/{userId}")
+                    .path("/teams")
+                    .buildAndExpand(teamRequest.getUserId())
+                    .toUriString();
+
             ResponseEntity<List<Map<String, Object>>> response = webClient.get()
-                    .uri(MMConstants.API_URL + "/users/" + teamRequest.getUserId() + "/teams")
+                    .uri(uri)
                     .header(MMConstants.AUTH, MMConstants.TOKEN + teamRequest.getToken())
                     .retrieve()
                     .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
@@ -118,9 +130,18 @@ public class ShareService {
 
     public MMChannelResponse mattermostChannel(MMChannelRequest channelRequest) {
         try {
+
+            String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                    .path("/users")
+                    .path("/{userId}")
+                    .path("/teams")
+                    .path("/{teamId}")
+                    .path("/channels")
+                    .buildAndExpand(channelRequest.getUserId(), channelRequest.getTeamId())
+                    .toUriString();
+
             ResponseEntity<List<Map<String, Object>>> response = webClient.get()
-                    .uri(MMConstants.API_URL + "/users/" + channelRequest.getUserId() +
-                            "/teams/" + channelRequest.getTeamId() + "/channels")
+                    .uri(uri)
                     .header(MMConstants.AUTH, MMConstants.TOKEN + channelRequest.getToken())
                     .retrieve()
                     .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
@@ -180,8 +201,14 @@ public class ShareService {
                 }
             });
 
+            String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                    .path("/files")
+                    .queryParam("channel_id", messageRequest.getChannelId())
+                    .build()
+                    .toUriString();
+
             ResponseEntity<Map<String, Object>> fileUploadResponse = webClient.post()
-                    .uri(MMConstants.API_URL + "/files?channel_id=" + messageRequest.getChannelId())
+                    .uri(uri)
                     .header(MMConstants.AUTH, MMConstants.TOKEN + messageRequest.getToken())
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
