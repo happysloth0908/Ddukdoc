@@ -1,11 +1,11 @@
 package com.ssafy.ddukdoc.domain.contract.service;
 
+import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
 import com.ssafy.ddukdoc.domain.document.entity.Document;
 import com.ssafy.ddukdoc.domain.document.entity.DocumentFieldValue;
-import com.ssafy.ddukdoc.domain.document.entity.DocumentStatus;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository;
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
@@ -23,6 +23,7 @@ import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.util.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
+import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -54,6 +55,7 @@ public class SsafyContractService {
     private final UserDocRoleRepository userDocRoleRepository;
     private final AESUtil aesUtil;
     private final PdfGeneratorUtil pdfGeneratorUtil;
+    private final BlockchainUtil blockchainUtil;
 
     public List<TemplateFieldResponseDto> getTemplateFields(String  codeStr){
 
@@ -117,12 +119,19 @@ public class SsafyContractService {
             Map<Integer,byte[]> signature = new HashMap<>();
             signature.put(requestDto.getRoleId(),signatureFile.getBytes());;
 
-            // 문서 pdf 생성 및 해시 저장
-            byte[] pdfWithHash = pdfGeneratorUtil.generatePdfForHash(
+            // 문서 pdf 생성
+            byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
                     templateCode,
                     requestDto.getData(),
                     signature
             );
+
+            // 문서 해시 생성 및 블록체인 저장
+            BlockchainSaveResult resultDto = blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()));
+
+            // 문서 S3에 저장
+            byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,resultDto);
+
 
             // 암호화된 PDF 저장
             String pdfPath = saveEncryptedPdf(pdfWithHash, document);
@@ -156,8 +165,7 @@ public class SsafyContractService {
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
 
         // 사용자 권한 확인
-        if (!document.getCreator().getId().equals(userId) &&
-                (document.getRecipient() == null || !document.getRecipient().getId().equals(userId))) {
+        if (!document.getCreator().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId);
         }
 
@@ -173,11 +181,6 @@ public class SsafyContractService {
                 .build();
 
         signatureRepository.save(signature);
-        //수신자가 서명을 한 상태인 경우 문서 상태 SIGNED로 변경
-        if(document.getRecipient() != null && document.getRecipient().getId().equals(userId)){
-            document.updateStatus(DocumentStatus.SIGNED);
-            documentRepository.save(document);
-        }
     }
     private void saveSenderInfo(DocumentSaveRequestDto requestDto, Document document, User user) {
         List<DocumentFieldValue> fieldValues = requestDto.getData().stream()
