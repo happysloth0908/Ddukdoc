@@ -1,8 +1,10 @@
 package com.ssafy.ddukdoc.domain.share.service;
 
 import com.ssafy.ddukdoc.domain.share.constants.MMConstants;
+import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMChannelResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -101,6 +103,54 @@ public class ShareService {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+
+    public MMChannelResponse mattermostChannel(MMChannelRequest channelRequest) {
+        try {
+            ResponseEntity<List<Map<String, Object>>> response = webClient.get()
+                    .uri(MMConstants.MATTERMOST_API_URL + "/users/" + channelRequest.getUserId() +
+                            "/teams/" + channelRequest.getTeamId() + "/channels")
+                    .header("Authorization", "Token " + channelRequest.getToken())
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                    .block();
+
+            if (response == null || response.getBody() == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+            }
+
+            List<Map<String, Object>> channelsList = response.getBody();
+            List<MMChannelResponse.MMChannel> channels = new ArrayList<>();
+
+            // type이 P 또는 O인 채널만 필터링
+            for (Map<String, Object> channel : channelsList) {
+                String type = (String) channel.get("type");
+                if ("P".equals(type) || "O".equals(type)) {
+                    String id = (String) channel.get("id");
+                    String displayName = (String) channel.get("display_name");
+
+                    channels.add(MMChannelResponse.MMChannel.builder()
+                            .id(id)
+                            .type(type)
+                            .displayName(displayName)
+                            .build());
+                }
+            }
+
+            return MMChannelResponse.builder()
+                    .userId(channelRequest.getUserId())
+                    .token(channelRequest.getToken())
+                    .teamId(channelRequest.getTeamId())
+                    .channels(channels)
+                    .build();
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
+            }
+            log.error("MatterMost 채널 조회 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
         }
     }

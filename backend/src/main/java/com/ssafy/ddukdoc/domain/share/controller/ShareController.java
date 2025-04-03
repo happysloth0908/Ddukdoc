@@ -1,7 +1,9 @@
 package com.ssafy.ddukdoc.domain.share.controller;
 
+import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
+import com.ssafy.ddukdoc.domain.share.dto.response.MMChannelResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
 import com.ssafy.ddukdoc.domain.share.service.ShareService;
@@ -60,6 +62,15 @@ public class ShareController {
         return CommonResponse.ok(shareService.mattermostTeam(teamRequest));
     }
 
+    @PostMapping("/mm/channel")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "MM 채널 목록 조회", description = "team_id를 통해 SSAFY MatterMost의 채널 목록을 조회합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<MMChannelResponse>> mattermostChannel(
+            @RequestBody MMChannelRequest channelRequest) {
+
+        return CommonResponse.ok(shareService.mattermostChannel(channelRequest));
+    }
     // user 검색
 
     // message 전송
