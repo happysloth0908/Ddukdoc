@@ -60,6 +60,7 @@ public class SecurityConfig {
                         authorize
                                 .requestMatchers("/api/**").permitAll()
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/actuator/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 

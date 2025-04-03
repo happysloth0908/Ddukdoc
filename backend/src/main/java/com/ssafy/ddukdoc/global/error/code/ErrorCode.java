@@ -48,8 +48,8 @@ public enum ErrorCode {
     OAUTH_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "A001", "OAuth 서버와 통신 중 오류가 발생했습니다"),
     INVALID_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "A002", "지원하지 않는 OAuth 제공자입니다"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "A003", "리프레시 토큰이 존재하지 않습니다"),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "A004", "유효하지 않은 리프레시 토큰입니다"),
-    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "A005", "유효하지 않은 액세스 토큰입니다"),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A004", "유효하지 않은 리프레시 토큰입니다"),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "A005", "유효하지 않은 액세스 토큰입니다"),
 
     //Encryption
     ENCRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E001", "암호화 과정에서 오류가 발생했습니다"),
@@ -76,7 +76,12 @@ public enum ErrorCode {
     INVALID_ENCRYPTION_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR,"H001","지원하지 않는 해시 암호화 알고리즘입니다."),
 
     //PDF
-    PDF_GENERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"P001" ,"PDF 생성에 실패하였습니다." );
+    PDF_GENERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"P001" ,"PDF 생성에 실패하였습니다." ),
+
+    //Blockchain
+    BLOCKCHAIN_SIGNATURE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"B001","블록체인 서명 생성 중 오류가 발생했습니다."),
+    BLOCKCHAIN_DOCUMENT_ERROR(HttpStatus.BAD_REQUEST,"B002","블록체인에 저장된 문서 조회 중 오류가 발생했습니다")
+    ;
 
     private final HttpStatus status;
     private final String code;

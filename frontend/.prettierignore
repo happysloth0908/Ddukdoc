@@ -1,0 +1,73 @@
+# Ignore artifacts:
+build
+coverage
+package.json
+package-lock.json
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# testing
+coverage
+.nyc_output
+*.lcov
+
+# next.js
+.next/
+out/
+
+# production
+build/
+dist/
+
+# misc
+.DS_Store
+.AppleDouble
+.LSOverride
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+
+# debug
+logs
+*.log
+npm-debug.log*
+.pnpm-debug.log*
+
+# local env files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# cache
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+.temp
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+
+# config and lock files
+*.config.js
+package-lock.json
+
+# storybook
+storybook-static/
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
