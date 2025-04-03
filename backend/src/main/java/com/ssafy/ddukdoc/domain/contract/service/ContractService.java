@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.contract.service;
 
+import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.dto.request.RecipientInfoRequestDto;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
@@ -26,6 +27,7 @@ import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.util.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
+import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -56,6 +58,7 @@ public class ContractService {
     private final UserDocRoleRepository userDocRoleRepository;
     private final AESUtil aesUtil;
     private final PdfGeneratorUtil pdfGeneratorUtil;
+    private final BlockchainUtil blockchainUtil;
 
     public List<TemplateFieldResponseDto> getTemplateFields(String  codeStr){
 
@@ -256,17 +259,23 @@ public class ContractService {
             ));
 
 
-        // 6. 문서 PDF 생성 및 해시 저장
-        byte[] pdfWithHash = pdfGeneratorUtil.generatePdfForHash(
+        // 6. 문서 PDF 생성
+        byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
                 TemplateCode.fromString(document.getTemplate().getCode()),
                 savedFieldValues,
                 signatures
         );
 
-        // 7. 암호화된 PDF 저장
+        // 7. 문서 해시 생성 및 블록체인 저장
+        BlockchainSaveResult resultDto = blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()));
+
+        // 8. 문서 S3에 저장
+        byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,resultDto);
+
+        // 9. 암호화된 PDF 저장
         String pdfPath = saveEncryptedPdf(pdfWithHash, document);
 
-        // 8. 문서 상태 변경
+        // 10. 문서 상태 변경
         updateDocumentStatus(document, pdfPath);
 
     }
