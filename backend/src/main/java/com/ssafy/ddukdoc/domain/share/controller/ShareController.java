@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.domain.share.controller;
 
 import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
+import com.ssafy.ddukdoc.domain.share.dto.request.MMMessageRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMChannelResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
@@ -31,7 +32,7 @@ public class ShareController {
     @PostMapping("/mm/login")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "MM 로그인", description = "id와 password를 통해 SSAFY MatterMost에 로그인합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMLoginResponse>> mattermostLogin(
             @RequestBody MMLoginRequest loginRequest) {
 
@@ -41,7 +42,7 @@ public class ShareController {
     @PostMapping("/mm/team")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "MM 팀 목록 조회", description = "userId와 token을 통해 SSAFY MatterMost의 팀 목록을 조회합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMTeamResponse>> mattermostTeam(
             @RequestBody MMTeamRequest teamRequest) {
 
@@ -52,7 +53,7 @@ public class ShareController {
     @PostMapping("/mm/login-and-team")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "MM 로그인 및 팀 목록 조회", description = "id와 password를 통해 SSAFY MatterMost에 로그인하고, 팀 목록을 조회하여 반환합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMTeamResponse>> mattermostLoginAndTeam(
             @RequestBody MMLoginRequest loginRequest) {
 
@@ -65,7 +66,7 @@ public class ShareController {
     @PostMapping("/mm/channel")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "MM 채널 목록 조회", description = "team_id를 통해 SSAFY MatterMost의 채널 목록을 조회합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.EXTERNAL_API_ERROR})
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMChannelResponse>> mattermostChannel(
             @RequestBody MMChannelRequest channelRequest) {
 
@@ -73,6 +74,14 @@ public class ShareController {
     }
     // user 검색
 
-    // message 전송
-    // 파일 등록 (컨트롤러 아닌듯)
+    @PostMapping("/mm/message")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "MM 메시지 전송", description = "userId와 token을 통해 SSAFY MatterMost에 메시지를 전송합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFile(
+            @RequestBody MMMessageRequest messageRequest) {
+
+        shareService.mattermostMessage(messageRequest);
+        return CommonResponse.ok();
+    }
 }

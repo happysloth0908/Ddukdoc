@@ -1,21 +1,28 @@
 package com.ssafy.ddukdoc.domain.share.service;
 
+import com.ssafy.ddukdoc.domain.document.entity.Document;
+import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.share.constants.MMConstants;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMLoginRequest;
+import com.ssafy.ddukdoc.domain.share.dto.request.MMMessageRequest;
 import com.ssafy.ddukdoc.domain.share.dto.request.MMTeamRequest;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMChannelResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
+import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -30,7 +37,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ShareService {
 
+    private final DocumentRepository documentRepository;
     private final WebClient webClient;
+    private final S3Util s3Util;
 
     public MMLoginResponse mattermostLogin(MMLoginRequest loginRequest) {
         try {
@@ -39,7 +48,7 @@ public class ShareService {
             requestBody.put("password", loginRequest.getPassword());
 
             ResponseEntity<Map<String, Object>> response = webClient.post()
-                    .uri(MMConstants.MATTERMOST_API_URL + MMConstants.MM_LOGIN_URL)
+                    .uri(MMConstants.API_URL + MMConstants.LOGIN_URL)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
@@ -70,15 +79,15 @@ public class ShareService {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     public MMTeamResponse mattermostTeam(MMTeamRequest teamRequest) {
         try {
             ResponseEntity<List<Map<String, Object>>> response = webClient.get()
-                    .uri(MMConstants.MATTERMOST_API_URL + "/users/" + teamRequest.getUserId() + "/teams")
-                    .header("Authorization", "Token " + teamRequest.getToken())
+                    .uri(MMConstants.API_URL + "/users/" + teamRequest.getUserId() + "/teams")
+                    .header(MMConstants.AUTH, MMConstants.TOKEN + teamRequest.getToken())
                     .retrieve()
                     .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
                     .block();
@@ -103,16 +112,16 @@ public class ShareService {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     public MMChannelResponse mattermostChannel(MMChannelRequest channelRequest) {
         try {
             ResponseEntity<List<Map<String, Object>>> response = webClient.get()
-                    .uri(MMConstants.MATTERMOST_API_URL + "/users/" + channelRequest.getUserId() +
+                    .uri(MMConstants.API_URL + "/users/" + channelRequest.getUserId() +
                             "/teams/" + channelRequest.getTeamId() + "/channels")
-                    .header("Authorization", "Token " + channelRequest.getToken())
+                    .header(MMConstants.AUTH, MMConstants.TOKEN + channelRequest.getToken())
                     .retrieve()
                     .toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
                     .block();
@@ -131,27 +140,94 @@ public class ShareService {
                     String id = (String) channel.get("id");
                     String displayName = (String) channel.get("display_name");
 
-                    channels.add(MMChannelResponse.MMChannel.builder()
-                            .id(id)
-                            .type(type)
-                            .displayName(displayName)
-                            .build());
+                    channels.add(MMChannelResponse.MMChannel.of(id, type, displayName));
                 }
             }
 
-            return MMChannelResponse.builder()
-                    .userId(channelRequest.getUserId())
-                    .token(channelRequest.getToken())
-                    .teamId(channelRequest.getTeamId())
-                    .channels(channels)
-                    .build();
+            return MMChannelResponse.of(channelRequest, channels);
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 채널 조회 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void mattermostMessage(MMMessageRequest messageRequest) {
+        try {
+            // 1. 문서 찾기
+            Document docById = documentRepository.findById(messageRequest.getDocumentId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND));
+
+            // 2. S3에서 파일 다운로드
+            byte[] pdfBytes = s3Util.downloadAndDecryptFileToBytes(docById.getFilePath());
+
+            // 3. MM에 파일 업로드
+            // MultipartBodyBuilder를 사용하여 파일 업로드
+            MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
+            bodyBuilder.part("files", new ByteArrayResource(pdfBytes) {
+                @Override
+                public String getFilename() {
+                    // 파일 이름에 .pdf 확장자가 없으면 추가
+                    String fileName = docById.getTitle();
+                    if (!fileName.toLowerCase().endsWith(".pdf")) {
+                        fileName = fileName + ".pdf";
+                    }
+                    return fileName;
+                }
+            });
+
+            ResponseEntity<Map<String, Object>> fileUploadResponse = webClient.post()
+                    .uri(MMConstants.API_URL + "/files?channel_id=" + messageRequest.getChannelId())
+                    .header(MMConstants.AUTH, MMConstants.TOKEN + messageRequest.getToken())
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(bodyBuilder.build()))
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .block();
+
+            if (fileUploadResponse == null || fileUploadResponse.getBody() == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드 응답이 없습니다.");
+            }
+
+            // 업로드된 파일의 ID 추출
+            List<Map<String, Object>> fileInfos = (List<Map<String, Object>>) fileUploadResponse.getBody().get("file_infos");
+            if (fileInfos == null || fileInfos.isEmpty()) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드에 실패했습니다.");
+            }
+
+            String fileId = (String) fileInfos.get(0).get("id");
+
+            // 4. MM에 메시지 보내기
+            Map<String, Object> messageBody = new HashMap<>();
+            messageBody.put("channel_id", messageRequest.getChannelId());
+            messageBody.put("message", messageRequest.getMessage());
+
+            List<String> fileIds = new ArrayList<>();
+            fileIds.add(fileId);
+            messageBody.put("file_ids", fileIds);
+
+            ResponseEntity<Map<String, Object>> messageResponse = webClient.post()
+                    .uri(MMConstants.API_URL + "/posts")
+                    .header(MMConstants.AUTH, MMConstants.TOKEN + messageRequest.getToken())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(messageBody)
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .block();
+
+            if (messageResponse == null || messageResponse.getBody() == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 메시지 전송 응답이 없습니다.");
+            }
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
+            }
+            log.error("MatterMost 메시지 전송 중 오류 발생: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

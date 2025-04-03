@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.share.dto.response;
 
+import com.ssafy.ddukdoc.domain.share.dto.request.MMChannelRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,15 @@ public class MMChannelResponse {
     private String teamId;
     private List<MMChannel> channels;
 
+    public static MMChannelResponse of(MMChannelRequest channelRequest, List<MMChannel> channels) {
+        return MMChannelResponse.builder()
+                .userId(channelRequest.getUserId())
+                .token(channelRequest.getToken())
+                .teamId(channelRequest.getTeamId())
+                .channels(channels)
+                .build();
+    }
+
     @Getter
     @Builder
     public static class MMChannel {
@@ -27,5 +37,13 @@ public class MMChannelResponse {
         private String type;
         @Schema(example = "특화 프로젝트 B108 🏆")
         private String displayName;
+
+        public static MMChannel of(String id, String type, String displayName) {
+            return MMChannel.builder()
+                    .id(id)
+                    .type(type)
+                    .displayName(displayName)
+                    .build();
+        }
     }
 }
