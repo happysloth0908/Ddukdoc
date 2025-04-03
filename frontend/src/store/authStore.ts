@@ -10,7 +10,7 @@ interface AuthState {
 }
 export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
-  loading: true,
+  loading: false,
   error: null,
 
   checkAuthStatus: async () => {
@@ -21,6 +21,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const response = await axios.get('/api/users/status', {
         withCredentials: true,
       });
+      console.log('인증 상태 확인 응답:', response.data);
 
       if (response.data && response.data.success) {
         set({ isLoggedIn: response.data.success, error: null });
