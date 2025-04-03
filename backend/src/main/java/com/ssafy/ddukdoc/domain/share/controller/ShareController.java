@@ -81,14 +81,25 @@ public class ShareController {
         return CommonResponse.ok(shareService.mattermostUser(userRequest));
     }
 
-    @PostMapping("/mm/message")
+    @PostMapping("/mm/message-channel")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "MM 메시지 전송", description = "userId와 token을 통해 SSAFY MatterMost에 메시지를 전송합니다.")
-    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
-    public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFile(
-            @RequestBody MMMessageRequest messageRequest) {
+    @Operation(summary = "채널에 MM 메시지 전송", description = "SSAFY MatterMost 채널에 메시지를 전송합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFileToChannel(
+            @RequestBody MMMessageToChannelRequest messageRequest) {
 
-        shareService.mattermostMessage(messageRequest);
+        shareService.mattermostMessageToChannel(messageRequest);
+        return CommonResponse.ok();
+    }
+
+    @PostMapping("/mm/message-user")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "사용자에게 MM 메시지 전송", description = "SSAFY MatterMost 사용자에 메시지를 전송합니다.")
+    @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
+    public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFileToUser(
+            @RequestBody MMMessageToUserRequest messageRequest) {
+
+        shareService.mattermostMessageToUser(messageRequest);
         return CommonResponse.ok();
     }
 }

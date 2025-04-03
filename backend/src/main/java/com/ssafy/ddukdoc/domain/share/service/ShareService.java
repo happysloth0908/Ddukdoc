@@ -25,10 +25,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Slf4j
@@ -177,7 +174,7 @@ public class ShareService {
         }
     }
 
-    public void mattermostMessage(MMMessageRequest messageRequest) {
+    public void mattermostMessageToChannel(MMMessageToChannelRequest messageRequest) {
         try {
             // 1. 문서 찾기
             Document docById = documentRepository.findById(messageRequest.getDocumentId())
@@ -306,5 +303,38 @@ public class ShareService {
             log.error("MatterMost 사용자 검색 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public void mattermostMessageToUser(MMMessageToUserRequest messageRequest) {
+        String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                .path(MMConstants.CREATE_DIRECT_URL)
+                .build()
+                .toUriString();
+
+        String userToken = messageRequest.getToken();
+
+        String[] requestBody = new String[]{messageRequest.getUserId(), messageRequest.getReceiverId()};
+
+        ResponseEntity<Map<String, Object>> response = webClient.post()
+                .uri(uri)
+                .header(MMConstants.AUTH, MMConstants.TOKEN + userToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .block();
+
+        if (response == null || response.getBody() == null) {
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+        }
+
+        String channelId = (String) response.getBody().get("id");
+
+        if (channelId == null) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost DM 채널 ID를 받아올 수 없습니다.");
+        }
+
+        mattermostMessageToChannel(MMMessageToChannelRequest.of(channelId, messageRequest));
     }
 }
