@@ -62,4 +62,11 @@ public class DevAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // 소셜 로그인 경로는 필터 적용하지 않음
+        String path = request.getServletPath();
+        return path.startsWith("/api/oauth");
+    }
 }
