@@ -126,9 +126,8 @@ pipeline {
                         withSonarQubeEnv('sonarqube') {
                             dir('backend') {
                                 sh """
-                                    ./gradlew sonarqube \\
+                                    ./gradlew sonar \\
                                     -Dsonar.projectKey=S12P21B108 \\
-                                    -Dsonar.sources=src \\
                                     -Dsonar.java.binaries=build/classes/java/main \\
                                     -Dsonar.java.source=17 \\
                                     -Dsonar.sourceEncoding=UTF-8 \\
