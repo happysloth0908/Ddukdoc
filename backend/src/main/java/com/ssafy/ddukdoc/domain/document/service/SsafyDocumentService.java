@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -148,7 +149,6 @@ public class SsafyDocumentService {
 
             String encryptedValue = aesUtil.encrypt(fieldDto.getFieldValue());
             fieldValue.updateFieldValue(encryptedValue);
-            documentFieldValueRepository.save(fieldValue);
         }
 
         // 3. 서명 업데이트 및 서명 맵 생성
@@ -169,7 +169,7 @@ public class SsafyDocumentService {
         );
 
 
-        // 5. 문서 해시 생성 및 블록체인 저장
+        // 5. 문서 Hash 생성 및 블록체인 저장
         BlockchainSaveResult blockChainResultDto = blockchainUtil.saveDocumentInBlockchain(pdfData, TemplateCode.fromString(document.getTemplate().getCode()));
 
         // 6. 문서 Meta data추가
@@ -183,8 +183,6 @@ public class SsafyDocumentService {
 
         // 10. Document FilePath 업데이트
         document.updateFilePath(newPdfPath);
-
-        documentRepository.save(document);
     }
 
     /**
