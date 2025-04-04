@@ -32,7 +32,7 @@ export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
 
   const handleDelete = async () => {
     try {
-      await apiClient.delete(`/api/materials/${id}/${data.material_id}`);
+      await apiClient.delete(`/api/material/${id}/${data.material_id}`);
       setIsMenuOpen(false);
       if (onDelete) onDelete(data.material_id);
     } catch (error) {
@@ -46,7 +46,7 @@ export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
         <atoms.RoundIcon isRejected={false} />
       </div>
       <div className="col-span-3 row-span-2 flex flex-col gap-y-[6px]">
-        <div className="text-l font-bold">{data.title}</div>
+        <div className="text-l font-bold">{data.title + '.' + data.format}</div>
         <div className="text-s text-[#828282]">
           {data.user_name} | {formattedDate}
         </div>

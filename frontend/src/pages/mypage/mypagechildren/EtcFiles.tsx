@@ -37,6 +37,14 @@ const EtcFiles = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // 파일 크기 제한 (10MB)
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      alert('파일 크기는 10MB를 초과할 수 없습니다.');
+      event.target.value = ''; // 입력값 초기화
+      return;
+    }
+
     // 여러 파일이 선택된 경우 처리
     if (event.target.files && event.target.files.length > 1) {
       alert('한 번에 하나의 파일만 업로드할 수 있습니다.');
@@ -66,8 +74,12 @@ const EtcFiles = () => {
 
   const fetchFiles = async () => {
     try {
-      const response = await apiClient.get<apiResponse>(`/api/materials/${id}`);
-      setFiles(response.data.data);
+      const response = await apiClient.get<apiResponse>(`/api/material/${id}`);
+      console.log(response.data.data);
+      const files = response.data.data.map((file: FileData) => ({
+        ...file,
+      }));
+      setFiles(files);
     } catch (error) {
       console.error(error);
     }
@@ -77,7 +89,7 @@ const EtcFiles = () => {
     if (!id) return;
 
     try {
-      const response = await apiClient.get(`/api/materials/${id}/download`, {
+      const response = await apiClient.get(`/api/material/${id}/download`, {
         responseType: 'blob',
         headers: {
           Accept: 'application/zip',
@@ -145,14 +157,26 @@ const EtcFiles = () => {
           </div>
         ) : (
           files.map((file) => {
-            const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(file.format);
+            const isImage = [
+              'jpg',
+              'jpeg',
+              'png',
+              'gif',
+              'bmp',
+              'webp',
+            ].includes(file.format.toLowerCase());
             return (
               <div
                 key={file.material_id}
                 className={`${isImage ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => isImage && navigate(`${file.material_id}`)}
+                onClick={() => {
+                  if (isImage) {
+                    navigate(`/mypage/${id}/files/${file.material_id}`);
+                  }
+                }}
               >
                 <AdditionalFile
+                  key={file.material_id}
                   data={file}
                   onDelete={(id) => {
                     setFiles(files.filter((file) => file.material_id !== id));
@@ -179,7 +203,7 @@ const EtcFiles = () => {
             onClick={() => fileInputRef.current?.click()}
           />
           <LongButton
-            children={'자료 다운로드(.zip)'}
+            children={'추가자료 다운로드(.zip)'}
             colorType={'black'}
             onClick={files.length === 0 ? undefined : handleDownload}
             className={

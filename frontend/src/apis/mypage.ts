@@ -2,11 +2,7 @@ import axios from 'axios';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  // baseURL: import.meta.env.VITE_MSW_URL,
-  headers: {
-    // 'Content-Type': 'application/json',
-    'X-DEV-USER': 1,
-  },
+  withCredentials: true,
 });
 
 export const sendReceiveData = async (
@@ -57,16 +53,16 @@ export const sendFileData = async (doc_id: number, fileData: File) => {
   const data = new FormData();
   data.append('file', fileData);
 
-  const jsonData = {
-    title: fileData.name,
-  };
+  // 파일명에서 확장자 제거
+  const fileNameWithoutExtension = fileData.name
+    .split('.')
+    .slice(0, -1)
+    .join('.');
 
-  const jsonBlob = new Blob([JSON.stringify(jsonData)], {
-    type: 'application/json',
-  });
-  data.append('title', jsonBlob);
+  // JSON.stringify 없이 문자열만 전달
+  data.append('title', fileNameWithoutExtension);
 
-  const response = await apiClient.post(`/api/materials/${doc_id}`, data, {
+  const response = await apiClient.post(`/api/material/${doc_id}`, data, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
