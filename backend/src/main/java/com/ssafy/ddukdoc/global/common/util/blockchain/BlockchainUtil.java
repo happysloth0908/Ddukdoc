@@ -68,7 +68,7 @@ public class BlockchainUtil {
      * @return 문서 정보 또는 null (문서가 없는 경우)
      */
     public BlockchainDocumentResponseDto getDocumentByName(String documentName) {
-        String url = baseUrl + contractAddress + "/documents"+ documentName;
+        String url = baseUrl + contractAddress + "/documents/"+ documentName;
 
         log.debug("문서 조회 URL: {}", url);
 
@@ -101,7 +101,6 @@ public class BlockchainUtil {
 
             // 문서 이름 생성
             String docName = generateUniqueDocName(templateCode);
-            log.debug("문서 이름 : {}", docName);
 
             // 서명 생성
             String signature = signatureUtil.createSignature(requestor, docName, "", docHashWithPrefix, privateKey);
@@ -113,6 +112,8 @@ public class BlockchainUtil {
             Map<String, Object> blockchainResponse = storeDocument(storeData);
             // 블록체인 트랜잭션 ID 추출
             String transactionHash = (String) blockchainResponse.get("transactionHash");
+
+//            log.info("문서 이름 가져오자 : {}, {} ",docName,getDocumentByName(docName));
 
             return new BlockchainSaveResult(pdfData, transactionHash, docHashWithPrefix, docName, blockchainResponse);
         } catch (Exception e) {
