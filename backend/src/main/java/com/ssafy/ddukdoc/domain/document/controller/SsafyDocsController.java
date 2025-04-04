@@ -94,7 +94,7 @@ public class SsafyDocsController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("doc_id") Integer documentId,
             @RequestPart("jsonData") @Valid SsafyDocumentUpdateRequestDto updateRequestDto,
-            @RequestPart(value = "signature", required = false) MultipartFile multipartFile) {
+            @RequestPart("signature") MultipartFile multipartFile) {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
         ssafyDocumentService.updateSsafyDocument(userId, documentId, updateRequestDto, multipartFile);
