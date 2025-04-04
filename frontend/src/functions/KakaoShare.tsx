@@ -35,6 +35,5 @@ export const shareToKakao = (sender: string, pin_code: number, docType: string) 
         pinCode: pin_code,
         docType: docType,
     },
-    serverCallbackArgs: "test",
   });
 };
