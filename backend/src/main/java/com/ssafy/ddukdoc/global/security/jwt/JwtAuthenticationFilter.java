@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.global.security.jwt;
 
 
 import com.ssafy.ddukdoc.global.common.constants.SecurityConstants;
+import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,11 +61,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json;charset=UTF-8");
 
-                    String errorMsg = validationResult.error() == TokenError.EXPIRED
-                            ? "{\"error\":\"token_expired\"}"
-                            : "{\"error\":\"invalid_token\"}";
+                    ErrorCode errorType;
 
-                    response.getWriter().write(errorMsg);
+                    if (Objects.requireNonNull(validationResult.error()) == TokenError.EXPIRED) {
+                        errorType = ErrorCode.INVALID_ACCESS_TOKEN;
+                    } else {
+                        errorType = ErrorCode.UNAUTHORIZED_ACCESS;
+                    }
+
+                    String errorCode = errorType.getCode();
+                    String errorMessage = errorType.getMessage();
+
+                    String errorResponse = getErrorResponse(errorCode, errorMessage);
+
+                    response.getWriter().write(errorResponse);
                     return;  // 필터 체인 중단
                 }
             }
@@ -75,6 +87,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.getWriter().write("{\"error\":\"authentication_failed\"}");
             // 필터 체인 계속 진행하지 않음
         }
+    }
+
+    private static String getErrorResponse(String errorCode, String errorMessage) {
+        return String.format(
+                "{\"success\": false, \"data\": null, \"error\": {\"code\": \"%s\", \"message\": \"%s\"}, \"timestamp\": \"%s\"}",
+                errorCode,
+                errorMessage,
+                LocalDateTime.now()
+        );
     }
 
     private String resolveToken(HttpServletRequest request) {

@@ -8,11 +8,10 @@ import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.util.HashUtil;
-import com.ssafy.ddukdoc.global.common.util.pdfgenerator.DocumentGenerator;
-import com.ssafy.ddukdoc.global.common.util.pdfgenerator.DocumentGeneratorFactory;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -41,18 +40,18 @@ public class PdfGeneratorUtil {
     /**
      * 템플릿 코드와 필드 값, 서명 데이터를 기반으로 PDF를 생성합니다.
      *
-     * @param templateCode 템플릿 코드 (ex: G1 - 차용증)
-     * @param fieldValues 문서 필드 값 리스트
-     * @param signatures 역할 ID별 서명 이미지 맵
+     * @param templateCode  템플릿 코드 (ex: G1 - 차용증)
+     * @param fieldValues   문서 필드 값 리스트
+     * @param signatures    역할 ID별 서명 이미지 맵
      * @param transactionId PDF 메타데이터에 포함될 블록체인 트랜잭션 ID (null일 경우 포함하지 않음)
      * @return PDF 데이터가 포함된 ByteArrayOutputStream
      * @throws IOException 파일 작업 중 오류 발생 시
      */
     public ByteArrayOutputStream generatePdf(TemplateCode templateCode,
-                                                    List<DocumentFieldDto> fieldValues,
-                                                    Map<Integer, byte[]> signatures,
-                                                    String transactionId) throws IOException {
-        try{
+                                             List<DocumentFieldDto> fieldValues,
+                                             Map<Integer, byte[]> signatures,
+                                             String transactionId) throws IOException {
+        try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(outputStream);
             PdfDocument pdf = new PdfDocument(writer);
@@ -95,65 +94,56 @@ public class PdfGeneratorUtil {
 
             document.close();
             return outputStream;
-        }catch (IOException e){
+        } catch (IOException e) {
             log.error("PDF 생성 실패: {} - DOC TYPE: {} ",
                     e.getMessage(),
                     templateCode,
                     e);
-            throw new CustomException(ErrorCode.PDF_GENERATION_ERROR,"reason",e.getMessage());
+            throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "reason", e.getMessage());
         }
-    }
-
-    /**
-     * PDF 바이너리 데이터의 해시값 생성
-     *
-     * @param pdfData PDF 바이너리 데이터
-     * @return SHA-256 해시값
-     */
-    public String generatePdfHash(byte[] pdfData) {
-        return hashUtil.generateSHA256Hash(pdfData);
     }
 
     /**
      * 메타데이터 없이 PDF를 생성하고 해시값을 계산합니다.
      *
      * @param templateCode 템플릿 코드
-     * @param fieldValues 문서 필드 값 리스트
-     * @param signatures 역할 ID별 서명 이미지 맵
+     * @param fieldValues  문서 필드 값 리스트
+     * @param signatures   역할 ID별 서명 이미지 맵
      * @return 생성된 PDF와 해시값을 포함한 결과 객체
      */
-    public byte[] generatePdfForHash(TemplateCode templateCode,
-                                            List<DocumentFieldDto> fieldValues,
-                                            Map<Integer, byte[]> signatures) {
+    public byte[] generatePdfNoData(TemplateCode templateCode,
+                                    List<DocumentFieldDto> fieldValues,
+                                    Map<Integer, byte[]> signatures) {
         try {
             // generatePdf() 메서드 호출 시 IOException 처리
             ByteArrayOutputStream pdfStream = generatePdf(templateCode, fieldValues, signatures, null);
             byte[] pdfData = pdfStream.toByteArray();
 
-            // PDF 데이터의 해시값 계산
-            String hash = generatePdfHash(pdfData);
+            return pdfData;
 
-            // PDF 메타데이터에 해시값 추가
-            // 추 후 블록체인 ID 값으로 변경 예정
-            try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfData));
-                 ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
-
-                PdfWriter writer = new PdfWriter(modifiedPdfStream);
-                PdfDocument pdfDocument = new PdfDocument(reader, writer);
-
-                // 메타데이터에 해시값 추가
-                PdfDocumentInfo info = pdfDocument.getDocumentInfo();
-                info.setMoreInfo("documentHash", hash);
-
-                pdfDocument.close();
-
-                return modifiedPdfStream.toByteArray();
-            } catch (IOException e) {
-                throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "Metadata addition failed", e.getMessage());
-            }
         } catch (IOException e) {
-            // generatePdf() 메서드에서 발생하는 IOException 처리
-            throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "PDF generation failed", e.getMessage());
+            throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "Metadata addition failed", e.getMessage());
+        }
+    }
+
+    public byte[] addPdfMetadata(byte[] pdfData, BlockchainSaveResult saveResponse) {
+        // PDF 메타데이터에 해시값 추가
+        try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfData));
+             ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
+
+            PdfWriter writer = new PdfWriter(modifiedPdfStream);
+            PdfDocument pdfDocument = new PdfDocument(reader, writer);
+
+            // 메타데이터에 해시값 추가
+            PdfDocumentInfo info = pdfDocument.getDocumentInfo();
+            info.setMoreInfo("TransactionId", saveResponse.getTransactionHash());
+            info.setMoreInfo("docName", saveResponse.getDocumentName());
+
+            pdfDocument.close();
+
+            return modifiedPdfStream.toByteArray();
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "Metadata addition failed", e.getMessage());
         }
     }
 
