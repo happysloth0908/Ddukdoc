@@ -3,7 +3,6 @@ import Login from '@/assets/images/login';
 import MainPage from '@/assets/images/mainPage';
 import SmallButton from './SmallButton';
 import { Link, useNavigate } from 'react-router-dom';
-import { getToken } from '@/apis/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useEffect } from 'react';
 import { getCookie, deleteCookie } from '@/utils/cookies';
@@ -29,13 +28,6 @@ export const MainMenuPage = () => {
       }
     }
   }, [isLoggedIn, navigate]);
-
-  const token = async () => {
-    const res = await getToken();
-    console.log(res);
-  };
-
-  token();
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden px-4">
