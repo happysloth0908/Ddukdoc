@@ -1,41 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Delete } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { usePinStore } from '@/store/mypage';
+import { apiClient } from '@/apis/mypage';
 
-const PinInput: React.FC = () => {
+const PinInput = () => {
   const [pin, setPin] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const [shake, setShake] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { pinInfo } = usePinStore();
 
-  const correctPin = '123456'; // 예시: 정답 PIN
-
-  useEffect(() => {
-    if (pin.length === 6) {
-      if (pin === correctPin) {
-        alert('다음 화면으로 이동합니다!');
+  const verifyPin = async (newPin: string) => {
+    setIsLoading(true);
+    try {
+      const response = await apiClient.post(`/api/docs/${id}`, {
+        pin_code: parseInt(newPin),
+      });
+      if (response.data.success) {
         setPin('');
         setError(false);
-      } else {
-        // 잘못된 핀 → shake 애니메이션, 에러 표시
-        setShake(true);
-        setError(true);
-
-        // 0.5초 후 상태 초기화
-        setTimeout(() => {
-          setShake(false);
-          setPin('');
-        }, 500);
+        navigate('');
       }
+    } catch {
+      setShake(true);
+      setError(true);
+      setTimeout(() => {
+        setShake(false);
+        setPin('');
+      }, 500);
+    } finally {
+      setIsLoading(false);
     }
-  }, [pin]);
+  };
 
-  const handleClick = (val: string) => {
-    if (pin.length < 6) {
-      setPin((prev) => prev + val);
+  const handleClick = async (val: string) => {
+    if (pin.length < 6 && !isLoading) {
+      const newPin = pin + val;
+      setPin(newPin);
+
+      if (newPin.length === 6) {
+        await verifyPin(newPin);
+      }
     }
   };
 
   const handleBackspace = () => {
-    setPin((prev) => prev.slice(0, -1));
+    if (!isLoading) {
+      setPin((prev) => prev.slice(0, -1));
+    }
   };
 
   const numberLayout: string[] = [
@@ -56,8 +71,8 @@ const PinInput: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center gap-y-6 bg-white px-4 text-center">
       {/* 안내 문구 */}
       <div className="mb-6">
-        <p className="text-sm font-semibold">랜덤님이</p>
-        <p className="text-sm">파리바게트 근로계약서를 보냈어요!</p>
+        <p className="text-sm font-semibold">{pinInfo?.creatorName}님이</p>
+        <p className="text-sm">{pinInfo?.documentTitle}를 보냈어요!</p>
       </div>
 
       <p className="mb-4 text-gray-500">핀번호를 입력해주세요</p>
@@ -87,7 +102,8 @@ const PinInput: React.FC = () => {
           <button
             key={idx}
             onClick={() => num && handleClick(num)}
-            className="h-20 w-24 hover:bg-gray-100"
+            className={`h-20 w-24 hover:bg-gray-100 ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+            disabled={isLoading}
           >
             {num}
           </button>
@@ -96,7 +112,10 @@ const PinInput: React.FC = () => {
         {/* backspace 버튼을 마지막 셀에 배치 */}
         <button
           onClick={handleBackspace}
-          className="flex h-20 w-24 items-center justify-center text-xl hover:bg-gray-100"
+          className={`flex h-20 w-24 items-center justify-center text-xl hover:bg-gray-100 ${
+            isLoading ? 'cursor-not-allowed opacity-50' : ''
+          }`}
+          disabled={isLoading}
         >
           <Delete />
         </button>
