@@ -94,7 +94,7 @@ public class S3Util {
             File decryptedFile = fileAesUtil.decryptFile(encryptedTempFile, encryptedDek, iv);
 
             //임시 암호화 파일 삭제
-            if(encryptedTempFile.delete()){
+            if(!encryptedTempFile.delete()){
                 String name = encryptedTempFile.getName();
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"filename",name);
             }
@@ -154,7 +154,7 @@ public class S3Util {
         amazonS3.putObject(new PutObjectRequest(bucket,fileName,uploadFile)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        if(uploadFile.delete()){
+        if(!uploadFile.delete()){
             String name = uploadFile.getName();
 
             throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"FileName",name);
@@ -178,7 +178,7 @@ public class S3Util {
         File convertFile = new File(System.getProperty("java.io.tmpdir")+"/",safeFilename);
 
         if(convertFile.exists()){
-            if(convertFile.delete()){
+            if(!convertFile.delete()){
                 String name = convertFile.getName();
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"fileName",name);
             }
@@ -217,7 +217,7 @@ public class S3Util {
             byte[] fileContent = java.nio.file.Files.readAllBytes(decryptedFile.toPath());
 
             // 임시 파일 삭제
-            if(decryptedFile.delete()){
+            if(!decryptedFile.delete()){
                 String name = decryptedFile.getName();
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"fileName",name);
             }
@@ -226,7 +226,7 @@ public class S3Util {
         } catch (Exception e) {
             // 예외 발생 시 임시 파일 정리
             if (decryptedFile != null && decryptedFile.exists()) {
-                if(decryptedFile.delete()){
+                if(!decryptedFile.delete()){
                     String name = decryptedFile.getName();
                     throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"filename",name);
                 }
