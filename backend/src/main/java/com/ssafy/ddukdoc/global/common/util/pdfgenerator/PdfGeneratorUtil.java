@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -62,11 +63,11 @@ public class PdfGeneratorUtil {
             Resource fontResource = resourceLoader.getResource("classpath:" + FONT_NAME);
 
             PdfFont font;
-            try {
-                // 폰트 파일 로드 시도
+            try (InputStream fontStream = fontResource.getInputStream()) {
                 if (fontResource.exists()) {
                     log.debug("폰트 파일 발견: {}", fontResource.getFilename());
-                    font = PdfFontFactory.createFont(fontResource.getFile().getAbsolutePath(), PdfEncodings.IDENTITY_H);
+                    byte[] fontBytes = fontStream.readAllBytes(); // byte 배열 변환
+                    font = PdfFontFactory.createFont(fontBytes, PdfEncodings.IDENTITY_H); // byte[] 방식
                 } else {
                     log.error("폰트 파일을 찾을 수 없음: {}", FONT_NAME);
                     throw new IOException("폰트 파일을 찾을 수 없음: " + FONT_NAME);

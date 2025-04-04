@@ -44,8 +44,15 @@ public class S3Util {
             String uploadUrl = uploadEncryptedFile(encryptedFile, dirName,encryptedDek,iv);
 
             // 로컬 임시 파일 삭제
-            originalFile.delete();
-            encryptedFile.delete();
+            if (!originalFile.delete()) {
+                String name = originalFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"OriginalFileName",name);
+            }
+            if(!encryptedFile.delete()){
+                String name = encryptedFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"encryptedFileFileName",name);
+            }
+
 
             return uploadUrl;
         }catch(Exception e){
@@ -87,7 +94,10 @@ public class S3Util {
             File decryptedFile = fileAesUtil.decryptFile(encryptedTempFile, encryptedDek, iv);
 
             //임시 암호화 파일 삭제
-            encryptedTempFile.delete();
+            if(!encryptedTempFile.delete()){
+                String name = encryptedTempFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"filename",name);
+            }
             // 복호화된 파일이 존재하는지 확인
             if (!decryptedFile.exists()) {
                 throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file",
@@ -144,7 +154,12 @@ public class S3Util {
         amazonS3.putObject(new PutObjectRequest(bucket,fileName,uploadFile)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        uploadFile.delete();
+        if(!uploadFile.delete()){
+            String name = uploadFile.getName();
+
+            throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"FileName",name);
+        }
+
         return amazonS3.getUrl(bucket,fileName).toString();
     }
 
@@ -163,7 +178,10 @@ public class S3Util {
         File convertFile = new File(System.getProperty("java.io.tmpdir")+"/",safeFilename);
 
         if(convertFile.exists()){
-            convertFile.delete();
+            if(!convertFile.delete()){
+                String name = convertFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"fileName",name);
+            }
         }
         if(convertFile.createNewFile()){
             try(FileOutputStream fos = new FileOutputStream(convertFile)){
@@ -199,13 +217,19 @@ public class S3Util {
             byte[] fileContent = java.nio.file.Files.readAllBytes(decryptedFile.toPath());
 
             // 임시 파일 삭제
-            boolean deleted = decryptedFile.delete();
+            if(!decryptedFile.delete()){
+                String name = decryptedFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"fileName",name);
+            }
 
             return fileContent;
         } catch (Exception e) {
             // 예외 발생 시 임시 파일 정리
             if (decryptedFile != null && decryptedFile.exists()) {
-                decryptedFile.delete();
+                if(!decryptedFile.delete()){
+                    String name = decryptedFile.getName();
+                    throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"filename",name);
+                }
             }
             e.printStackTrace();
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "파일 다운로드 및 복호화 중 오류: " + e.getMessage());

@@ -166,19 +166,6 @@ public class ContractService {
         //return requestDto.getData();
     }
 
-    private void saveDocumentFieldValues(DocumentSaveRequestDto requestDto, Document document, User user){
-        List<DocumentFieldValue> fieldValues = requestDto.getData().stream()
-                .map(fieldValueDto -> {
-                    TemplateField field = templateFieldRepository.findById(fieldValueDto.getFieldId())
-                            .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_FIELD_NOT_FOUND, "template_field_id", fieldValueDto.getFieldId()));
-
-                    return fieldValueDto.toEntity(document, field, user);
-                })
-                .collect(Collectors.toList());
-
-        documentFieldValueRepository.saveAll(fieldValues);
-    }
-
     private int generatePinCode(){
         return (int)(Math.random() * 900000) + 100000; // 100000 ~ 999999
     }
@@ -296,7 +283,7 @@ public class ContractService {
         }
 
         // 역할 검증
-        roleRepository.findById(roleId)
+        Role ignored = roleRepository.findById(roleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND, "role_id", roleId));
 
         return document;
