@@ -172,8 +172,8 @@ public class FileAESUtil {
 
         } catch (Exception e) {
             // 에러 발생 시 임시 파일 정리
-            if (decryptedFile.exists()) {
-                decryptedFile.delete();
+            if (decryptedFile.exists() && !decryptedFile.delete()) {
+                throw new CustomException(ErrorCode.FILE_DELETE_FAILED, "file", decryptedFile.getAbsolutePath());
             }
             throw new CustomException(ErrorCode.FILE_DECRYPTION_ERROR,"reason",e.getMessage());
         }
