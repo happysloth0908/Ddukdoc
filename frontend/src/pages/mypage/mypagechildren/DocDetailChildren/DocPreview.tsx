@@ -115,7 +115,7 @@ const DocPreview = () => {
           onClick={handleDownload}
         >
           <ArrowDownToLine />
-          <span>다운로드</span>
+          <span>문서 다운로드</span>
         </atoms.ShortButton>
       </div>
       <iframe
