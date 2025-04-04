@@ -162,7 +162,7 @@ export const DocsCheck = ({
         data.creditor_name || data.debtor_name,
         response.data.pin_code,
         curTemplate == 'G1' ? '차용증' : '근로계약서',
-        response.data.doc_id,
+        response.data.document_id,
       );
       navigate('/docs/share', { state: { docId: response.data.doc_id } });
     } else {
