@@ -113,6 +113,7 @@ export const SsafyLogin = () => {
     // 새 창 열기
     const loginWindow = window.open(
       'https://project.ssafy.com/oauth/sso-check',
+      // 'https://ddukdoc.shop/api/oauth/ssafy/login',
       'SSAFY Login',
       'width=600,height=700,resizable=yes,scrollbars=yes,status=yes'
     );
@@ -127,7 +128,7 @@ export const SsafyLogin = () => {
     <div>
       <Routes>
         <Route
-          path="first"
+          path="/"
           element={<SsafyLoginPage onSsafyLoginClick={onSsafyLoginClick} />}
         />
       </Routes>
