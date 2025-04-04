@@ -161,7 +161,8 @@ export const DocsCheck = ({
       shareToKakao(
         data.creditor_name || data.debtor_name,
         response.data.pin_code,
-        curTemplate == 'G1' ? '차용증' : '근로계약서'
+        curTemplate == 'G1' ? '차용증' : '근로계약서',
+        response.data.doc_id,
       );
       navigate('/docs/share', { state: { docId: response.data.doc_id } });
     } else {
