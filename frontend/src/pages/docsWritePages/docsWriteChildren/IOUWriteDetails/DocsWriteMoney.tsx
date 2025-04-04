@@ -1,90 +1,204 @@
-import { Link } from "react-router-dom";
-import atoms from "@/components/atoms";
-import iouData from "@/types/iou";
-import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import atoms from '@/components/atoms';
+import iouData from '@/types/iou';
+import { useState } from 'react';
 
-// 숫자를 한글 금액으로 변환하는 함수 (일, 십, 백, 천, 만 단위까지 포함)
-const numberToKorean = (num: number): string => {
-    if (isNaN(num) || num <= 0) return "";
+// 숫자를 한글 금액으로 변환하는 함수
+function numberToKorean(num: number): string {
+  if (isNaN(num) || num <= 0) return '';
+  const numberStrings = [
+    '',
+    '일',
+    '이',
+    '삼',
+    '사',
+    '오',
+    '육',
+    '칠',
+    '팔',
+    '구',
+  ];
+  const unit = ['', '십', '백', '천'];
+  const groupUnit = ['', '만', '억', '조'];
+  const digits = String(num).split('').reverse();
+  let result = '',
+    groupResult = '',
+    hasValue = false;
 
-    const unit = ["", "십", "백", "천", "만", "십", "백", "천", "억", "십", "백", "천", "조"];
-    const numberStrings = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
-    const digits = String(num).split("").reverse();
+  for (let i = 0; i < digits.length; i++) {
+    const digit = Number(digits[i]);
+    const unitPos = i % 4;
+    const groupPos = Math.floor(i / 4);
 
-    let result = "";
-    let hasNonZero = false; // 0이 연속되는 경우 처리를 위한 플래그
-
-    for (let i = 0; i < digits.length; i++) {
-        const digit = Number(digits[i]);
-        if (digit !== 0) {
-            result = numberStrings[digit] + unit[i] + result;
-            hasNonZero = true;
-        } else if (i % 4 === 0 && hasNonZero) {
-            result = unit[i] + result;
-        }
+    if (digit !== 0) {
+      groupResult = numberStrings[digit] + unit[unitPos] + groupResult;
+      hasValue = true;
     }
 
-    return `금 ${result} 원정`;
-};
+    if (unitPos === 3 || i === digits.length - 1) {
+      if (hasValue) result = groupResult + groupUnit[groupPos] + result;
+      groupResult = '';
+      hasValue = false;
+    }
+  }
 
-export const DocsWriteMoney = ({data, handleData}: {data: iouData, handleData: (newData: Partial<iouData>) => void}) => {
+  return `금 ${result} 원정`;
+}
 
-    const [formData, setFormData] = useState({
-        loan_purpose: data.loan_purpose || "",
-        loan_date: data.loan_date || "",
-        principal_amount_numeric: data.principal_amount_numeric.toString() || "",
+export const DocsWriteMoney = ({
+  data,
+  handleData,
+}: {
+  data: iouData;
+  handleData: (newData: Partial<iouData>) => void;
+}) => {
+  const [formData, setFormData] = useState({
+    loan_purpose: data.loan_purpose || '',
+    loan_date: data.loan_date || '',
+    principal_amount_numeric: data.principal_amount_numeric?.toString() || '',
+  });
+
+  const [koreanAmount, setKoreanAmount] = useState('');
+  const [errorStatus, setErrorStatus] = useState({
+    loan_purpose: '',
+    loan_date: '',
+    principal_amount_numeric: '',
+  });
+
+  const navigate = useNavigate();
+
+  // 개별 필드 유효성 검사
+  const checkValidation = (name: string, value: string): boolean => {
+    let errorMsg = '';
+
+    if (name === 'loan_purpose') {
+      if (value.length <= 0 || value.length > 60) {
+        errorMsg = '60자 이내로 입력해주세요.';
+      }
+    }
+
+    if (name === 'loan_date') {
+      if (value == '') {
+        errorMsg = '날짜를 선택해주세요.';
+      }
+    }
+
+    if (name === 'principal_amount_numeric') {
+      if (!/^\d{1,12}$/.test(value) || value == null) {
+        errorMsg = '숫자만 입력 가능하며, 최대 12자리까지입니다.';
+        setKoreanAmount('');
+      } else {
+        const num = parseInt(value, 10);
+        if (!isNaN(num)) setKoreanAmount(numberToKorean(num));
+      }
+    }
+
+    setErrorStatus((prev) => ({ ...prev, [name]: errorMsg }));
+    return errorMsg !== '';
+  };
+
+  // 전체 필드 유효성 검사
+  const validateAllFields = (): boolean => {
+    let hasError = false;
+    Object.entries(formData).forEach(([name, value]) => {
+      if (checkValidation(name, value)) {
+        hasError = true;
+      }
     });
-    
-    const [koreanAmount, setKoreanAmount] = useState("");
+    return !hasError;
+  };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        if (name === "principal_amount_numeric") {
-            const num = parseInt(value.replace(/[^0-9]/g, ""), 10);
-            if (!isNaN(num)) {
-                setKoreanAmount(numberToKorean(num));
-            } else {
-                setKoreanAmount("");
-            }
-        }
-        if (value != null) {
-            setFormData((prev) => ({ ...prev, [name]: value }));
-        }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    checkValidation(name, value);
+  };
 
-        
-    };
-    
-    const handleSenderData = () => {
-        console.log("이전 데이터:", data);
-        console.log("입력된 데이터:", formData);
+  const handleSenderData = () => {
+    if (!validateAllFields()) return;
 
-        const updatedData = {
-            loan_purpose: formData.loan_purpose,
-            loan_date: formData.loan_date,
-            principal_amount_text: koreanAmount,
-            principal_amount_numeric: parseInt(formData.principal_amount_numeric),
-        }
-
-        handleData(updatedData);
+    const updatedData = {
+      loan_purpose: formData.loan_purpose,
+      loan_date: formData.loan_date,
+      principal_amount_text: koreanAmount,
+      principal_amount_numeric: parseInt(formData.principal_amount_numeric),
     };
 
-    return (
-        <div className="w-full h-full flex flex-col">
-            <atoms.ProgressBar curStage={2} totalStage={6} />
-            <div className="flex-1 flex justify-center items-center">
-                <div className="w-full m-1 flex flex-col gap-y-6">
-                    <atoms.DocsDescription title="정보를 입력해주세요" subTitle={"차용, 원금 정보"} description="를 입력하고 있어요" />
-                    <form className="flex flex-col gap-y-6">
-                        <atoms.Input name="loan_purpose" defaultValue={data.loan_purpose || ""} label="차용 목적" onChange={handleChange} />
-                        <atoms.DateInput name="loan_date" defaultValue={data.loan_date || ""} label="차용 일자" onChange={handleChange} />
-                        <atoms.Input name="principal_amount_numeric" defaultValue={data.principal_amount_numeric || ""} label="원금 (숫자 입력)" onChange={handleChange} />
-                        {koreanAmount && <p className="text-lg font-bold text-gray-700">{koreanAmount}</p>}
-                        </form>
-                </div>
+    handleData(updatedData);
+    navigate('/docs/detail/G1/rate');
+  };
+
+  return (
+    <div className="flex h-full w-full flex-col">
+      <atoms.ProgressBar curStage={2} totalStage={6} />
+      <div className="flex flex-1 items-center justify-center">
+        <div className="m-1 flex w-full flex-col gap-y-6">
+          <atoms.DocsDescription
+            title="정보를 입력해주세요"
+            subTitle="차용, 원금 정보"
+            description="를 입력하고 있어요"
+          />
+          <form className="flex flex-col gap-y-6">
+            <div>
+              <atoms.Input
+                className={
+                  errorStatus.loan_purpose ? 'ring-1 ring-red-500' : ''
+                }
+                name="loan_purpose"
+                defaultValue={formData.loan_purpose}
+                label="차용 목적"
+                onChange={handleChange}
+              />
+              {errorStatus.loan_purpose && (
+                <p className="text-xs text-red-500">
+                  {errorStatus.loan_purpose}
+                </p>
+              )}
             </div>
-            <Link onClick={handleSenderData} to={"/docs/detail/G1/rate"}>
-                <atoms.LongButton className="mb-20" children="다음" colorType="black" />
-            </Link>
+            <div>
+                <atoms.DateInput
+                className={errorStatus.loan_date ? 'ring-1 ring-red-500' : ''}
+                name="loan_date"
+                defaultValue={formData.loan_date}
+                label="차용 일자"
+                onChange={handleChange}
+                />
+                {errorStatus.loan_date && (
+                <p className="text-xs text-red-500">
+                    {errorStatus.loan_date}
+                </p>
+                )}
+            </div>
+            <div>
+              <atoms.Input
+                className={
+                  errorStatus.principal_amount_numeric
+                    ? 'ring-1 ring-red-500'
+                    : ''
+                }
+                name="principal_amount_numeric"
+                defaultValue={formData.principal_amount_numeric}
+                label="원금 (숫자 입력)"
+                onChange={handleChange}
+              />
+              {errorStatus.principal_amount_numeric && (
+                <p className="text-xs text-red-500">
+                  {errorStatus.principal_amount_numeric}
+                </p>
+              )}
+            </div>
+            {koreanAmount && (
+              <p className="text-lg font-bold text-gray-700">{koreanAmount}</p>
+            )}
+          </form>
         </div>
-    )
+      </div>
+      <atoms.LongButton
+        onClick={handleSenderData}
+        className="mb-20"
+        children="다음"
+        colorType="black"
+      />
+    </div>
+  );
 };
