@@ -72,7 +72,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/forgery/*" element={<ForgeryInspection />} />
           {/* SSAFY 로그인 */}
           <Route path="/ssafy/login/*" element={<SsafyLogin />} />
         </Routes>
