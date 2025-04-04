@@ -28,9 +28,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       console.log('API 응답:', response.data);
 
-      if (response.data && response.data.success) {
+      if (response.data && response.data.success === true) {
         console.log('로그인 상태 true로 설정');
-        set({ isLoggedIn: response.data.success, error: null });
+        set({ isLoggedIn: true, error: null });
       } else {
         console.log('로그인 상태 false로 설정');
         set({ isLoggedIn: false, error: null });
