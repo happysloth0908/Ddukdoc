@@ -1,4 +1,4 @@
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { setCookie } from '@/utils/cookies';
@@ -6,13 +6,18 @@ import { setCookie } from '@/utils/cookies';
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { isLoggedIn, loading, checkAuthStatus } = useAuthStore();
+  const [authChecked, setAuthChecked] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
+    const verifyAuth = async () => {
     checkAuthStatus();
+    setAuthChecked(true);
+    }
+    verifyAuth();
   }, []);
 
-  if (loading) {
+  if (!authChecked || loading) {
     return <div>로딩 중...</div>;
   }
 
