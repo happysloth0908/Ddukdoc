@@ -113,6 +113,36 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis - Backend') {
+            when {
+                allOf {
+                    expression { return env.BACKEND_CHANGES == 'true' }
+                    expression { return env.DEPLOY_ENV == 'development' }
+                }
+            }
+            steps {
+                script {
+                    try {
+                        withSonarQubeEnv('sonarqube') {
+                            dir('backend') {
+                                sh """
+                                    ./gradlew sonarqube \\
+                                    -Dsonar.projectKey=S12P21B108 \\
+                                    -Dsonar.sources=src \\
+                                    -Dsonar.java.binaries=build/classes/java/main \\
+                                    -Dsonar.java.source=17 \\
+                                    -Dsonar.sourceEncoding=UTF-8 \\
+                                    -Dsonar.exclusions=**/resources/**
+                                """
+                            }
+                        }
+                    } catch (Exception e) {
+                        echo "SonarQube Backend 분석 중 오류가 발생했습니다: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
         stage('Frontend Build') {
             when {
                 expression { return env.FRONTEND_CHANGES == 'true' }
@@ -149,6 +179,35 @@ pipeline {
                         env.FAILURE_STAGE = 'Frontend 빌드'
                         env.FAILURE_MESSAGE = e.getMessage()
                         throw e
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Analysis - Frontend') {
+            when {
+                allOf {
+                    expression { return env.FRONTEND_CHANGES == 'true' }
+                    expression { return env.DEPLOY_ENV == 'development' }
+                }
+            }
+            steps {
+                script {
+                    try {
+                        def scannerHome = tool 'sonarqube'
+                        withSonarQubeEnv('sonarqube') {
+                            dir('frontend') {
+                                sh """
+                                ${scannerHome}/bin/sonar-scanner \\
+                                -Dsonar.projectKey=S12P21B108-fe \\
+                                -Dsonar.sources=src \\
+                                -Dsonar.sourceEncoding=UTF-8 \\
+                                -Dsonar.exclusions=node_modules/**
+                                """
+                            }
+                        }
+                    } catch (Exception e) {
+                        echo "SonarQube Frontend 분석 중 오류가 발생했습니다: ${e.getMessage()}"
                     }
                 }
             }
