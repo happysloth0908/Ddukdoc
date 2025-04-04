@@ -21,9 +21,11 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     const isSsafy = location.pathname.includes('ssafy');
     const loginPath = isSsafy ? '/ssafy/login' : '/login';
     setCookie('auth_redirect_path', location.pathname);
+    console.log('로그인이 필요합니다. 리다이렉트 경로:', loginPath);
     return <Navigate to={loginPath} replace />;
   }
 
   // 로그인된 경우, 원래 컴포넌트 렌더링
+  console.log('인증 확인 완료, 보호된 컴포넌트 렌더링');
   return <>{children}</>;
 };

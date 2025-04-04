@@ -49,6 +49,17 @@ interface DocStore {
   resetSend: () => void;
 }
 
+export interface PinInfo {
+  creatorName: string;
+  documentTitle: string;
+}
+
+interface PinStore {
+  pinInfo: PinInfo | null;
+  setPinInfo: (info: PinInfo) => void;
+  resetPinInfo: () => void;
+}
+
 export const useDocStore = create<DocStore>((set) => ({
   receiveDocs: [],
   sendDocs: [],
@@ -149,4 +160,10 @@ export const useDocStore = create<DocStore>((set) => ({
       receiveSearchParams: state.receiveSearchParams,
       isLoading: false,
     })),
+}));
+
+export const usePinStore = create<PinStore>((set) => ({
+  pinInfo: null,
+  setPinInfo: (info) => set({ pinInfo: info }),
+  resetPinInfo: () => set({ pinInfo: null }),
 }));
