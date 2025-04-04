@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -136,7 +137,9 @@ public class DocumentService {
         if (document.getRecipient() == null) {
             // 수신자 정보가 없으면 핀코드 입력 요청하는 예외 발생
             throw new CustomException(ErrorCode.PIN_CODE_REQUIRED, "documentId", document.getId())
-                    .addParameter("userId", userId);
+                    .addParameter("userId", userId)
+                    .addParameter("creatorName", document.getCreator().getName())
+                    .addParameter("documentTitle", document.getTitle());
         }
 
         // 수신자 정보가 있음에도 사용자가 수신자가 아니라면 접근 금지 예외 발생 (수신자도, 발신자도 아닌 경우)
@@ -213,20 +216,35 @@ public class DocumentService {
     private SignatureResponseDto extractSignatureInfo(Document document) {
         List<Signature> signatures = signatureRepository.findAllByDocumentId(document.getId());
 
-        String creatorSignature = signatures.stream()
+        String creatorSignaturePath = signatures.stream()
                 .filter(s -> document.getCreator() != null && s.getUser().getId().equals(document.getCreator().getId()))
                 .map(Signature::getFilePath)
                 .findFirst()
                 .orElse(null);
 
-        String recipientSignature = signatures.stream()
+        String recipientSignaturePath = signatures.stream()
                 .filter(s -> document.getRecipient() != null && s.getUser().getId().equals(document.getRecipient().getId()))
                 .map(Signature::getFilePath)
                 .findFirst()
                 .orElse(null);
 
+        // 복호화
+        String creatorSignature = decryptSignature(creatorSignaturePath);
+        String recipientSignature = decryptSignature(recipientSignaturePath);
+
         return SignatureResponseDto.of(creatorSignature, recipientSignature);
     }
+
+    private String decryptSignature(String filePath) {
+        if (filePath == null) {
+            return null;
+        }
+        // 복호화
+        byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(filePath);
+        // Base64 인코딩으로 return
+        return Base64.getEncoder().encodeToString(fileContent);
+    }
+
 
     // 문서 다운로드
     public DocumentDownloadResponseDto downloadDocument(Integer userId, Integer documentId) {

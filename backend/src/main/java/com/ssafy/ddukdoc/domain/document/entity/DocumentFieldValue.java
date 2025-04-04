@@ -29,4 +29,10 @@ public class DocumentFieldValue extends BaseEntity {
 
     @Column(name = "field_value", columnDefinition = "TEXT")
     private String fieldValue;
+
+    /**
+     * 필드 값을 업데이트하는 메소드
+     * @param fieldValue 사용자가 입력한 필드값
+     */
+    public void updateFieldValue(String fieldValue) {this.fieldValue = fieldValue;}
 }

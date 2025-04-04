@@ -1,6 +1,7 @@
 package com.ssafy.ddukdoc.domain.document.controller;
 
 import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentSearchRequestDto;
+import com.ssafy.ddukdoc.domain.document.dto.request.SsafyDocumentUpdateRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
@@ -22,6 +23,7 @@ import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -79,6 +81,24 @@ public class SsafyDocsController {
                 .build());
 
         return new ResponseEntity<>(downloadResponseDto.getDocumentContent(), headers, HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{doc_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "싸피 문서 수정", description = "doc_id를 통한 싸피 문서를 수정합니다")
+    @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.TEMPLATE_FIELD_NOT_FOUND,
+            ErrorCode.GENERATED_DEK, ErrorCode.ENCRYPTION_ERROR, ErrorCode.INVALID_KEK, ErrorCode.SIGNATURE_FILE_NOT_FOUND,
+            ErrorCode.PDF_GENERATION_ERROR, ErrorCode.TEMPLATE_NOT_FOUND, ErrorCode.INVALID_ENCRYPTION_ALGORITHM, ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR,
+            ErrorCode.FILE_PATH_ERROR, ErrorCode.FILE_DELETE_ERROR,ErrorCode.FILE_CONVERT_ERROR , ErrorCode.FILE_UPLOAD_ERROR})
+    public ResponseEntity<CommonResponse<Void>> updateSsafyDocument(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("doc_id") Integer documentId,
+            @RequestPart("jsonData") @Valid SsafyDocumentUpdateRequestDto updateRequestDto,
+            @RequestPart("signature") MultipartFile multipartFile) {
+
+        Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);
+        ssafyDocumentService.updateSsafyDocument(userId, documentId, updateRequestDto, multipartFile);
+        return CommonResponse.ok();
     }
 
 }

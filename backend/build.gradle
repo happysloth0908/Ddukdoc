@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id "org.sonarqube" version "3.5.0.2730"
 }
 
 group = 'com.ssafy'
@@ -63,8 +64,11 @@ dependencies {
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
 	// Web3j 의존성
-	implementation 'org.web3j:core:4.9.4'
+	implementation 'org.web3j:core:4.9.5'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'org.json:json:20230618'
 
 
 }

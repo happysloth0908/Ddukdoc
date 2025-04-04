@@ -36,15 +36,15 @@ public class GlobalExceptionHandler {
                     e.getMessage(),
                     e.getParameters()
             );
+            return CommonResponse.error(e.getErrorCode(), e.getParameters());
         } else {
             log.error("[CustomException] {} {}: {}",
                     request.getMethod(),
                     request.getRequestURI(),
                     e.getMessage()
             );
+            return CommonResponse.error(e.getErrorCode());
         }
-
-        return CommonResponse.error(e.getErrorCode());
     }
 
     /**
