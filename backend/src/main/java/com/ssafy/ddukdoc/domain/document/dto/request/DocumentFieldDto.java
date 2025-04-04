@@ -10,9 +10,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
-@Setter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DocumentFieldDto {
     @NotNull(message = "필드 ID는 필수입니다.")
     @Schema(example = "1")
