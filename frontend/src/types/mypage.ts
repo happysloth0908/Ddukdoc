@@ -25,11 +25,12 @@ export interface DocData {
 }
 
 export interface FileData {
+  id: number;
   material_id: number;
   title: string;
   user_id: number;
   user_name: string;
-  file_url?: string;
+  file_content?: string;
   format: string;
   created_at: string;
   updated_at: string;
