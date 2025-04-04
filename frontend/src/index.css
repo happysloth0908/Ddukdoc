@@ -54,6 +54,11 @@
 body {
   touch-action: pan-y;
   font-family: "interop";
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
 
 /* 슬라이드 인/아웃 애니메이션 */

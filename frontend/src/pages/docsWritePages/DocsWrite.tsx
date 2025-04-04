@@ -9,9 +9,10 @@ export const DocsWrite = () => {
   return (
     <Routes>
       <Route index element={<docsWriteChildren.DocsChoose templateCode={templateCode} onTemplateCode={setTemplateCode} />} />
-      <Route path='check' element={<docsWriteChildren.DocsCheck curTemplate={templateCode} />} />
+      <Route path='check' element={<docsWriteChildren.DocsCheck curTemplate={templateCode} role={role} />} />
       <Route path='role' element={<docsWriteChildren.DocsRoleChoose templateCode={templateCode} role={role} onRole={setRole} />} />
       <Route path='detail/*' element={<docsWriteChildren.DocsWriteDetail role={role} />}/>
+      <Route path='share' element={<docsWriteChildren.DocsShareComplete />} />
     </Routes>
   );
 };
