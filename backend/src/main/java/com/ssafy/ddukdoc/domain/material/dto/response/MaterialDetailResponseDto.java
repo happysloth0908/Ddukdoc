@@ -19,10 +19,10 @@ public class MaterialDetailResponseDto {
     private Integer userId;
     @Schema(example = "홍길동")
     private String userName;
-    @Schema(example = "https://example.com/files/contract_attachment.pdf")
-    private String fileUrl;
+    @Schema(example = "(바이트)fsdfwersdfkjgubi")
+    private String fileContent;
     @Schema(example = "pdf")
-    private String fileFormat;
+    private String format;
     @Schema(example = "2023-05-15T14:30:00")
     private LocalDateTime createdAt;
     @Schema(example = "2023-05-15T14:30:00")
@@ -34,8 +34,8 @@ public class MaterialDetailResponseDto {
                 .title(material.getTitle())
                 .userId(material.getUser().getId())
                 .userName(material.getUser().getName())
-                .fileUrl(Base64.getEncoder().encodeToString(fileBytes))
-                .fileFormat(material.getMimeType())
+                .fileContent(Base64.getEncoder().encodeToString(fileBytes))
+                .format(material.getMimeType())
                 .createdAt(material.getCreatedAt())
                 .updatedAt(material.getUpdatedAt())
                 .build();
