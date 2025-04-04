@@ -8,8 +8,8 @@ import BottomRollup from '@/components/atoms/inputs/BottomRollup';
 import MyPageMainFilter from './MyPageMainFilter';
 import Spinner from '@/components/atoms/feedback/Spinner';
 
-import { apiClient } from '@/apis/mypage';
-import { useDocStore, SearchParams } from '@/store/useDocStore';
+import { apiClient, deleteDoc } from '@/apis/mypage';
+import { useDocStore, SearchParams } from '@/store/mypage';
 import { DocData, ApiResponse } from '@/types/mypage';
 
 interface ApiDocsResponse extends ApiResponse {
@@ -158,6 +158,8 @@ const MyPageMain: React.FC = () => {
           `/api/docs?${queryParams}`
         );
 
+        console.log(response.data);
+
         const { content, last } = response.data.data;
 
         // 새로운 검색(isNewSearch) 이거나, page=1이면 리스트를 새로 세팅
@@ -198,14 +200,20 @@ const MyPageMain: React.FC = () => {
     setSelectedType(type);
   };
 
-  // ========= 첫 로드 or 탭 전환 시 초기 Fetch =========
+  // ========= 컴포넌트 마운트 시 초기화 =========
   useEffect(() => {
-    // 수신 탭 & 수신 첫 로드
+    if (selectedType === '1') {
+      resetReceive();
+    } else {
+      resetSend();
+    }
+  }, [selectedType, resetReceive, resetSend]);
+
+  // ========= 탭 변경 시 데이터 로드 =========
+  useEffect(() => {
     if (selectedType === '1' && isFirstReceiveLoad) {
       fetchDocs(1, true);
-    }
-    // 발신 탭 & 발신 첫 로드
-    else if (selectedType === '2' && isFirstSendLoad) {
+    } else if (selectedType === '2' && isFirstSendLoad) {
       fetchDocs(1, true);
     }
   }, [selectedType, isFirstReceiveLoad, isFirstSendLoad, fetchDocs]);
@@ -270,6 +278,27 @@ const MyPageMain: React.FC = () => {
     tempObserver.unobserve(ref.current);
   };
 
+  const handleDelete = async (docId: number) => {
+    try {
+      await deleteDoc(docId);
+      // 삭제 성공 시 현재 목록에서 해당 문서 제거
+      if (selectedType === '1') {
+        setReceiveDocs(
+          receiveDocs.filter((doc) => doc.document_id !== docId),
+          isLastReceivePage
+        );
+      } else {
+        setSendDocs(
+          sendDocs.filter((doc) => doc.document_id !== docId),
+          isLastSendPage
+        );
+      }
+    } catch (error) {
+      console.error('문서 삭제 실패:', error);
+      alert('문서 삭제에 실패했습니다.');
+    }
+  };
+
   // ========= JSX =========
   return (
     <div className="flex w-full flex-1 flex-col overflow-hidden">
@@ -312,11 +341,28 @@ const MyPageMain: React.FC = () => {
               <div
                 key={doc.document_id}
                 className="cursor-pointer"
-                onClick={() => navigate(`docs/${doc.document_id}`)}
+                onClick={() => {
+                  const path =
+                    doc.status === '서명 완료'
+                      ? `/mypage/preview/${doc.document_id}`
+                      : `/mypage/detail/${doc.document_id}`;
+                  navigate(path);
+                }}
               >
                 <DocsCard
                   data={doc}
                   calls={selectedType === '1' ? '수신' : '발신'}
+                  onDelete={(id) => {
+                    if (selectedType === '1') {
+                      alert('삭제 권한이 없습니다.');
+                      return;
+                    }
+                    if (doc.status === '반송') {
+                      handleDelete(id);
+                    } else {
+                      alert('삭제할 수 없는 문서입니다.');
+                    }
+                  }}
                 />
               </div>
             ))}
