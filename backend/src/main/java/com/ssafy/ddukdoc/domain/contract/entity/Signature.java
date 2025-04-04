@@ -25,4 +25,10 @@ public class Signature extends BaseEntity {
 
     @Column(name = "file_path", nullable = false)
     private String filePath;
+
+    /**
+     * 서명의 파일경로를 업데이트 하는 메소드
+     * @param filePath 서명파일 경로
+     */
+    public void updateFilePath(String filePath) {this.filePath = filePath;}
 }
