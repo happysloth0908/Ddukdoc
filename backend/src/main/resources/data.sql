@@ -130,11 +130,28 @@ VALUES
 
 --  자가점검 체크리스트 (O/X 선택)
 (55, 7, 6, 'self_check_code_review', 'VARCHAR(10)', '자가점검 체크리스트_1', TRUE, 11, '자가점검 체크리스트', 10, '본인(팀)이 직접 개발한 프로젝트 결과물인가?', 'O/X', NOW(), NOW()),
-(56, 7, 6, 'self_check_ssafy_code', 'VARCHAR(10)', '자가점검 체크리스트_2', TRUE, 12, '자가점검 체크리스트', 10, 'SSAFY에서 제공한 스켈레톤 코드 비중이 20% 이내인가?', 'O/X', NOW(), NOW()),
-(57, 7, 6, 'self_check_open_source', 'VARCHAR(10)', '자가점검 체크리스트_3', TRUE, 13, '자가점검 체크리스트', 10, 'SSAFY에서 제공한 이미지, 데이터셋, 에셋 라이센스 등 프로젝트 개발 목적으로 제공된 리소스 원본이 포함되지 않았는가?', 'O/X', NOW(), NOW()),
-(58, 7, 6, 'self_check_third_party', 'VARCHAR(10)', '자가점검 체크리스트_4', TRUE, 14, '자가점검 체크리스트', 10, 'SSAFY의 보안 기준 또는 타인의 저작권을 침해할 우려가 없는가?', 'O/X', NOW(), NOW()),
-(59, 7, 6, 'self_check_security_check', 'VARCHAR(10)', '자가점검 체크리스트_5', TRUE, 15, '자가점검 체크리스트', 10, '참조된 소스코드, 라이브러리 등의 출처를 명시하였는가?', 'O/X', NOW(), NOW()),
-(60, 7, 6, 'self_check_purpose_limit', 'VARCHAR(10)', '자가점검 체크리스트_6', TRUE, 16, '자가점검 체크리스트', 10, '학습용 프로젝트가 해당하지 않고 포트폴리오를 인정할 만한 독창적인 프로젝트 코드인가?', 'O/X', NOW(), NOW());
+(56, 7, 6, 'self_check_ssafy_code', 'VARCHAR(10)', '자가점검 체크리스트_2', TRUE, 13, '자가점검 체크리스트', 10, 'SSAFY에서 제공한 스켈레톤 코드 비중이 20% 이내인가?', 'O/X', NOW(), NOW()),
+(57, 7, 6, 'self_check_open_source', 'VARCHAR(10)', '자가점검 체크리스트_3', TRUE, 15, '자가점검 체크리스트', 10, 'SSAFY에서 제공한 이미지, 데이터셋, 에셋 라이센스 등 프로젝트 개발 목적으로 제공된 리소스 원본이 포함되지 않았는가?', 'O/X', NOW(), NOW()),
+(58, 7, 6, 'self_check_third_party', 'VARCHAR(10)', '자가점검 체크리스트_4', TRUE, 17, '자가점검 체크리스트', 10,'SSAFY의 보안 기준 또는 타인의 저작권을 침해할 우려가 없는가?',  'O/X', NOW(), NOW()),
+(59, 7, 6, 'self_check_security_check', 'VARCHAR(10)', '자가점검 체크리스트_5', TRUE, 19, '자가점검 체크리스트', 10, '참조된 소스코드, 라이브러리 등의 출처를 명시하였는가?', 'O/X', NOW(), NOW()),
+(60, 7, 6, 'self_check_purpose_limit', 'VARCHAR(10)', '자가점검 체크리스트_6', TRUE, 21,'자가점검 체크리스트', 10, '학습용 프로젝트가 해당하지 않고 포트폴리오를 인정할 만한 독창적인 프로젝트 코드인가?', 'O/X', NOW(), NOW());
+
+-- 소스코드 반출 검토 요청서 자가점검 체크리스트의 조치사항 필드 추가
+INSERT INTO template_fields (id, template_id, role_id, name, type, field_label, is_required, `display_order`, `field_group`, max_length, description, placeholder, created_at, updated_at)
+VALUES
+-- 자가점검 체크리스트 항목별 조치사항
+(92, 7, 6, 'self_check_code_review_action', 'TEXT', '항목1 조치사항', FALSE, 12, '자가점검 체크리스트', NULL, '본인(팀)이 직접 개발한 프로젝트 결과물인가?에 대한 조치사항', '필요시 조치사항 입력', NOW(), NOW()),
+
+(93, 7, 6, 'self_check_ssafy_code_action', 'TEXT', '항목2 조치사항', FALSE, 14, '자가점검 체크리스트', NULL, 'SSAFY에서 제공한 스켈레톤 코드 비중이 20% 이내인가?에 대한 조치사항', '필요시 조치사항 입력', NOW(), NOW()),
+
+(94, 7, 6, 'self_check_open_source_action', 'TEXT', '항목3 조치사항', FALSE, 16, '자가점검 체크리스트', NULL, 'SSAFY에서 제공한 이미지, 데이터셋, 에셋 라이센스 등 프로젝트 개발 목적으로 제공된 리소스 원본이 포함되지 않았는가?에 대한 조치사항', '필요시 조치사항 입력', NOW(), NOW()),
+
+(95, 7, 6, 'self_check_third_party_action', 'TEXT', '항목4 조치사항', FALSE, 18, '자가점검 체크리스트', NULL, 'SSAFY의 보안 기준 또는 타인의 저작권을 침해할 우려가 없는가?에 대한 조치사항', '필요시 조치사항 입력', NOW(), NOW()),
+
+(96, 7, 6, 'self_check_security_check_action', 'TEXT', '항목5 조치사항', FALSE, 20, '자가점검 체크리스트', NULL, '참조된 소스코드, 라이브러리 등의 출처를 명시하였는가?에 대한 조치사항', '필요시 조치사항 입력', NOW(), NOW()),
+
+(97, 7, 6, 'self_check_purpose_limit_action', 'TEXT', '항목6 조치사항', FALSE, 22, '자가점검 체크리스트', NULL, '학습용 프로젝트가 해당하지 않고 포트폴리오로 인정할 만한 독창적인 프로젝트인가?에 대한 조치사항', '필요시 조치사항 입력', NOW(), NOW());
+
 
 -- 노트북 반출 신청서
 INSERT INTO template_fields (id, template_id, role_id, name, type, field_label, is_required, `display_order`, `field_group`, max_length, description, placeholder, created_at, updated_at)
@@ -212,3 +229,4 @@ VALUES
 (90, 8, 6, 'student_birthdate', 'DATE', '생년월일', TRUE, 3, '기본 정보', NULL, '교육생 생년월일 입력', 'YYYY-MM-DD', NOW(), NOW()),
 --  교육생 성명
 (91, 8, 6, 'student_name', 'VARCHAR(50)', '성명', TRUE, 4, '기본 정보', 100, '교육생 성명 입력', '예: 홍길동', NOW(), NOW());
+

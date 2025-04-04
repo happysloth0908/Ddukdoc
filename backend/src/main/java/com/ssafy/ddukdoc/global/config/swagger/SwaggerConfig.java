@@ -66,11 +66,11 @@ public class SwaggerConfig {
         devServer.setDescription("개발용 서버입니다.");
 
         Server prodServer = new Server();
-        prodServer.setUrl("https://j12b108.p.ssafy.io/");
+        prodServer.setUrl("https://j12b108.p.ssafy.io");
         prodServer.setDescription("실 운용 서버입니다.(개발자용 토큰 사용 불가)");
 
         Server localServer = new Server();
-        localServer.setUrl("http://localhost:8080/");
+        localServer.setUrl("http://localhost:8080");
         localServer.setDescription("localhost 테스트용입니다.");
 
         return new OpenAPI()

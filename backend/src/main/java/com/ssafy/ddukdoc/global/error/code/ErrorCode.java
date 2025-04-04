@@ -79,10 +79,12 @@ public enum ErrorCode {
     //PDF
     PDF_GENERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"P001" ,"PDF 생성에 실패하였습니다." ),
 
+    // API
+    EXTERNAL_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E001", "외부 API 호출 중 오류가 발생했습니다"),
+
     //Blockchain
     BLOCKCHAIN_SIGNATURE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"B001","블록체인 서명 생성 중 오류가 발생했습니다."),
-    BLOCKCHAIN_DOCUMENT_ERROR(HttpStatus.BAD_REQUEST,"B002","블록체인에 저장된 문서 조회 중 오류가 발생했습니다")
-    ;
+    BLOCKCHAIN_DOCUMENT_ERROR(HttpStatus.BAD_REQUEST,"B002","블록체인에 저장된 문서 조회 중 오류가 발생했습니다");
 
     private final HttpStatus status;
     private final String code;

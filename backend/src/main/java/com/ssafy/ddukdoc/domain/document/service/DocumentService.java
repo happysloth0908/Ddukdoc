@@ -137,7 +137,9 @@ public class DocumentService {
         if (document.getRecipient() == null) {
             // 수신자 정보가 없으면 핀코드 입력 요청하는 예외 발생
             throw new CustomException(ErrorCode.PIN_CODE_REQUIRED, "documentId", document.getId())
-                    .addParameter("userId", userId);
+                    .addParameter("userId", userId)
+                    .addParameter("creatorName", document.getCreator().getName())
+                    .addParameter("documentTitle", document.getTitle());
         }
 
         // 수신자 정보가 있음에도 사용자가 수신자가 아니라면 접근 금지 예외 발생 (수신자도, 발신자도 아닌 경우)
