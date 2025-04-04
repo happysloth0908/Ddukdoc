@@ -201,6 +201,7 @@ pipeline {
                                 -Dsonar.projectKey=S12P21B108-fe \\
                                 -Dsonar.sources=src \\
                                 -Dsonar.sourceEncoding=UTF-8 \\
+                                -Dsonar.typescript.tsconfigPath=sonar-tsconfig.json \\
                                 -Dsonar.exclusions=node_modules/**
                                 """
                             }
