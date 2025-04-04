@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,6 +86,11 @@ public class SsafyContractService {
         // 템플릿 조회
         Template template = templateRepository.findByCode(templateCode.name())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode.name()));
+
+        // 보낸 필드값들의 템플릿 종류와 실제 저장할 템플릿 비교
+        if(!Objects.equals(template.getId(), templateFieldRepository.findTemplateIdById(requestDto.getData().get(0).getFieldId()).getTemplate().getId())){
+            throw new CustomException(ErrorCode.TEMPLATE_NOT_MATCH,"templateId",template.getId());
+        }
 
         //Document 엔티티 생성 및 저장
         Document document = requestDto.toEntity(user,template,templateCode);

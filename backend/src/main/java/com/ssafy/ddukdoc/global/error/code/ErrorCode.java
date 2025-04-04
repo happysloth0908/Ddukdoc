@@ -18,6 +18,7 @@ public enum ErrorCode {
     //Contract
     TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 템플릿 코드입니다"),
     TEMPLATE_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND,"T002","존재하지 않는 템플릿 필드 ID 입니다."),
+    TEMPLATE_NOT_MATCH(HttpStatus.NOT_FOUND,"T003","다른 문서의 필드 ID 입니다."),
 
     //Document
     DOCUMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "존재하지 않는 문서입니다"),
