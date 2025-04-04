@@ -71,6 +71,8 @@ public enum ErrorCode {
     FILE_DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"S008","파일 복호화 과정에서 오류가 발생했습니다."),
     FILE_PATH_ERROR(HttpStatus.BAD_REQUEST, "S009", "잘못된 파일 경로입니다"),
     FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S010", "파일 삭제 중 오류가 발생했습니다"),
+    FILE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"S011","암호화된 파일 삭제 시 오류가 발생했습니다."),
+
 
     //Hash
     INVALID_ENCRYPTION_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR,"H001","지원하지 않는 해시 암호화 알고리즘입니다."),
