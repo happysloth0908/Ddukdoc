@@ -18,7 +18,7 @@ export const Documents = ({ templateCode }: { templateCode: string }) => {
 
   if (templateCode === 'G1') {
     return (
-      <div className="max-h-[70%] overflow-scroll border p-2 text-xs">
+      <div className="max-h-[55vh] overflow-scroll border p-2 text-xs">
         <h1 className="mb-8 text-center text-xl font-bold">차 용 증</h1>
 
         <div className="mb-6">
