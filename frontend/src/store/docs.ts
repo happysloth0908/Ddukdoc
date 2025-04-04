@@ -14,6 +14,7 @@ interface ioudocsStore {
 
 export const useIOUDocsStore = create<ioudocsStore>((set) => ({
   data: {
+    title: '',
     loan_purpose: '', // 차용 목적 2
     loan_date: '', // 차용 날짜 2
     principal_amount_text: '', // 차용 금액 (문자) 2

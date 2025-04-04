@@ -6,7 +6,7 @@ import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
 import { LoginPage } from '@/pages/loginPages/Login';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
-
+import { ProtectedRoute } from './functions/ProtectedRoute';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
 // }
@@ -25,16 +25,46 @@ function App() {
       >
         <molecules.Header />
         <Routes>
-          {/* 문서 작성입니다. */}
-          <Route path="/docs/*" element={<DocsWrite />} />
-          {/* 메인 페이지 */}
-          <Route path="/" element={<MainMenuPage />} />
+          {/*  공개 라우트  */}
           {/* 로그인 페이지 */}
           <Route path="/login" element={<LoginPage />} />
+
+          {/* 문서 작성입니다. */}
+          <Route
+            path="/docs/*"
+            element={
+              <ProtectedRoute>
+                <DocsWrite />
+              </ProtectedRoute>
+            }
+          />
+          {/* 메인 페이지 */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainMenuPage />
+              </ProtectedRoute>
+            }
+          />
           {/* 마이페이지 */}
-          <Route path="/mypage/*" element={<MyPage />} />
+          <Route
+            path="/mypage/*"
+            element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            }
+          />
           {/* 위변조 검사 */}
-          <Route path="/forgery/*" element={<ForgeryInspection />} />
+          <Route
+            path="/forgery/*"
+            element={
+              <ProtectedRoute>
+                <ForgeryInspection />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>
