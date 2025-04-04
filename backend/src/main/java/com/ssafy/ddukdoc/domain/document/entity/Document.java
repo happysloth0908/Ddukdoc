@@ -76,4 +76,10 @@ public class Document extends BaseEntity {
      */
     public void updateReturnReason(String returnReason) {this.returnReason = returnReason;}
 
+    /**
+     * 문서 제목 업데이트 메서드
+     * @param title 문서 제목
+     */
+    public void updateTitle(String title) {this.title = title;}
+
 }
