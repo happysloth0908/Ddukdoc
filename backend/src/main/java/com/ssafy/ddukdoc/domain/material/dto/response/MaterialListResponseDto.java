@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MaterialListResponseDto {
     @Schema(example = "1")
-    private Integer id;
+    private Integer materialId;
     @Schema(example = "계약서 첨부 자료")
     private String title;
     @Schema(example = "10")
@@ -27,7 +27,7 @@ public class MaterialListResponseDto {
 
     public static MaterialListResponseDto of(DocumentEvidence documentEvidence){
         return MaterialListResponseDto.builder()
-                .id(documentEvidence.getId())
+                .materialId(documentEvidence.getId())
                 .title(documentEvidence.getTitle())
                 .userId(documentEvidence.getUser().getId())
                 .userName(documentEvidence.getUser().getName())
