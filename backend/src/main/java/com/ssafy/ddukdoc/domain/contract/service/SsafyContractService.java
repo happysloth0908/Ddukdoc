@@ -95,12 +95,35 @@ public class SsafyContractService {
 
         switch (templateCode){
             case S5:  //서명없이 저장
-                return saveDocument.getId();
+                return saveDocumentNoSignature(document,saveDocument,requestDto,templateCode);
             case S2: case S3:  //서명 + 증빙서류 필요
                 return saveDocumentWithSignatureAndExtra(document,saveDocument,user, requestDto, templateCode,signatureFile,proofDocuments);
             default:  // 서명만 필요
                 return saveDocumentWithSignature(document,saveDocument,user, requestDto, templateCode,signatureFile);
         }
+    }
+
+    private Integer saveDocumentNoSignature(Document document, Document saveDocument, DocumentSaveRequestDto requestDto, TemplateCode templateCode) {
+        // 문서 pdf 생성
+        byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
+                templateCode,
+                requestDto.getData(),
+                null
+        );
+
+        // 문서 해시 생성 및 블록체인 저장
+        BlockchainSaveResult resultDto = blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()));
+
+        // 문서 S3에 저장
+        byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,resultDto);
+
+
+        // 암호화된 PDF 저장
+        String pdfPath = saveEncryptedPdf(pdfWithHash, document);
+
+        //문서 상태 변경
+        updateDocumentStatus(document, pdfPath);
+        return saveDocument.getId();
     }
 
     private Integer saveDocumentWithSignatureAndExtra(Document document, Document saveDocument, User user, DocumentSaveRequestDto requestDto, TemplateCode templateCode,MultipartFile signatureFile, List<MultipartFile> proofDocuments) {
