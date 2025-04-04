@@ -285,7 +285,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
     </div>
   ) : (
     // 세로 모드 레이아웃
-    <div className="flex w-full flex-1 flex-col items-center justify-between px-2 py-4">
+    <div className="flex h-full w-full flex-col items-center justify-between px-2">
       <div className="mt-3 w-full">
         <DocsDescription
           title={'서명을 해주세요'}
@@ -304,7 +304,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
           />
         </div>
       </div>
-      <div className="w-full">
+      <div className="mb-20 w-full">
         <LongButton
           children={'서명 완료'}
           colorType={'black'}
