@@ -10,13 +10,13 @@ interface SignBoxProps {
   role: string;
 }
 
-export const SignBox: React.FC<SignBoxProps> = ({next, role}) => {
+export const SignBox: React.FC<SignBoxProps> = ({ next, role }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
 
   const setSignature = useIOUDocsStore((state) =>
-    role === "채권자" ? state.setCreditorSignature : state.setDebtorSignature
+    role === '채권자' ? state.setCreditorSignature : state.setDebtorSignature
   );
 
   const navigate = useNavigate();
@@ -178,7 +178,7 @@ export const SignBox: React.FC<SignBoxProps> = ({next, role}) => {
     if (!canvas) return;
     const signatureData = canvas.toDataURL('image/png'); // PNG 데이터로 변환
     setSignature(signatureData); // Zustand에 저장
-    navigate(next, {state: { from: currentPath}});
+    navigate(next, { state: { from: currentPath } });
   };
 
   const renderCanvas = () => (
@@ -222,7 +222,7 @@ export const SignBox: React.FC<SignBoxProps> = ({next, role}) => {
     </div>
   ) : (
     // 세로 모드 레이아웃
-    <div className="flex h-full w-full flex-col items-center justify-between px-2 py-4">
+    <div className="flex h-full w-full flex-col items-center justify-between px-2">
       <div className="mt-3 w-full">
         <DocsDescription
           title={'서명을 해주세요'}
@@ -241,7 +241,7 @@ export const SignBox: React.FC<SignBoxProps> = ({next, role}) => {
           />
         </div>
       </div>
-      <div className="w-full">
+      <div className="mb-20 w-full">
         <LongButton
           children={'서명 완료'}
           colorType={'black'}
