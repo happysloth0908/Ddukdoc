@@ -31,7 +31,7 @@ const FileDetail = () => {
     <div className={'flex flex-1 items-center justify-center'}>
       <div className="flex h-5/6 w-full flex-col items-center justify-center rounded-lg bg-gray-200">
         <div>{file?.title}</div>
-        <img src={image} alt="서버에서 받은 이미지" />
+        <img src={image} alt="상세 이미지" />
       </div>
     </div>
   );

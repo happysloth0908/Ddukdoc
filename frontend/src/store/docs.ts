@@ -8,6 +8,8 @@ interface ioudocsStore {
   debtor_signature: string;
   setCreditorSignature: (signature: string) => void;
   setDebtorSignature: (signature: string) => void;
+  recipientRoleId: number;
+  setRecipientRoleId: (roleId: number) => void;
 }
 
 export const useIOUDocsStore = create<ioudocsStore>((set) => ({
@@ -43,4 +45,6 @@ export const useIOUDocsStore = create<ioudocsStore>((set) => ({
   debtor_signature: '',
   setCreditorSignature: (creditor_signature) => set({ creditor_signature }),
   setDebtorSignature: (debtor_signature) => set({ debtor_signature }),
+  recipientRoleId: -1,
+  setRecipientRoleId: (recipientRoleId) => set({ recipientRoleId }),
 }));

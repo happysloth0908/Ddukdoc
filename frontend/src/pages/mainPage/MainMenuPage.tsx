@@ -8,12 +8,8 @@ import { useEffect } from 'react';
 import { getCookie, deleteCookie } from '@/utils/cookies';
 
 export const MainMenuPage = () => {
-  const { isLoggedIn, checkAuthStatus } = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
 
   useEffect(() => {
     if (isLoggedIn) {

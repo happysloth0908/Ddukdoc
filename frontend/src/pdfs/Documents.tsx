@@ -197,7 +197,7 @@ export const Documents = ({ templateCode }: { templateCode: string }) => {
             <p className="mb-1 mt-8">
               서명:{' '}
               {debtor_signature ? (
-                <img src={debtor_signature} alt="채권자 서명" />
+                <img src={debtor_signature} alt="채무자 서명" />
               ) : (
                 '_________________'
               )}
