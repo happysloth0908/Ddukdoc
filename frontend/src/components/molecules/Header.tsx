@@ -24,7 +24,7 @@ export const Header = () => {
 
   return (
     <div className="flex w-full justify-center">
-      {!pathname.startsWith('/login') && !(pathname === '/') && (
+      {!pathname.startsWith('/login') && !(pathname === '/') && !(pathname === '/docs/share') && (
         <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
           <ArrowLeft className="text-primary-300" onClick={onClick} />
           <span className="text-md"></span>

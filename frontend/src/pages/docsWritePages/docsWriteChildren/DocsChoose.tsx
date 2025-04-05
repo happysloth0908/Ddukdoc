@@ -18,7 +18,7 @@ export const DocsChoose = ({
 
   return (
     <div className="flex h-full flex-col gap-y-6">
-      <div className="mt-28 flex flex-1 flex-col gap-y-6">
+      <div className="flex flex-1 flex-col justify-center gap-y-6">
         <p className="text-info-large font-bold">
           어떤 문서를
           <br />
