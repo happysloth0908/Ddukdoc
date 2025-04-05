@@ -30,9 +30,11 @@ pipeline {
 
                     env.FRONTEND_CHANGES = changedFiles.contains('frontend/') ? 'true' : 'false'
                     env.BACKEND_CHANGES = changedFiles.contains('backend/') ? 'true' : 'false'
+                    env.BLOCKCHAIN_CHANGES = changedFiles.contains('blockchain-api/') ? 'true' : 'false'
 
                     echo "Frontend 변경 여부: ${env.FRONTEND_CHANGES}"
                     echo "Backend 변경 여부: ${env.BACKEND_CHANGES}"
+                    echo "Blockchain API 변경 여부: ${env.BLOCKCHAIN_CHANGES}"
                 }
             }
         }
