@@ -19,37 +19,37 @@ export const SsafyMain = () => {
         </div>
         
         {/* 블록 2 */}
-        <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
           <Link to="/ssafy/mydocs">
+        <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
            <SmallButton 
             imageSrc={SsafyLoginSVG.ssafy_myhome_icon} 
             subtitle="나의 싸피 문서함" 
             title="내 문서" 
            />
-          </Link>
         </div>
+          </Link>
         
         {/* 블록 3 */}
-        <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
         <Link to="/ssafy/forgery">
+        <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
           <SmallButton 
             imageSrc={SsafyLoginSVG.ssafy_forgery_icon} 
             subtitle="블록체인 기술로 위변조 검사" 
             title="위변조 검사" 
           />
-          </Link>
         </div>
+          </Link>
         
         {/* 블록 4 */}
-        <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
         <Link to="/ssafy/docs">
+        <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
           <SmallButton 
             imageSrc={SsafyLoginSVG.ssafy_docs_icon} 
             subtitle="빠르고 쉽게 문서 작성" 
             title="문서 작성" 
           />
-          </Link>
         </div>
+          </Link>
       </div>
       
       {/* 약관 - flex-grow-1과 mt-auto를 사용하여 맨 아래로 배치 */}
