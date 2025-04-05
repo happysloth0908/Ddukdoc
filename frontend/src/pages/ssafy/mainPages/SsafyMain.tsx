@@ -1,10 +1,8 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { SsafyLoginSVG } from "@/assets/images/ssafy";
 import SmallButton from "@/pages/mainPage/mainChildren/SmallButton";
 
 export const SsafyMain = () => {
-  const navigate = useNavigate();
 
   return (
     <div className="w-full flex flex-col items-center p-4 min-h-screen">
@@ -22,29 +20,35 @@ export const SsafyMain = () => {
         
         {/* 블록 2 */}
         <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
-          <SmallButton 
+          <Link to="/ssafy/mydocs">
+           <SmallButton 
             imageSrc={SsafyLoginSVG.ssafy_myhome_icon} 
             subtitle="나의 싸피 문서함" 
             title="내 문서" 
-          />
+           />
+          </Link>
         </div>
         
         {/* 블록 3 */}
         <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
+        <Link to="/ssafy/forgery">
           <SmallButton 
             imageSrc={SsafyLoginSVG.ssafy_forgery_icon} 
             subtitle="블록체인 기술로 위변조 검사" 
             title="위변조 검사" 
           />
+          </Link>
         </div>
         
         {/* 블록 4 */}
         <div className="aspect-square flex items-center justify-center rounded-lg shadow-sm">
+        <Link to="/ssafy/docs">
           <SmallButton 
             imageSrc={SsafyLoginSVG.ssafy_docs_icon} 
             subtitle="빠르고 쉽게 문서 작성" 
             title="문서 작성" 
           />
+          </Link>
         </div>
       </div>
       
