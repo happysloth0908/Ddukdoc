@@ -1,7 +1,7 @@
-import BigButton from './BigButton';
+import BigButton from './mainChildren/BigButton';
 import Login from '@/assets/images/login';
 import MainPage from '@/assets/images/mainPage';
-import SmallButton from './SmallButton';
+import SmallButton from './mainChildren/SmallButton';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useEffect } from 'react';
