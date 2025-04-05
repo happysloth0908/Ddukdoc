@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import atoms from '@/components/atoms';
 import DocSelectCard from '@/components/atoms/ssafy/buttons/DocSelectCard';
-import DefaultIcons from '@/assets/images/default';
 import { ssafyIcons } from '@/assets/images/ssafy'
 
 export const DocsChoose = ({

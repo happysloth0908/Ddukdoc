@@ -1,4 +1,3 @@
-import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import DocSelectCard from '@/components/atoms/ssafy/buttons/DocSelectCard';
 
