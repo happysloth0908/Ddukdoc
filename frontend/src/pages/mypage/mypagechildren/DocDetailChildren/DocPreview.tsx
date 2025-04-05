@@ -38,7 +38,6 @@ const DocPreview = () => {
     try {
       const response = await apiClient.get(`/api/docs/${id}/download`, {
         headers: {
-          'X-DEV-USER': '1',
           Accept: 'application/pdf',
         },
         responseType: 'blob',
