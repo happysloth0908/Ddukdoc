@@ -7,12 +7,12 @@ export const SsafyLoginPage = ({
   onSsafyLoginClick: () => void;
 }) => {
   return (
-    <div className="relative flex grid w-full flex-1 grid-rows-3 flex-col items-center justify-center">
+    <div className="absolute inset-0 flex flex-col items-center justify-evenly mx-8">
       <div className="flex justify-center">
-        <img src={SsafyLoginSVG.ssafy_title}></img>
+        <img src={SsafyLoginSVG.ssafy_title} alt="똑딱똑 Doc" />
       </div>
-      <div className="flex justify-center py-20">
-        <img src={SsafyLoginSVG.ssafy_logo}></img>
+      <div className="flex justify-center">
+        <img src={SsafyLoginSVG.ssafy_logo} alt="SSAFY 로고" />
       </div>
       <div className="flex w-full justify-center">
         <SsafyLoginButton onSsafyLoginClick={onSsafyLoginClick} />
