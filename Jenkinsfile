@@ -254,6 +254,7 @@ pipeline {
                 script {
                     try {
                         try {
+//                            그냥 항상 운영환경에서만 배포되도록 설정
                             sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
                             sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate blockchain-api"
                         } catch (Exception e) {
