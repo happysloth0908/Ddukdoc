@@ -10,7 +10,6 @@ const SignPage = ({ role }: { role: number }) => {
       <SignBox
         next={`/mypage/detail/${id}/check`}
         role={role === 2 ? '채권자' : '채무자'}
-        isReciever={true}
       />
     </div>
   );

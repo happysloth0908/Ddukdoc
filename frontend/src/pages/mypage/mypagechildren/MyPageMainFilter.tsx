@@ -52,11 +52,12 @@ const MyPageMainFilter = ({
     initialValues.createdAt || ''
   );
 
-  // 날짜를 ISO 8601 형식으로 변환하는 함수
+  // 날짜를 LocalDateTime 형식으로 변환하는 함수
   const formatDateToISO = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toISOString();
+    // LocalDateTime 형식으로 변환 (YYYY-MM-DDTHH:mm:ss)
+    return date.toISOString().split('.')[0];
   };
 
   // 바텀시트 닫힐 때 필터 상태 초기화

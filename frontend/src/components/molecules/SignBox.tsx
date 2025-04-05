@@ -3,15 +3,15 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ShortButton from '../atoms/buttons/ShortButton';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
-import { useIOUDocsStore } from '@/store/docs';
+import { useIOUDocsStore, useS1Data } from '@/store/docs';
 
 interface SignBoxProps {
   next: string;
-  role: string;
-  isReciever?: boolean;
+  role?: string;
+  isSsafy?: boolean;
 }
 
-export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
+export const SignBox: React.FC<SignBoxProps> = ({ next, role, isSsafy }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
@@ -19,6 +19,10 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
   const setSignature = useIOUDocsStore((state) =>
     role === '채권자' ? state.setCreditorSignature : state.setDebtorSignature
   );
+
+  const setS1Signature = useS1Data((state) => 
+    state.setSignature  
+  )
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -177,7 +181,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
   const saveSignature = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
+    
     // 가로 모드일 때 90도 회전하여 저장
     let signatureData;
     if (isRotated) {
@@ -186,21 +190,21 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
       rotatedCanvas.height = canvas.width;
       const ctx = rotatedCanvas.getContext('2d');
       if (ctx) {
-        ctx.translate(rotatedCanvas.width, 0);
-        ctx.rotate(Math.PI / 2);
+        ctx.translate(0, rotatedCanvas.height);
+        ctx.rotate(-Math.PI / 2);
         ctx.drawImage(canvas, 0, 0);
       }
       signatureData = rotatedCanvas.toDataURL('image/png');
     } else {
       signatureData = canvas.toDataURL('image/png');
     }
-
-    setSignature(signatureData); // Zustand에 저장
-    if (isReciever) {
-      navigate(next);
+    
+    if (isSsafy){
+      setS1Signature(signatureData);
     } else {
-      navigate(next, { state: { from: currentPath } });
+      setSignature(signatureData); // Zustand에 저장
     }
+    navigate(next, { state: { from: currentPath } });
   };
 
   const renderCanvas = () => (

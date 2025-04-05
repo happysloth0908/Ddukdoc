@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import iouData from '@/types/iou';
+import s1Data from '@/types/s1';
 
+
+// 차용증
 interface ioudocsStore {
   data: iouData;
   setData: (newData: Partial<iouData>) => void;
@@ -48,3 +51,29 @@ export const useIOUDocsStore = create<ioudocsStore>((set) => ({
   recipientRoleId: -1,
   setRecipientRoleId: (recipientRoleId) => set({ recipientRoleId }),
 }));
+
+
+// 노트북 반출 확인서
+interface s1 {
+  data: s1Data;
+  setData: (newData: Partial<s1Data>) => void;
+  signature: string;
+  setSignature: (signature: string) => void;
+}
+
+export const useS1Data = create<s1>((set) => ({
+  data: {
+    export_date: '',
+    return_due_date: '',
+    location: '',
+    student_id: '',
+    contact_number: '',
+    applicant_name: '',
+  },
+  setData: (newData) =>
+    set((state) => ({
+      data: { ...state.data, ...newData },
+    })),
+  signature: '',
+  setSignature: (signature) => set({ signature }),
+}))
