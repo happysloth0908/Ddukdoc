@@ -30,9 +30,11 @@ pipeline {
 
                     env.FRONTEND_CHANGES = changedFiles.contains('frontend/') ? 'true' : 'false'
                     env.BACKEND_CHANGES = changedFiles.contains('backend/') ? 'true' : 'false'
+                    env.BLOCKCHAIN_CHANGES = changedFiles.contains('blockchain-api/') ? 'true' : 'false'
 
                     echo "Frontend 변경 여부: ${env.FRONTEND_CHANGES}"
                     echo "Backend 변경 여부: ${env.BACKEND_CHANGES}"
+                    echo "Blockchain API 변경 여부: ${env.BLOCKCHAIN_CHANGES}"
                 }
             }
         }
@@ -252,6 +254,7 @@ pipeline {
                 script {
                     try {
                         try {
+//                            그냥 항상 운영환경에서만 배포되도록 설정
                             sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
                             sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate blockchain-api"
                         } catch (Exception e) {
