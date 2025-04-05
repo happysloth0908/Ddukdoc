@@ -17,7 +17,7 @@ export const DocsRoleChoose = ({
 
   return (
     <div className="flex h-full flex-col gap-y-6">
-      <div className="mt-28 flex flex-1 flex-col gap-y-6">
+      <div className="flex flex-1 justify-center flex-col gap-y-6">
         <p className="text-info-large font-bold">
           어느 입장에서 문서를
           <br />
