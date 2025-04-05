@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.domain.contract.service;
 
-import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.dto.request.RecipientInfoRequestDto;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
@@ -224,7 +223,7 @@ public class ContractService {
         // 4. 서명 파일 저장
         saveSignature(document, userId, signatureFile);
 
-        // 서명 맵 생성
+        // 5. 서명 맵 생성
         Map<Integer, byte[]> signatures = signatureRepository.findAllByDocumentId(documentId).stream()
             .collect(Collectors.toMap(
                 signature -> {
@@ -247,22 +246,22 @@ public class ContractService {
 
 
         // 6. 문서 PDF 생성
-        byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
+        Map<String, Object> result = pdfGeneratorUtil.generatePdfNoData(
                 TemplateCode.fromString(document.getTemplate().getCode()),
                 savedFieldValues,
                 signatures
         );
 
+        byte[] pdfData = (byte[])result.get("pdfData");
+        String docName = (String)result.get("docName");
+
         // 7. 문서 해시 생성 및 블록체인 저장
-        BlockchainSaveResult resultDto = blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()));
+        blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()),docName);
 
-        // 8. 문서 S3에 저장
-        byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,resultDto);
+        // 8. 암호화된 PDF S3 저장
+        String pdfPath = saveEncryptedPdf(pdfData, document);
 
-        // 9. 암호화된 PDF 저장
-        String pdfPath = saveEncryptedPdf(pdfWithHash, document);
-
-        // 10. 문서 상태 변경
+        //9. 문서 상태 변경
         updateDocumentStatus(document, pdfPath);
 
     }

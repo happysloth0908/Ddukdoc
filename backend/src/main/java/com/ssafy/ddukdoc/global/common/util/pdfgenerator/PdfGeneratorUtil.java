@@ -5,7 +5,6 @@ import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.layout.Document;
-import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.util.HashUtil;
@@ -13,18 +12,16 @@ import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -113,7 +110,7 @@ public class PdfGeneratorUtil {
      * @param signatures   역할 ID별 서명 이미지 맵
      * @return 생성된 PDF와 해시값을 포함한 결과 객체
      */
-    public byte[] generatePdfNoData(TemplateCode templateCode,
+    public Map<String,Object> generatePdfNoData(TemplateCode templateCode,
                                     List<DocumentFieldDto> fieldValues,
                                     Map<Integer, byte[]> signatures) {
         try {
@@ -121,14 +118,21 @@ public class PdfGeneratorUtil {
             ByteArrayOutputStream pdfStream = generatePdf(templateCode, fieldValues, signatures, null);
             byte[] pdfData = pdfStream.toByteArray();
 
-            return pdfData;
+            Map<String,Object> result = new HashMap<>();
+            String docName = generateUniqueDocName(templateCode);
+
+            result.put("pdfData",addPdfMetadata(pdfData,docName));
+            result.put("docName",docName);
+
+            //metadata에 docName 추가 후 전달
+            return result;
 
         } catch (IOException e) {
             throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "Metadata addition failed", e.getMessage());
         }
     }
 
-    public byte[] addPdfMetadata(byte[] pdfData, BlockchainSaveResult saveResponse) {
+    public byte[] addPdfMetadata(byte[] pdfData,String docName) {
         // PDF 메타데이터에 해시값 추가
         try (PdfReader reader = new PdfReader(new ByteArrayInputStream(pdfData));
              ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
@@ -138,8 +142,7 @@ public class PdfGeneratorUtil {
 
             // 메타데이터에 해시값 추가
             PdfDocumentInfo info = pdfDocument.getDocumentInfo();
-            info.setMoreInfo("TransactionId", saveResponse.getTransactionHash());
-            info.setMoreInfo("docName", saveResponse.getDocumentName());
+            info.setMoreInfo("docName", docName);
 
             pdfDocument.close();
 
@@ -149,22 +152,17 @@ public class PdfGeneratorUtil {
         }
     }
 
-    public byte[] deletePdfMetadataWithPDFBox(byte[] pdfData) {
-        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(pdfData));
-             ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
-
-            PDDocumentInformation info = document.getDocumentInformation();
-            COSDictionary cosDict = info.getCOSObject();
-
-            // "docName"과 "TransactionId" 메타데이터 삭제
-            cosDict.removeItem(COSName.getPDFName("docName"));
-            cosDict.removeItem(COSName.getPDFName("TransactionId"));
-
-            document.save(modifiedPdfStream);
-            return modifiedPdfStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("PDF metadata deletion failed", e);
-        }
+    /**
+     * 유니크한 문서 이름을 생성합니다.
+     *
+     * @param templateCode 템플릿 코드
+     * @return 유니크한 문서 이름
+     */
+    private String generateUniqueDocName(TemplateCode templateCode) {
+        // UUID + 템플릿 코드 + 타임스탬프 조합으로 유니크한 이름 생성
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        return templateCode.name() + "_" + uuid + "_" + timestamp;
     }
 
 }

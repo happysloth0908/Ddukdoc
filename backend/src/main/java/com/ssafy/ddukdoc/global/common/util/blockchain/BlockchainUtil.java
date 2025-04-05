@@ -148,14 +148,11 @@ public class BlockchainUtil {
         return null;
     }
 
-    public BlockchainSaveResult saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode) {
+    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode,String docName) {
         try {
             String hash = hashUtil.generateSHA256Hash(pdfData);
             String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
 
-            // 문서 이름 생성
-            String docName = generateUniqueDocName(templateCode);
-            log.info("문서 이름 : {}", docName);
             // 서명 생성
             String signature = signatureUtil.createSignature(requestor, docName, "", docHashWithPrefix, privateKey);
 
@@ -167,9 +164,6 @@ public class BlockchainUtil {
             // 블록체인 트랜잭션 ID 추출
             String transactionHash = (String) blockchainResponse.get("transactionHash");
 
-//            log.info("문서 이름 가져오자 : {}, {} ",docName,getDocumentByName(docName));
-
-            return new BlockchainSaveResult(pdfData, transactionHash, docHashWithPrefix, docName, blockchainResponse);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, "reason", e.getMessage());
         }
@@ -217,16 +211,5 @@ public class BlockchainUtil {
         }
     }
 
-    /**
-     * 유니크한 문서 이름을 생성합니다.
-     *
-     * @param templateCode 템플릿 코드
-     * @return 유니크한 문서 이름
-     */
-    private String generateUniqueDocName(TemplateCode templateCode) {
-        // UUID + 템플릿 코드 + 타임스탬프 조합으로 유니크한 이름 생성
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
-        String timestamp = String.valueOf(System.currentTimeMillis());
-        return templateCode.name() + "_" + uuid + "_" + timestamp;
-    }
+
 }

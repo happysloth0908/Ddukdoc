@@ -25,6 +25,7 @@ public class VerificationService {
     private final BlockchainUtil blockchainUtil;
     private final PdfGeneratorUtil pdfGeneratorUtil;
     private final HashUtil hashUtil;
+    private final PdfGeneratorUtil pdfGeneratorUtil;
 
     public void documentVerification(MultipartFile pdfFile) {
 
@@ -47,10 +48,7 @@ public class VerificationService {
             byte[] deleteContent = pdfGeneratorUtil.deletePdfMetadataWithPDFBox(pdfFile.getBytes());
 
 
-            // PDF Meta data로 hash 생성
-            String pdfHash = "0x" + hashUtil.generateSHA256Hash(deleteContent);
-            log.info("원본 Hash {}, 제거한 Hash {}", blockchainResponseDto.getDocHash(), pdfHash);
-
+            String pdfHash = "0x"+hashUtil.generateSHA256Hash(pdfFile.getBytes());
             // 블록체인 Hash값과 PDF Hash 비교
             if (!pdfHash.equals(blockchainResponseDto.getDocHash())) {
                 throw new CustomException(ErrorCode.VALIDATION_NOT_MATCH, "docName", docName);

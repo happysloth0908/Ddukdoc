@@ -10,4 +10,5 @@ import java.util.List;
 public interface TemplateFieldRepository extends JpaRepository<TemplateField, Integer> {
     List<TemplateField> findByTemplateIdOrderByDisplayOrderAsc(int templateId);
 
+    TemplateField findTemplateIdById(Integer fieldId);
 }
