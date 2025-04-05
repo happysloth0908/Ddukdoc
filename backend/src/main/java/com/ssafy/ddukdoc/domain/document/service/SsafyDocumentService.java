@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.domain.document.service;
 
-import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
@@ -162,26 +161,26 @@ public class SsafyDocumentService {
 
 
         // 4. 업데이트 된 내용으로 PDF 생성 및 저장
-        byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
+        Map<String, Object> result = pdfGeneratorUtil.generatePdfNoData(
                 TemplateCode.fromString(document.getTemplate().getCode()),
                 updateRequestDto.getData(),
                 signature
         );
 
 
-        // 5. 문서 Hash 생성 및 블록체인 저장
-        BlockchainSaveResult blockChainResultDto = blockchainUtil.saveDocumentInBlockchain(pdfData, TemplateCode.fromString(document.getTemplate().getCode()));
+        byte[] pdfData = (byte[])result.get("pdfData");
+        String docName = (String)result.get("docName");
 
-        // 6. 문서 Meta data추가
-        byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,blockChainResultDto);
+        // 5. 문서 해시 생성 및 블록체인 저장
+        blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()),docName);
 
-        // 8. 암호화된 PDF 저장
-        String newPdfPath = saveEncryptedPdf(pdfWithHash, document);
+        // 6. 암호화된 PDF S3 저장
+        String newPdfPath = saveEncryptedPdf(pdfData, document);
         
-        // 9. S3에서 기존 PDF 삭제
+        // 7. S3에서 기존 PDF 삭제
         s3Util.deleteFileFromS3(document.getFilePath());
 
-        // 10. Document FilePath 업데이트
+        // 8. Document FilePath 업데이트
         document.updateFilePath(newPdfPath);
     }
 
