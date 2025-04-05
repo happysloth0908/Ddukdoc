@@ -131,7 +131,7 @@ export const Documents = ({ templateCode }: { templateCode: string }) => {
           <ol start={3} className="ml-6 list-decimal">
             <li className="mb-4">
               채무자는 원금 및 이자의 변제를 지체할 경우, 연{' '}
-              {data.late_interest_rate || '_____'}%의 이자율에 의한 지연
+              {data.late_interest_rate || (data.late_interest_rate == 0 ? '0' : '_____')}%의 이자율에 의한 지연
               손해금을 가산하여 지불하여 한다.
             </li>
 
@@ -140,7 +140,7 @@ export const Documents = ({ templateCode }: { templateCode: string }) => {
               상실하며, 채무자는 잔존 채무금 전액을 즉시 변제한다.
               <br />
               <p className="ml-4">
-                a. 이자의 지급을 {data.loss_of_benefit_conditions || '_____'}회
+                a. 이자의 지급을 {data.loss_of_benefit_conditions || (data.loss_of_benefit_conditions == 0 ? '0' : '_____')}회
                 이상 연체한 경우
                 <br />
                 b. 채무자가 타 채권자로부터 가압류 또는 압류통지를 받았거나

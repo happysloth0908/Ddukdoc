@@ -58,7 +58,7 @@ export const DocsWriteMoney = ({
     principal_amount_numeric: data.principal_amount_numeric?.toString() || '',
   });
 
-  const [koreanAmount, setKoreanAmount] = useState('');
+  const [koreanAmount, setKoreanAmount] = useState(data.principal_amount_text || '');
   const [errorStatus, setErrorStatus] = useState({
     loan_purpose: '',
     loan_date: '',
@@ -84,7 +84,7 @@ export const DocsWriteMoney = ({
     }
 
     if (name === 'principal_amount_numeric') {
-      if (!/^\d{1,12}$/.test(value) || value == null) {
+      if (!/^\d{1,12}$/.test(value) || value == "0") {
         errorMsg = '숫자만 입력 가능하며, 최대 12자리까지입니다.';
         setKoreanAmount('');
       } else {
