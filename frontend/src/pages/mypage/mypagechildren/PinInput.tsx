@@ -22,7 +22,7 @@ const PinInput = () => {
       if (response.data.success) {
         setPin('');
         setError(false);
-        navigate('');
+        navigate(`/mypage/detail/${id}`, { replace: true });
       }
     } catch {
       setShake(true);

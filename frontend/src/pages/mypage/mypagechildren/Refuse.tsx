@@ -28,7 +28,11 @@ const Refuse = () => {
       <div>
         <p>반송 사유</p>
       </div>
-      <Textarea value={content} onChange={(e) => setContent(e.target.value)} />
+      <Textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="반송 사유를 입력해주세요요"
+      />
       <LongButton children={'반송'} colorType={'warning'} onClick={refuse} />
     </div>
   );

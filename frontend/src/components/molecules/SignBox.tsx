@@ -1,10 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ShortButton from '../atoms/buttons/ShortButton';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
 import { useIOUDocsStore } from '@/store/docs';
-import { sendReceiveData } from '@/apis/mypage';
 
 interface SignBoxProps {
   next: string;
@@ -16,8 +15,6 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
-  const { data } = useIOUDocsStore();
-  const { id } = useParams();
 
   const setSignature = useIOUDocsStore((state) =>
     role === '채권자' ? state.setCreditorSignature : state.setDebtorSignature
@@ -180,65 +177,27 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
   const saveSignature = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const signatureData = canvas.toDataURL('image/png'); // PNG 데이터로 변환
+
+    // 가로 모드일 때 90도 회전하여 저장
+    let signatureData;
+    if (isRotated) {
+      const rotatedCanvas = document.createElement('canvas');
+      rotatedCanvas.width = canvas.height;
+      rotatedCanvas.height = canvas.width;
+      const ctx = rotatedCanvas.getContext('2d');
+      if (ctx) {
+        ctx.translate(rotatedCanvas.width, 0);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(canvas, 0, 0);
+      }
+      signatureData = rotatedCanvas.toDataURL('image/png');
+    } else {
+      signatureData = canvas.toDataURL('image/png');
+    }
+
     setSignature(signatureData); // Zustand에 저장
     if (isReciever) {
-      const recieverData = {
-        role_id: role === '채권자' ? 2 : 3,
-        data:
-          role === '채권자'
-            ? [
-                {
-                  field_id: 14,
-                  name: 'creditor_name',
-                  field_value: data.creditor_name,
-                },
-                {
-                  field_id: 15,
-                  name: 'creditor_address',
-                  field_value: data.creditor_address,
-                },
-                {
-                  field_id: 16,
-                  name: 'creditor_contact',
-                  field_value: data.creditor_contact,
-                },
-                {
-                  field_id: 17,
-                  name: 'creditor_id',
-                  field_value: data.creditor_id,
-                },
-              ]
-            : [
-                {
-                  field_id: 18,
-                  name: 'debtor_name',
-                  field_value: data.debtor_name,
-                },
-                {
-                  field_id: 19,
-                  name: 'debtor_address',
-                  field_value: data.debtor_address,
-                },
-                {
-                  field_id: 20,
-                  name: 'debtor_contact',
-                  field_value: data.debtor_contact,
-                },
-                {
-                  field_id: 21,
-                  name: 'debtor_id',
-                  field_value: data.debtor_id,
-                },
-              ],
-      };
-      const response = await sendReceiveData(
-        parseInt(id || '0'),
-        recieverData,
-        signatureData
-      );
-      console.log(response);
-      navigate(`/mypage/detail/${id}/blockchain`);
+      navigate(next);
     } else {
       navigate(next, { state: { from: currentPath } });
     }
@@ -256,68 +215,72 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
     </div>
   );
 
-  return isRotated ? (
-    // 가로 모드 레이아웃
-    <div className="flex h-full w-full flex-col items-center justify-between px-2 py-4">
-      {renderCanvas()}
-      <div className="flex h-1/4 w-full flex-col items-start justify-center">
-        <div className="flex rotate-90 flex-col">
-          <ShortButton
-            children={'다시 입력'}
-            colorType={'primary'}
-            className={'mb-2 text-text-default'}
-            onClick={clearCanvas}
-          />
-          <ShortButton
-            children={'서명 완료'}
-            colorType={'black'}
-            className={'text-gray-white'}
-            onClick={saveSignature}
-          />
-          <div
-            onClick={handleRotate}
-            className="mt-5 cursor-pointer justify-center text-center text-xs font-medium text-zinc-600 underline"
-          >
-            서명이 불편하신가요? 화면 돌리기
+  return (
+    <>
+      {isRotated ? (
+        // 가로 모드 레이아웃
+        <div className="flex h-full w-full flex-col items-center justify-between px-2 py-4">
+          {renderCanvas()}
+          <div className="flex h-1/4 w-full flex-col items-start justify-center">
+            <div className="flex rotate-90 flex-col">
+              <ShortButton
+                children={'다시 입력'}
+                colorType={'primary'}
+                className={'mb-2 text-text-default'}
+                onClick={clearCanvas}
+              />
+              <ShortButton
+                children={'서명 완료'}
+                colorType={'black'}
+                className={'text-gray-white'}
+                onClick={saveSignature}
+              />
+              <div
+                onClick={handleRotate}
+                className="mt-5 cursor-pointer justify-center text-center text-xs font-medium text-zinc-600 underline"
+              >
+                서명이 불편하신가요? 화면 돌리기
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  ) : (
-    // 세로 모드 레이아웃
-    <div className="flex h-full w-full flex-col items-center justify-between px-2">
-      <div className="mt-3 w-full">
-        <DocsDescription
-          title={'서명을 해주세요'}
-          subTitle={''}
-          description={'거의 다 왔어요!'}
-        />
-      </div>
-      <div className="flex h-2/5 w-full flex-col">
-        {renderCanvas()}
-        <div className="flex justify-end">
-          <ShortButton
-            children={'다시 입력'}
-            colorType={'primary'}
-            className={'mx-0 mt-2 w-1/3 text-text-default'}
-            onClick={clearCanvas}
-          />
+      ) : (
+        // 세로 모드 레이아웃
+        <div className="flex h-full w-full flex-col items-center justify-between px-2">
+          <div className="mt-3 w-full">
+            <DocsDescription
+              title={'서명을 해주세요'}
+              subTitle={''}
+              description={'거의 다 왔어요!'}
+            />
+          </div>
+          <div className="flex h-2/5 w-full flex-col">
+            {renderCanvas()}
+            <div className="flex justify-end">
+              <ShortButton
+                children={'다시 입력'}
+                colorType={'primary'}
+                className={'mx-0 mt-2 w-1/3 text-text-default'}
+                onClick={clearCanvas}
+              />
+            </div>
+          </div>
+          <div className="mb-20 w-full">
+            <LongButton
+              children={'서명 완료'}
+              colorType={'black'}
+              className={'mx-0 text-gray-white'}
+              onClick={saveSignature}
+            />
+            <div
+              onClick={handleRotate}
+              className="mt-2 cursor-pointer justify-center text-center text-md font-medium text-text-description underline"
+            >
+              서명이 불편하신가요? 화면 돌리기
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="mb-20 w-full">
-        <LongButton
-          children={'서명 완료'}
-          colorType={'black'}
-          className={'mx-0 text-gray-white'}
-          onClick={saveSignature}
-        />
-        <div
-          onClick={handleRotate}
-          className="mt-2 cursor-pointer justify-center text-center text-md font-medium text-text-description underline"
-        >
-          서명이 불편하신가요? 화면 돌리기
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };

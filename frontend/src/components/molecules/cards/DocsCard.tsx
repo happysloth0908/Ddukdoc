@@ -44,7 +44,9 @@ export const DocsCard = ({ data, calls, onDelete }: DocsCardProps) => {
         <div className="text-xs text-[#5355353]">
           {calls === '수신'
             ? `발송인 : ${data.creator_name}`
-            : `수신인 : ${data.recipient_name}`}
+            : data.recipient_name === null
+              ? '수신대기중'
+              : `수신인 : ${data.recipient_name}`}
         </div>
         <div className="text-s text-[#828282]">작성일 | {formattedDate}</div>
         <div className="flex gap-x-1">
