@@ -3,16 +3,17 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import ShortButton from '../atoms/buttons/ShortButton';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
-import { useIOUDocsStore } from '@/store/docs';
+import { useIOUDocsStore, useS1Data } from '@/store/docs';
 import { sendReceiveData } from '@/apis/mypage';
 
 interface SignBoxProps {
   next: string;
-  role: string;
+  role?: string;
   isReciever?: boolean;
+  isSsafy?: boolean;
 }
 
-export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
+export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever, isSsafy }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
@@ -22,6 +23,10 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
   const setSignature = useIOUDocsStore((state) =>
     role === '채권자' ? state.setCreditorSignature : state.setDebtorSignature
   );
+
+  const setS1Signature = useS1Data((state) => 
+    state.setSignature  
+  )
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -181,66 +186,71 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isReciever }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const signatureData = canvas.toDataURL('image/png'); // PNG 데이터로 변환
-    setSignature(signatureData); // Zustand에 저장
-    if (isReciever) {
-      const recieverData = {
-        role_id: role === '채권자' ? 2 : 3,
-        data:
-          role === '채권자'
-            ? [
-                {
-                  field_id: 14,
-                  name: 'creditor_name',
-                  field_value: data.creditor_name,
-                },
-                {
-                  field_id: 15,
-                  name: 'creditor_address',
-                  field_value: data.creditor_address,
-                },
-                {
-                  field_id: 16,
-                  name: 'creditor_contact',
-                  field_value: data.creditor_contact,
-                },
-                {
-                  field_id: 17,
-                  name: 'creditor_id',
-                  field_value: data.creditor_id,
-                },
-              ]
-            : [
-                {
-                  field_id: 18,
-                  name: 'debtor_name',
-                  field_value: data.debtor_name,
-                },
-                {
-                  field_id: 19,
-                  name: 'debtor_address',
-                  field_value: data.debtor_address,
-                },
-                {
-                  field_id: 20,
-                  name: 'debtor_contact',
-                  field_value: data.debtor_contact,
-                },
-                {
-                  field_id: 21,
-                  name: 'debtor_id',
-                  field_value: data.debtor_id,
-                },
-              ],
-      };
-      const response = await sendReceiveData(
-        parseInt(id || '0'),
-        recieverData,
-        signatureData
-      );
-      console.log(response);
-      navigate(`/mypage/detail/${id}/blockchain`);
-    } else {
+    if (isSsafy){
+      setS1Signature(signatureData);
       navigate(next, { state: { from: currentPath } });
+    } else {
+      setSignature(signatureData); // Zustand에 저장
+      if (isReciever) {
+        const recieverData = {
+          role_id: role === '채권자' ? 2 : 3,
+          data:
+            role === '채권자'
+              ? [
+                  {
+                    field_id: 14,
+                    name: 'creditor_name',
+                    field_value: data.creditor_name,
+                  },
+                  {
+                    field_id: 15,
+                    name: 'creditor_address',
+                    field_value: data.creditor_address,
+                  },
+                  {
+                    field_id: 16,
+                    name: 'creditor_contact',
+                    field_value: data.creditor_contact,
+                  },
+                  {
+                    field_id: 17,
+                    name: 'creditor_id',
+                    field_value: data.creditor_id,
+                  },
+                ]
+              : [
+                  {
+                    field_id: 18,
+                    name: 'debtor_name',
+                    field_value: data.debtor_name,
+                  },
+                  {
+                    field_id: 19,
+                    name: 'debtor_address',
+                    field_value: data.debtor_address,
+                  },
+                  {
+                    field_id: 20,
+                    name: 'debtor_contact',
+                    field_value: data.debtor_contact,
+                  },
+                  {
+                    field_id: 21,
+                    name: 'debtor_id',
+                    field_value: data.debtor_id,
+                  },
+                ],
+        };
+        const response = await sendReceiveData(
+          parseInt(id || '0'),
+          recieverData,
+          signatureData
+        );
+        console.log(response);
+        navigate(`/mypage/detail/${id}/blockchain`);
+      } else {
+        navigate(next, { state: { from: currentPath } });
+      }
     }
   };
 
