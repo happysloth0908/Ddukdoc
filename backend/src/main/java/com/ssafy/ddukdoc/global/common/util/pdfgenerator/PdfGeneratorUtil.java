@@ -3,10 +3,7 @@ package com.ssafy.ddukdoc.global.common.util.pdfgenerator;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfDocumentInfo;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.layout.Document;
 import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
@@ -16,6 +13,10 @@ import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -145,6 +146,24 @@ public class PdfGeneratorUtil {
             return modifiedPdfStream.toByteArray();
         } catch (IOException e) {
             throw new CustomException(ErrorCode.PDF_GENERATION_ERROR, "Metadata addition failed", e.getMessage());
+        }
+    }
+
+    public byte[] deletePdfMetadataWithPDFBox(byte[] pdfData) {
+        try (PDDocument document = PDDocument.load(new ByteArrayInputStream(pdfData));
+             ByteArrayOutputStream modifiedPdfStream = new ByteArrayOutputStream()) {
+
+            PDDocumentInformation info = document.getDocumentInformation();
+            COSDictionary cosDict = info.getCOSObject();
+
+            // "docName"과 "TransactionId" 메타데이터 삭제
+            cosDict.removeItem(COSName.getPDFName("docName"));
+            cosDict.removeItem(COSName.getPDFName("TransactionId"));
+
+            document.save(modifiedPdfStream);
+            return modifiedPdfStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("PDF metadata deletion failed", e);
         }
     }
 
