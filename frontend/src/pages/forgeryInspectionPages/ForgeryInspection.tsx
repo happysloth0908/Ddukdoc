@@ -62,18 +62,40 @@ export const ForgeryInspection = () => {
       }
 
       navigate('result');
-    } catch (e) {
-      if (e instanceof AxiosError) {
-        setError(
-          e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
-        );
-      } else {
-        setError('알 수 없는 오류가 발생했습니다.');
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      // 400 에러는 정상 응답으로 처리하고 result 페이지로 이동
+      if (e.response?.status === 400) {
+        const waitingStartTime = Date.now();
+        forgeryTestResponceRef.current = e.response.data;
+        console.log('API 400 응답(가짜 문서):', e.response.data);
+        
+        // 최소 대기 시간 계산 (2초)
+        const elapsedTime = Date.now() - waitingStartTime;
+        const minWaitTime = 2000; // 2초
+
+        // 필요한 경우 추가 대기
+        if (elapsedTime < minWaitTime) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, minWaitTime - elapsedTime)
+          );
+        }
+        
+        navigate('result');
+        return;
       }
-      // 에러 발생 시 업로드 화면으로 돌아감
-      navigate('/');
+      
+      // 다른 에러는 처리
+      setError(
+        e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
+      );
+    } else {
+      setError('알 수 없는 오류가 발생했습니다.');
     }
-  };
+    // 에러 발생 시 업로드 화면으로 돌아감
+    navigate('/');
+  }
+};
 
   // 리셋 핸들러
   const handleReset = () => {
