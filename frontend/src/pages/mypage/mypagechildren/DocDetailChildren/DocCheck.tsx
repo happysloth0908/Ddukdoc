@@ -8,8 +8,6 @@ import { DocData, ApiResponse } from '@/types/mypage.ts';
 import { Documents } from '@/pdfs/Documents';
 import { useIOUDocsStore } from '@/store/docs';
 import { usePinStore } from '@/store/mypage';
-import { decodeJWT } from '@/utils/jwt';
-import { getCookie } from '@/utils/cookies';
 import { FolderPlus } from 'lucide-react';
 import atoms from '@/components/atoms';
 import { ArrowDownToLine } from 'lucide-react';
@@ -40,6 +38,7 @@ interface data {
     creator_role_id: number;
     recipient_role_id: number;
   };
+  recipient: boolean;
 }
 
 interface Field {
@@ -73,24 +72,18 @@ const DocCheck = () => {
     try {
       const response = await apiClient.get<apiResponse>(`/api/docs/${id}`);
 
+      console.log('Response headers:', response.headers);
+      console.log('Set-Cookie header:', response.headers['set-cookie']);
+
       console.log(response.data.data);
 
       setDocData(response.data.data.docs_info);
 
-      // 현재 사용자의 ID를 JWT 토큰에서 추출
-      const token = getCookie('access_token');
-
-      if (token) {
-        const decodedToken = decodeJWT(token);
-        const currentUserId = decodedToken?.sub;
-        setIsRecipient(
-          currentUserId === response.data.data.docs_info.recipient_id
-        );
-      }
-
       if (response.data.data.docs_info.status === '반송') {
         setIsRefused(true);
       }
+
+      setIsRecipient(response.data.data.recipient);
 
       // field 배열에서 필요한 정보 추출
       const fields = response.data.data.field;

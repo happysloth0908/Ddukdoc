@@ -190,8 +190,8 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isSsafy }) => {
       rotatedCanvas.height = canvas.width;
       const ctx = rotatedCanvas.getContext('2d');
       if (ctx) {
-        ctx.translate(rotatedCanvas.width, 0);
-        ctx.rotate(Math.PI / 2);
+        ctx.translate(0, rotatedCanvas.height);
+        ctx.rotate(-Math.PI / 2);
         ctx.drawImage(canvas, 0, 0);
       }
       signatureData = rotatedCanvas.toDataURL('image/png');
