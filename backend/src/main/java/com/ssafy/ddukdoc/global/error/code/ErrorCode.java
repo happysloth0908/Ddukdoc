@@ -18,6 +18,7 @@ public enum ErrorCode {
     //Contract
     TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "존재하지 않는 템플릿 코드입니다"),
     TEMPLATE_FIELD_NOT_FOUND(HttpStatus.NOT_FOUND,"T002","존재하지 않는 템플릿 필드 ID 입니다."),
+    TEMPLATE_NOT_MATCH(HttpStatus.NOT_FOUND,"T003","다른 문서의 필드 ID 입니다."),
 
     //Document
     DOCUMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "D001", "존재하지 않는 문서입니다"),
@@ -85,7 +86,11 @@ public enum ErrorCode {
 
     //Blockchain
     BLOCKCHAIN_SIGNATURE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"B001","블록체인 서명 생성 중 오류가 발생했습니다."),
-    BLOCKCHAIN_DOCUMENT_ERROR(HttpStatus.BAD_REQUEST,"B002","블록체인에 저장된 문서 조회 중 오류가 발생했습니다");
+    BLOCKCHAIN_DOCUMENT_ERROR(HttpStatus.BAD_REQUEST,"B002","블록체인에 저장된 문서 조회 중 오류가 발생했습니다"),
+
+    // Validation
+    VALDIATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "V001","위변조 검증 중 오류가 발생했습니다"),
+    VALIDATION_NOT_MATCH(HttpStatus.BAD_REQUEST, "V002","위조된 문서입니다");
 
     private final HttpStatus status;
     private final String code;

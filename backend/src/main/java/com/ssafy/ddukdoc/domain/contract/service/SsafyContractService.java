@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.domain.contract.service;
 
-import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.entity.Signature;
 import com.ssafy.ddukdoc.domain.contract.repository.SignatureRepository;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
@@ -37,6 +36,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,6 +86,11 @@ public class SsafyContractService {
         Template template = templateRepository.findByCode(templateCode.name())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode.name()));
 
+        // 보낸 필드값들의 템플릿 종류와 실제 저장할 템플릿 비교
+        if(!Objects.equals(template.getId(), templateFieldRepository.findTemplateIdById(requestDto.getData().get(0).getFieldId()).getTemplate().getId())){
+            throw new CustomException(ErrorCode.TEMPLATE_NOT_MATCH,"templateId",template.getId());
+        }
+
         //Document 엔티티 생성 및 저장
         Document document = requestDto.toEntity(user,template,templateCode);
         Document saveDocument = documentRepository.save(document);
@@ -105,21 +110,20 @@ public class SsafyContractService {
 
     private Integer saveDocumentNoSignature(Document document, Document saveDocument, DocumentSaveRequestDto requestDto, TemplateCode templateCode) {
         // 문서 pdf 생성
-        byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
+        Map<String,Object> result = pdfGeneratorUtil.generatePdfNoData(
                 templateCode,
                 requestDto.getData(),
                 null
         );
 
+        byte[] pdfData = (byte[])result.get("pdfData");
+        String docName = (String)result.get("docName");
+
         // 문서 해시 생성 및 블록체인 저장
-        BlockchainSaveResult resultDto = blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()));
+        blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()),docName);
 
-        // 문서 S3에 저장
-        byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,resultDto);
-
-
-        // 암호화된 PDF 저장
-        String pdfPath = saveEncryptedPdf(pdfWithHash, document);
+        // 암호화된 PDF S3 저장
+        String pdfPath = saveEncryptedPdf(pdfData, document);
 
         //문서 상태 변경
         updateDocumentStatus(document, pdfPath);
@@ -143,21 +147,20 @@ public class SsafyContractService {
             signature.put(requestDto.getRoleId(),signatureFile.getBytes());;
 
             // 문서 pdf 생성
-            byte[] pdfData = pdfGeneratorUtil.generatePdfNoData(
+            Map<String,Object> result = pdfGeneratorUtil.generatePdfNoData(
                     templateCode,
                     requestDto.getData(),
                     signature
             );
 
+            byte[] pdfData = (byte[])result.get("pdfData");
+            String docName = (String)result.get("docName");
+
             // 문서 해시 생성 및 블록체인 저장
-            BlockchainSaveResult resultDto = blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()));
+            blockchainUtil.saveDocumentInBlockchain(pdfData,TemplateCode.fromString(document.getTemplate().getCode()),docName);
 
-            // 문서 S3에 저장
-            byte[] pdfWithHash = pdfGeneratorUtil.addPdfMetadata(pdfData,resultDto);
-
-
-            // 암호화된 PDF 저장
-            String pdfPath = saveEncryptedPdf(pdfWithHash, document);
+            // 암호화된 PDF S3 저장
+            String pdfPath = saveEncryptedPdf(pdfData, document);
 
             //문서 상태 변경
             updateDocumentStatus(document, pdfPath);

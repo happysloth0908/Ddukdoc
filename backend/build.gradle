@@ -61,6 +61,8 @@ dependencies {
 	implementation 'com.itextpdf:layout:7.2.5'
 	implementation 'com.itextpdf:font-asian:7.2.5'  // 한글 지원을 위한 아시아 폰트 패키지
 
+	implementation 'org.apache.pdfbox:pdfbox:2.0.29'
+
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
 	// Web3j 의존성
