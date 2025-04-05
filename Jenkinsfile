@@ -60,7 +60,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        dir('blockchain-api') {
+                        dir('contracts') {
                             // 환경변수 파일 처리
                             withCredentials([file(credentialsId: 'blockchain-api-env', variable: 'BLOCKCHAIN_ENV')]) {
                                 sh '''

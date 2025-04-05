@@ -9,7 +9,7 @@ app.use(express.json());
 const web3 = new Web3(process.env.INFURA_URL);
 const contract = new web3.eth.Contract(abi, process.env.CONTRACT_ADDRESS);
 
-// 계정 확인 함수...
+// 계정 확인 함수....
 async function checkAccounts() {
   try {
     // 프라이빗 키로부터 계정 주소 복구
