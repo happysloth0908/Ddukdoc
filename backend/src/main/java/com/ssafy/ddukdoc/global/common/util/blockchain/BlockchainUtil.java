@@ -10,22 +10,25 @@ import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class BlockchainUtil {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String baseUrl = "https://sto.ssafy.io/v1/tokens/";
+    @Value("${blockchain.baseurl}")
+    private String baseUrl;
     @Value("${blockchain.contractAddress}")
     private String contractAddress;
 
@@ -61,37 +64,88 @@ public class BlockchainUtil {
         return response.getBody();
     }
 
-    /**
-     * 문서 이름으로 블록체인에서 문서 조회
-     *
-     * @param documentName 조회할 문서 이름
-     * @return 문서 정보 또는 null (문서가 없는 경우)
-     */
     public BlockchainDocumentResponseDto getDocumentByName(String documentName) {
-        String url = baseUrl + contractAddress + "/documents/"+ documentName;
+        String url = baseUrl + contractAddress + "/documents/" + documentName;
 
         log.debug("문서 조회 URL: {}", url);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        headers.set("Accept", "application/json");
-
-        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
         try {
-            ResponseEntity<BlockchainDocumentResponseDto> response = restTemplate.exchange(
+            ResponseEntity<Map> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
-                    requestEntity,
-                    BlockchainDocumentResponseDto.class
+                    null,
+                    Map.class
             );
 
-            log.debug("문서 조회 응답: {}", response.getBody());
-            return response.getBody();
+            Map<String, Object> body = response.getBody();
+
+            return BlockchainDocumentResponseDto.of(
+                    documentName,
+                    body.get("docUri") != null ? body.get("docUri").toString() : "",
+                    body.get("docHash") != null ? body.get("docHash").toString() : "",
+                    body.get("timestamp") != null ? body.get("timestamp").toString() : "0"
+            );
+
         } catch (Exception e) {
-            log.error("문서 조회 중 오류 발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR,"reason",e.getCause());
+            // 에러 처리 로직
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", e.getCause());
         }
+    }
+
+    public List<BlockchainDocumentResponseDto> getAllDocuments() {
+        String url = baseUrl + contractAddress + "/documents";
+
+        try {
+            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Map<String, Object>>>() {
+                    }
+            );
+
+            log.debug("전체 문서 응답: {}", response.getBody());
+
+            return response.getBody().stream()
+                    .map(doc -> {
+                        log.debug("개별 문서 데이터: {}", doc);
+
+                        // 로깅을 추가하여 키 값 확인
+                        log.debug("Doc keys: {}", doc.keySet());
+                        log.debug("Doc '0' value: {}", doc.get("0"));
+                        log.debug("Doc 'name' value: {}", doc.get("name"));
+
+                        // 키 조회 순서 변경
+                        String name = findStringValue(doc, new String[]{"0", "name"});
+                        String uri = findStringValue(doc, new String[]{"1", "uri", "docUri"});
+                        String hash = findStringValue(doc, new String[]{"2", "hash", "docHash"});
+
+                        return BlockchainDocumentResponseDto.of(
+                                name != null ? name : "UNKNOWN",
+                                uri != null ? uri : "",
+                                hash != null ? hash : ""
+                        );
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("문서 조회 중 오류 발생", e);
+            throw new CustomException(
+                    ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR,
+                    "문서 조회 중 오류 발생: " + e.getMessage(),
+                    e
+            );
+        }
+    }
+
+    // 다양한 키로 값을 찾는 헬퍼 메서드 추가
+    private String findStringValue(Map<String, Object> map, String[] keys) {
+        for (String key : keys) {
+            Object value = map.get(key);
+            if (value != null) {
+                return value.toString();
+            }
+        }
+        return null;
     }
 
     public BlockchainSaveResult saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode) {
@@ -101,7 +155,7 @@ public class BlockchainUtil {
 
             // 문서 이름 생성
             String docName = generateUniqueDocName(templateCode);
-
+            log.info("문서 이름 : {}", docName);
             // 서명 생성
             String signature = signatureUtil.createSignature(requestor, docName, "", docHashWithPrefix, privateKey);
 
@@ -120,6 +174,47 @@ public class BlockchainUtil {
             throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, "reason", e.getMessage());
         }
 
+    }
+
+    // 문서 삭제 메서드도 유사하게 수정
+    public boolean deleteDocument(String documentName) {
+        String url = baseUrl + contractAddress + "/documents/" + documentName;
+
+        try {
+            // 삭제를 위한 서명 생성
+            String signature = signatureUtil.createSignatureForDelete(requestor, documentName, privateKey);
+
+            // 삭제 요청 DTO 생성
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("requestor", requestor);
+            requestBody.put("signature", signature);
+
+            // HTTP 요청 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // 요청 엔티티 생성
+            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            // DELETE 요청 전송
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.DELETE,
+                    requestEntity,
+                    Map.class
+            );
+
+            // 응답 처리
+            log.info("문서 삭제 성공: {}", documentName);
+            return true;
+        } catch (Exception e) {
+            log.error("문서 삭제 중 오류 발생: {}", documentName, e);
+            throw new CustomException(
+                    ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR,
+                    "문서 삭제 중 오류 발생",
+                    e
+            );
+        }
     }
 
     /**
