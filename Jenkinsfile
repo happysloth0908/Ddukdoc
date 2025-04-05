@@ -51,6 +51,37 @@ pipeline {
             }
         }
 
+        stage('Blockchain API Build') {
+            when {
+                expression { return env.BLOCKCHAIN_CHANGES == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        dir('blockchain-api') {
+                            // 환경변수 파일 처리
+                            withCredentials([file(credentialsId: 'blockchain-api-env', variable: 'BLOCKCHAIN_ENV')]) {
+                                sh '''
+                            cp $BLOCKCHAIN_ENV .env
+                            ls -la .env
+                        '''
+                            }
+
+                            // Docker 이미지 빌드
+                            sh "docker build -t blockchain-api:latest ."
+
+                            // 이미지 생성 확인
+                            sh "docker images | grep blockchain-api || echo '이미지가 없습니다'"
+                        }
+                    } catch (Exception e) {
+                        env.FAILURE_STAGE = 'Blockchain API 빌드'
+                        env.FAILURE_MESSAGE = e.getMessage()
+                        throw e
+                    }
+                }
+            }
+        }
+
         stage('Backend Build') {
             when {
                 expression { return env.BACKEND_CHANGES == 'true' }
@@ -208,6 +239,40 @@ pipeline {
                         }
                     } catch (Exception e) {
                         echo "SonarQube Frontend 분석 중 오류가 발생했습니다: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Blockchain API') {
+            when {
+                expression { return env.BLOCKCHAIN_CHANGES == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        try {
+                            sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
+                            sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate blockchain-api"
+                        } catch (Exception e) {
+                            echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
+                            sh "docker rm -f blockchain-api || true"
+                            sh """
+                        docker run -d --name blockchain-api \
+                        --network app-network \
+                        -p 3000:3000 \
+                        -e NODE_ENV=production \
+                        --restart unless-stopped \
+                        blockchain-api:latest
+                    """
+                        }
+
+                        // 컨테이너 실행 상태 확인
+                        sh "docker ps | grep blockchain-api"
+                    } catch (Exception e) {
+                        env.FAILURE_STAGE = 'Blockchain API 배포'
+                        env.FAILURE_MESSAGE = e.getMessage()
+                        throw e
                     }
                 }
             }
