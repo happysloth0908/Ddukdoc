@@ -32,12 +32,13 @@ public class AuthController {
             @RequestParam String code,
             @Value("${app.domain.url}") String domainUrl
     ) {
-        LoginResult loginResult = oAuthService.handleOAuthLogin(Provider.valueOf(provider.toUpperCase()), code);
+        Provider socialProvider = Provider.valueOf(provider.toUpperCase());
+        LoginResult loginResult = oAuthService.handleOAuthLogin(socialProvider, code);
 
         ResponseCookie accessTokenCookie = CookieUtil.makeAccessTokenCookie(loginResult.getAccessToken());
         ResponseCookie refreshTokenCookie = CookieUtil.makeRefreshTokenCookie(loginResult.getRefreshToken());
 
-        return CommonResponse.redirectWithCookie(domainUrl, accessTokenCookie, refreshTokenCookie);
+        return CommonResponse.redirectWithCookie(socialProvider.getRedirectUri(domainUrl), accessTokenCookie, refreshTokenCookie);
     }
 
     @PostMapping("/refresh")
