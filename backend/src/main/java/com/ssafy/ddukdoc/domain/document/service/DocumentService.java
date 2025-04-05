@@ -81,7 +81,9 @@ public class DocumentService {
         UserRoleResponseDto userRoleInfo = extractUserRoleInfo(document);
         SignatureResponseDto signatureInfo = extractSignatureInfo(document);
 
-        return DocumentDetailResponseDto.of(document, fieldValues, signatureInfo, userRoleInfo);
+        boolean isRecipient = userId.equals(document.getRecipient().getId());
+
+        return DocumentDetailResponseDto.of(document, fieldValues, signatureInfo, userRoleInfo, isRecipient);
     }
 
     //문서 데이터 복호화
