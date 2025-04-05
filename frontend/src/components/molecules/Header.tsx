@@ -27,7 +27,7 @@ export const Header = () => {
       {!pathname.startsWith('/login') &&
         !(pathname === '/') &&
         !(pathname === '/ssafy') &&
-        !(pathname === '/ssafy/login/first') && (
+        !(pathname === '/ssafy/login') && (
           <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
             <ArrowLeft className="text-primary-300" onClick={onClick} />
             <span className="text-md"></span>
