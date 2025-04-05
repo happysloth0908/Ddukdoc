@@ -64,7 +64,9 @@ pipeline {
                             // 환경변수 파일 처리
                             withCredentials([file(credentialsId: 'blockchain-api-env', variable: 'BLOCKCHAIN_ENV')]) {
                                 sh '''
-                            cp $BLOCKCHAIN_ENV .env
+                            cp $BLOCKCHAIN_ENV .env.tmp
+                            ls -la .env.tmp
+                            mv -f .env.tmp .env
                             ls -la .env
                         '''
                             }
