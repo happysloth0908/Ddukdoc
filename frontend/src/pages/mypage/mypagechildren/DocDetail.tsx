@@ -4,7 +4,7 @@ import InfoInput from './DocDetailChildren/InfoInput';
 import iouData from '@/types/iou';
 import { useIOUDocsStore } from '@/store/docs';
 import SignPage from './DocDetailChildren/SignPage';
-import BlockChainPage from './DocDetailChildren/BlockChainPage';
+import FinalCheck from './DocDetailChildren/FinalCheck';
 
 const DocDetail = () => {
   const { setData, recipientRoleId } = useIOUDocsStore();
@@ -20,7 +20,7 @@ const DocDetail = () => {
         element={<InfoInput role={recipientRoleId} handleData={handleData} />}
       />
       <Route path="signature" element={<SignPage role={recipientRoleId} />} />
-      <Route path="blockchain" element={<BlockChainPage />} />
+      <Route path="check" element={<FinalCheck role={recipientRoleId} />} />
     </Routes>
   );
 };
