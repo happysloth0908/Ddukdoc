@@ -10,8 +10,8 @@ const SmallButton = ({ imageSrc, title, subtitle }: SmallButtonProps) => {
       <div className="absolute inset-0 rounded-xl bg-white"></div>
 
       <div className="relative flex h-full w-full flex-col items-center justify-center">
-        <div className="mb-4">
-          <img className="h-16 object-cover" src={imageSrc} alt="User Icon" />
+        <div className="mb-4 w-16 ">
+          <img className="h-16 w-auto object-contain" src={imageSrc} alt="User Icon" />
         </div>
 
         <div className="mb-2 text-center text-xl font-extrabold">{title}</div>

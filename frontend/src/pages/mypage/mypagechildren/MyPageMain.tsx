@@ -146,11 +146,11 @@ const MyPageMain: React.FC = () => {
             keyword: effectiveParams.keyword,
           }),
           ...(effectiveParams.templateCode && {
-            doc_type: effectiveParams.templateCode,
+            templateCode: effectiveParams.templateCode,
           }),
           ...(effectiveParams.status && { status: effectiveParams.status }),
           ...(effectiveParams.createdAt && {
-            date: effectiveParams.createdAt,
+            createdAt: effectiveParams.createdAt,
           }),
         }).toString();
 
@@ -255,14 +255,15 @@ const MyPageMain: React.FC = () => {
     );
 
     // 등록
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
+    const currentRef = observerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     // 언마운트/업데이트 시 해제
     return () => {
-      if (observer && observerRef.current) {
-        observer.unobserve(observerRef.current);
+      if (observer && currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, [fetchDocs, currentPage, isLoading, isLastPage]);
