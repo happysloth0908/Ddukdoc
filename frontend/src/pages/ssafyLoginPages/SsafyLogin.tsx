@@ -1,63 +1,4 @@
-// import { Route, Routes } from 'react-router-dom';
-// import { SsafyLoginPage } from './ssafyLoginChildren/SsafyLoginPage';
-// import axios from 'axios';
-// import { useEffect, useRef, useState } from 'react';
-// // import { useSsafyMyStore } from '@/store/ssafyMyInfo';
 
-// export const SsafyLogin = () => {
-//   //   const setData = useSsafyMyStore((state) => state.setData);
-//   //   const navigate = useNavigate();
-//   const [htmlContent, setHtmlContent] = useState<string>('');
-//   const containerRef = useRef<HTMLDivElement>(null);
-
-//   useEffect(() => {
-//     if (htmlContent && containerRef.current) {
-//       containerRef.current.innerHTML = htmlContent;
-//     }
-//   }, [htmlContent]);
-
-//   const onSsafyLoginClick = async () => {
-//     try {
-//       const response = await fetch('/ssafy-api/oauth/sso-check');
-//       if (!response.ok) {
-//         throw new Error('Network response was not ok');
-//       }
-//       const htmlResponse = await response.text();
-//       setHtmlContent(htmlResponse);
-//     } catch (e) {
-//       if (axios.isAxiosError(e)) {
-//         console.log('axios 에러 발생', e.message);
-//       } else {
-//         console.log('일반 에러 발생', e);
-//       }
-//     }
-//   };
-//   return (
-//     <div>
-//       <Routes>
-//         <Route
-//           path="first"
-//           element={<SsafyLoginPage onSsafyLoginClick={onSsafyLoginClick} />}
-//         ></Route>
-//       </Routes>
-//       {htmlContent && (
-//         <div style={{ width: '100%', height: '600px', margin: '20px 0' }}>
-//           <iframe
-//             srcDoc={htmlContent}
-//             style={{
-//               width: '100%',
-//               height: '100%',
-//               border: '1px solid #ccc',
-//               display: 'block',
-//             }}
-//             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-//             title="SSAFY Login"
-//           />
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
 import { Route, Routes } from 'react-router-dom';
 import { SsafyLoginPage } from './ssafyLoginChildren/SsafyLoginPage';
 import { useEffect, useState } from 'react';
@@ -110,22 +51,18 @@ export const SsafyLogin = () => {
   }, []);
 
   const onSsafyLoginClick = (): void => {
-    // 새 창 열기
-    const loginWindow = window.open(
-      'https://project.ssafy.com/oauth/sso-check',
-      // 'https://ddukdoc.shop/api/oauth/ssafy/login',
-      'SSAFY Login',
-      'width=600,height=700,resizable=yes,scrollbars=yes,status=yes'
-    );
+    const VITE_SSAFY_CLIENT_ID = import.meta.env.VITE_SSAFY_CLIENT_ID;
+    const VITE_SSAFY_REDIRECT_URI = import.meta.env.VITE_SSAFY_REDIRECT_URI;
 
-    // 창 열기 실패 처리
-    if (!loginWindow) {
-      alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
-    }
+    // 새 창 열기
+    const ssafyLoginURL = 
+      `https://project.ssafy.com/oauth/sso-check?client_id=${VITE_SSAFY_CLIENT_ID}&redirect_uri=${VITE_SSAFY_REDIRECT_URI}&response_type=code`;
+      window.location.href = ssafyLoginURL;
+    
   };
 
   return (
-    <div>
+    <div> 
       <Routes>
         <Route
           path="/"
