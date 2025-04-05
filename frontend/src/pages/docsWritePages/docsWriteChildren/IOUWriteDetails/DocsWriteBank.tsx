@@ -39,6 +39,8 @@ export const DocsWriteBank = ({
         errorMsg = '필수 입력 항목입니다.';
       } else if (!/^\d*$/.test(value)) {
         errorMsg = '계좌번호는 숫자만 입력해주세요.';
+      } else if (value.length > 16) {
+        errorMsg = '16자리 이하로 작성해주세요.';
       }
     }
 
