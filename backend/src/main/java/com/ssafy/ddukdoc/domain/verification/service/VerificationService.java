@@ -3,7 +3,6 @@ package com.ssafy.ddukdoc.domain.verification.service;
 import com.ssafy.ddukdoc.domain.contract.dto.response.BlockchainDocumentResponseDto;
 import com.ssafy.ddukdoc.global.common.util.HashUtil;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
-import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ public class VerificationService {
 
     private final BlockchainUtil blockchainUtil;
     private final HashUtil hashUtil;
-    private final PdfGeneratorUtil pdfGeneratorUtil;
 
     public void documentVerification(MultipartFile pdfFile) {
 
@@ -42,7 +40,9 @@ public class VerificationService {
             // docName으로 블록체인 Hash값 조회
             BlockchainDocumentResponseDto blockchainResponseDto = blockchainUtil.getDocumentByName(docName);
 
+            // 받은 PDF로 Hash 생성
             String pdfHash = "0x"+hashUtil.generateSHA256Hash(pdfFile.getBytes());
+            
             // 블록체인 Hash값과 PDF Hash 비교
             if (!pdfHash.equals(blockchainResponseDto.getDocHash())) {
                 throw new CustomException(ErrorCode.VALIDATION_NOT_MATCH, "docName", docName);
