@@ -17,3 +17,20 @@ export const SsafyLoginSVG = {
   ssafy_forgery_icon,
   ssafy_myhome_icon
 };
+
+
+import changeIcon from './icons/change_icon.svg';
+import checklistIcon from './icons/checklist_icon.svg';
+import codeIcon from './icons/code_icon.svg';
+import laptopIcon from './icons/laptop_icon.svg';
+import likeIcon from './icons/like_icon.svg';
+import tickboxIcon from './icons/tickbox_icon.svg';
+
+export const ssafyIcons = {
+  changeIcon,
+  checklistIcon,
+  codeIcon,
+  laptopIcon,
+  likeIcon,
+  tickboxIcon,
+}
