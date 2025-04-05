@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.verification.service;
 import com.ssafy.ddukdoc.domain.contract.dto.response.BlockchainDocumentResponseDto;
 import com.ssafy.ddukdoc.global.common.util.HashUtil;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
+import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.io.IOException;
 public class VerificationService {
 
     private final BlockchainUtil blockchainUtil;
+    private final PdfGeneratorUtil pdfGeneratorUtil;
     private final HashUtil hashUtil;
 
     public void documentVerification(MultipartFile pdfFile) {
@@ -39,9 +41,15 @@ public class VerificationService {
 
             // docName으로 블록체인 Hash값 조회
             BlockchainDocumentResponseDto blockchainResponseDto = blockchainUtil.getDocumentByName(docName);
+            log.info("삭제하기 전 PDF hash {}",hashUtil.generateSHA256Hash(pdfFile.getBytes()));
+
+            // pdf 파일 메타데이터 삭제
+            byte[] deleteContent = pdfGeneratorUtil.deletePdfMetadataWithPDFBox(pdfFile.getBytes());
+
 
             // PDF Meta data로 hash 생성
-            String pdfHash = "0x" + hashUtil.generateSHA256Hash(pdfFile.getBytes());
+            String pdfHash = "0x" + hashUtil.generateSHA256Hash(deleteContent);
+            log.info("원본 Hash {}, 제거한 Hash {}", blockchainResponseDto.getDocHash(), pdfHash);
 
             // 블록체인 Hash값과 PDF Hash 비교
             if (!pdfHash.equals(blockchainResponseDto.getDocHash())) {
