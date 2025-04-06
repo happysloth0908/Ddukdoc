@@ -17,6 +17,13 @@ public class CustomException extends RuntimeException {
         this.parameters = new HashMap<>();
     }
 
+    public CustomException(ErrorCode errorCode, String message) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+        this.parameters = new HashMap<>();
+        this.parameters.put("message", message);
+    }
+
     public CustomException(ErrorCode errorCode, String paramName, Object paramValue) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
