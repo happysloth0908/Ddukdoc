@@ -10,8 +10,8 @@ public class SecurityConstants {
     private static String DOMAIN;
     private static Boolean IS_LOCAL = false;
 
-    public static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24 * 60 * 60; // 24시간
-    public static final long REFRESH_TOKEN_VALIDITY_SECONDS = 14 * 24 * 60 * 60; // 14일
+    public static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24L * 60 * 60; // 24시간
+    public static final long REFRESH_TOKEN_VALIDITY_SECONDS = 14L * 24 * 60 * 60; // 14일
 
     // 쿠키 이름 상수
     public static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
