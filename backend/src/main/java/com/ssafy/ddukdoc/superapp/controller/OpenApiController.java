@@ -28,9 +28,9 @@ public class OpenApiController {
     @PostMapping(value = "/register",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "파일 등록", description = "파일 메타데이터에 값을 추가하고 그 파일에 대한 해시값을 블록체인에 저장합니다.")
-    @ApiErrorCodeExamples({ErrorCode.MATERIAL_UPLOAD_ERROR, ErrorCode.BLOCKCHAIN_SAVE_ERROR,ErrorCode.MATERIAL_INVALID_FORMAT})
+    @ApiErrorCodeExamples({ErrorCode.MATERIAL_UPLOAD_ERROR, ErrorCode.BLOCKCHAIN_SAVE_ERROR,ErrorCode.MATERIAL_INVALID_FORMAT,ErrorCode.FILE_IS_EMPTY})
     public ResponseEntity<byte[]> registerFile(
-            @RequestPart("file") MultipartFile file) {
+            @RequestPart(value = "file") MultipartFile file) {
         FileRegisterResultDto responseDto = openApiService.registerFile(file);
         // 응답 헤더 설정
         HttpHeaders headers = new HttpHeaders();

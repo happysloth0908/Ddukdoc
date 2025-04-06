@@ -27,13 +27,19 @@ public class OpenApiService {
     );
     @Transactional
     public FileRegisterResultDto registerFile(MultipartFile file) {
+
+        // 빈 파일인 경우 체크
+        if (file.isEmpty()) {
+            throw new CustomException(ErrorCode.FILE_IS_EMPTY);
+        }
+
         // 파일 이름 및 데이터 가져오기
         String filename = file.getOriginalFilename();
 
         // 파일 확장자 확인
         String extension = getFileExtension(filename);
         if (!SUPPORTED_EXTENSIONS.contains(extension)) {
-            throw new CustomException(ErrorCode.MATERIAL_INVALID_FORMAT, "허용되지 않는 확장자입니다", extension);
+            throw new CustomException(ErrorCode.MATERIAL_INVALID_FORMAT);
         }
 
         // 메타데이터에 docName 추가
