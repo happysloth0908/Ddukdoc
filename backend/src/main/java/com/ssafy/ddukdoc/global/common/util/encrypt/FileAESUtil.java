@@ -1,4 +1,4 @@
-package com.ssafy.ddukdoc.global.common.util;
+package com.ssafy.ddukdoc.global.common.util.encrypt;
 
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;

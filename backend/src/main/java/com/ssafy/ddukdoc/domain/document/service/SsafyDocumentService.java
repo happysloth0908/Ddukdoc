@@ -15,7 +15,7 @@ import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.CustomPage;
-import com.ssafy.ddukdoc.global.common.util.AESUtil;
+import com.ssafy.ddukdoc.global.common.util.encrypt.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;

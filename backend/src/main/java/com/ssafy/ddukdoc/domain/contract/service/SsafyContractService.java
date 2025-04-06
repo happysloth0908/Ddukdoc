@@ -19,7 +19,7 @@ import com.ssafy.ddukdoc.domain.user.entity.User;
 import com.ssafy.ddukdoc.domain.user.entity.UserDocRole;
 import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
-import com.ssafy.ddukdoc.global.common.util.AESUtil;
+import com.ssafy.ddukdoc.global.common.util.encrypt.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;

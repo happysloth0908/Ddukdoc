@@ -18,7 +18,7 @@ import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
-import com.ssafy.ddukdoc.global.common.util.AESUtil;
+import com.ssafy.ddukdoc.global.common.util.encrypt.AESUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import org.springframework.transaction.annotation.Transactional;

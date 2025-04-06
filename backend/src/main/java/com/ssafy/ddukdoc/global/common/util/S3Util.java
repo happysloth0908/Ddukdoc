@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.global.common.util;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import com.ssafy.ddukdoc.global.common.util.encrypt.FileAESUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
