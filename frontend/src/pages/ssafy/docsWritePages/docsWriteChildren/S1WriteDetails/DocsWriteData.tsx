@@ -37,11 +37,11 @@ export const DocsWriteData = () => {
   const checkValidation = (name: string, value: string): boolean => {
     let errorMsg = '';
   
-    const isAllFieldsEmpty = Object.values(formData).every(v => v.trim() === '');
+    // const isAllFieldsEmpty = Object.values(formData).every(v => v.trim() === '');
   
-    if (isAllFieldsEmpty) {
-      errorMsg = '모든 항목을 입력해주세요.';
-    } else {
+    // if (isAllFieldsEmpty) {
+    //   errorMsg = '모든 항목을 입력해주세요.';
+    // } else {
       switch (name) {
         case 'export_date':
           if (!value) {
@@ -86,7 +86,7 @@ export const DocsWriteData = () => {
             errorMsg = '이름은 특수문자, 숫자 제외 작성해주세요.';
           break;
       }
-    }
+    // }
   
     setErrorStatus((prev) => ({ ...prev, [name]: errorMsg }));
     return errorMsg !== '';
@@ -98,7 +98,9 @@ export const DocsWriteData = () => {
   const validateAllFields = () => {
     let hasError = false;
     Object.entries(formData).forEach(([name, value]) => {
-      if (checkValidation(name, value)) {
+      let newVal = value;
+      if (name == 'contact_number') newVal = value.replace(/-/g, '')
+      if (checkValidation(name, newVal)) {
         hasError = true;
       }
     });
@@ -121,24 +123,24 @@ export const DocsWriteData = () => {
       return_due_date: formData.return_due_date,
       location: formData.location,
       student_id: formData.student_id,
-      contact_number: formData.contact_number,
+      contact_number: formatPhoneNumber(formData.contact_number),
       applicant_name: formData.applicant_name,
     };
 
     setData(updatedData);
-    navigate('/ssafy/docs/signature');
+    navigate('/ssafy/docs/detail/S1/signature');
   };
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full flex-col items-center justify-center">
       <atoms.ProgressBar curStage={3} totalStage={6} />
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 w-full items-center justify-center">
         <div className="m-1 flex w-full flex-col gap-y-6">
           <atoms.DocsDescription
             title="정보를 입력해주세요"
-            subTitle={'차용, 원금 정보'}
+            subTitle={'노트북 반출 서류'}
             description="를 입력하고 있어요"
           />
-          <form className="flex flex-col gap-y-6">
+          <form className="flex flex-col gap-y-2">
             <div>
               <atoms.DateInput
                 className={
@@ -223,7 +225,7 @@ export const DocsWriteData = () => {
                     : ''
                 }
                 name="contact_number"
-                defaultValue={formData.contact_number}
+                defaultValue={formData.contact_number ? formData.contact_number.replace(/-/g, '') : ''}
                 label="연락처"
                 onChange={handleChange}
               />

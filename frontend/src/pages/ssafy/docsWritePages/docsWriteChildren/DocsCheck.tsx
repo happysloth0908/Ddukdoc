@@ -85,14 +85,14 @@ export const DocsCheck = ({
       <div className="flex flex-1 flex-col justify-center gap-y-6">
         <atoms.DocsDescription
           title={
-            '작성하' + (previousPage == '/docs' ? '실 ' : '신 ') + '문서입니다'
+            '작성하' + (previousPage == '/ssafy/docs' ? '실 ' : '신 ') + '문서입니다'
           }
           subTitle="문서를"
           description="확인하고 다음을 눌러주세요!"
         />
         <S1/>
       </div>
-      {previousPage == '/docs/detail/G1/signature' ? (
+      {previousPage == '/ssafy/docs/detail/S1/signature' ? (
         <atoms.LongButton
           onClick={save}
           className="mb-20"
