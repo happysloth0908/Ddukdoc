@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -166,7 +167,8 @@ public class ContractService {
     }
 
     private int generatePinCode(){
-        return (int)(Math.random() * 900000) + 100000; // 100000 ~ 999999
+        SecureRandom secureRandom = new SecureRandom();
+        return secureRandom.nextInt(900000) + 100000; // 100000 ~ 999999
     }
 
     // 서명 파일 다운로드 및 복호화
