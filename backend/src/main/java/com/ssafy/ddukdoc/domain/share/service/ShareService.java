@@ -57,8 +57,14 @@ public class ShareService {
                     })
                     .block();
 
-            if (response == null || response.getBody() == null) {
+            if (response == null) {
                 throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+            }
+
+            Map<String, Object> responseBody = response.getBody();
+
+            if (responseBody == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답 본문이 없습니다.");
             }
 
             // 응답 헤더에서 토큰 추출
@@ -68,7 +74,7 @@ public class ShareService {
             }
 
             // 응답 본문에서 사용자 ID 추출
-            String userId = (String) response.getBody().get("id");
+            String userId = (String) responseBody.get("id");
             if (userId == null) {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 사용자 ID를 받아올 수 없습니다.");
             }
@@ -214,17 +220,33 @@ public class ShareService {
                     })
                     .block();
 
-            if (fileUploadResponse == null || fileUploadResponse.getBody() == null) {
+            if (fileUploadResponse == null) {
                 throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드 응답이 없습니다.");
             }
 
+            Map<String, Object> responseBody = fileUploadResponse.getBody();
+            if (responseBody == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드 응답 본문이 없습니다.");
+            }
+
             // 업로드된 파일의 ID 추출
-            List<Map<String, Object>> fileInfos = (List<Map<String, Object>>) fileUploadResponse.getBody().get("file_infos");
-            if (fileInfos == null || fileInfos.isEmpty()) {
+            Object fileInfosObj = responseBody.get("file_infos");
+            List<?> fileInfosList = fileInfosObj instanceof List<?> ? (List<?>) fileInfosObj : null;
+
+            if (fileInfosList == null || fileInfosList.isEmpty()) {
                 throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드에 실패했습니다.");
             }
 
-            String fileId = (String) fileInfos.get(0).get("id");
+            // 첫 번째 파일 정보에서 ID 추출
+            Object fileInfo = fileInfosList.get(0);
+            if (!(fileInfo instanceof Map)) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "파일 정보 형식이 올바르지 않습니다.");
+            }
+
+            String fileId = (String) ((Map<?, ?>) fileInfo).get("id");
+            if (fileId == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "파일 ID를 찾을 수 없습니다.");
+            }
 
             // 4. MM에 메시지 보내기
             Map<String, Object> messageBody = new HashMap<>();
@@ -274,11 +296,17 @@ public class ShareService {
                     })
                     .block();
 
-            if (response == null || response.getBody() == null) {
+            if (response == null) {
                 throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
             }
 
-            List<Map<String, Object>> usersList = (List<Map<String, Object>>) response.getBody().get("users");
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody == null) {
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답 본문이 없습니다.");
+            }
+
+            Object usersObj = responseBody.get("users");
+            List<?> usersList = usersObj instanceof List<?> ? (List<?>) usersObj : null;
 
             if (usersList == null) {
                 return MMUserResponse.of(new ArrayList<>());
@@ -286,12 +314,17 @@ public class ShareService {
 
             List<MMUserResponse.MMUser> users = new ArrayList<>();
 
-            for (Map<String, Object> user : usersList) {
-                String id = (String) user.get("id");
-                String username = (String) user.get("username");
-                String nickname = (String) user.get("nickname");
+            // users 목록 안전하게 추출
+            for (Object userObj : usersList) {
+                if (userObj instanceof Map<?, ?> user) {
 
-                users.add(MMUserResponse.MMUser.of(id, username, nickname));
+                    // 필요한 필드 추출 (null 체크 추가)
+                    String id = user.get("id") instanceof String ? (String) user.get("id") : "";
+                    String username = user.get("username") instanceof String ? (String) user.get("username") : "";
+                    String nickname = user.get("nickname") instanceof String ? (String) user.get("nickname") : "";
+
+                    users.add(MMUserResponse.MMUser.of(id, username, nickname));
+                }
             }
 
             return MMUserResponse.of(users);
@@ -325,11 +358,17 @@ public class ShareService {
                 })
                 .block();
 
-        if (response == null || response.getBody() == null) {
+        if (response == null) {
             throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
         }
 
-        String channelId = (String) response.getBody().get("id");
+        Map<String, Object> responseBody = response.getBody();
+
+        if (responseBody == null) {
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답 본문이 없습니다.");
+        }
+
+        String channelId = (String) responseBody.get("id");
 
         if (channelId == null) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost DM 채널 ID를 받아올 수 없습니다.");
