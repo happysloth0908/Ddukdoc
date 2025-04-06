@@ -62,7 +62,7 @@ dependencies {
 	implementation 'com.itextpdf:font-asian:7.2.5'  // 한글 지원을 위한 아시아 폰트 패키지
 
 	implementation 'org.apache.pdfbox:pdfbox:2.0.29'
-
+	implementation("org.apache.commons:commons-imaging:1.0-alpha3")
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
 	// Web3j 의존성
@@ -72,7 +72,9 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.10.1'
 	implementation 'org.json:json:20230618'
 
-
+	//word 메타데이터 추가
+	implementation("org.apache.poi:poi:5.3.0")
+	implementation("org.apache.poi:poi-ooxml:5.3.0")
 }
 
 tasks.named('test') {
