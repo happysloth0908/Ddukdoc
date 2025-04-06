@@ -106,16 +106,13 @@ public class S3Util {
 
             return decryptedFile;
         } catch (AmazonS3Exception e) {
-            e.printStackTrace();
-            // S3 자체 에러 처리
+            log.error("S3 파일 다운로드 오류: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "S3 오류: ", e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
-            // 파일 저장/복사 관련 I/O 에러
+            log.error("파일 I/O 처리 오류: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_CONVERT_ERROR, "파일 처리 중 오류 발생: ", e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-            // 그 외 알 수 없는 예외 처리
+            log.error("파일 처리 중 예상치 못한 오류: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "알 수 없는 오류: ", e.getMessage());
         }
     }
@@ -231,7 +228,7 @@ public class S3Util {
                     throw new CustomException(ErrorCode.FILE_DELETE_ERROR,"filename",name);
                 }
             }
-            e.printStackTrace();
+            log.error("파일 다운로드 및 복호화 중 오류 발생: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "파일 다운로드 및 복호화 중 오류: " + e.getMessage());
         }
     }

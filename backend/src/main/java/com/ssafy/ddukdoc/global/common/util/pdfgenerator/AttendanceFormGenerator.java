@@ -7,6 +7,7 @@ import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 
 import java.io.IOException;
@@ -14,6 +15,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+
+@Slf4j
 public class AttendanceFormGenerator implements DocumentGenerator{
     private static final int APPLICANT_ROLE_ID = 6;
 
@@ -247,7 +250,7 @@ public class AttendanceFormGenerator implements DocumentGenerator{
                                 .setFont(font)
                                 .setItalic();
                         document.add(errorParagraph);
-                        e.printStackTrace(); // 콘솔에 스택 트레이스 출력
+                        log.error("증빙서류 이미지 처리 중 오류 발생: {}", e.getMessage(), e);
                     }
                 }
             } catch (Exception e) {
@@ -256,7 +259,7 @@ public class AttendanceFormGenerator implements DocumentGenerator{
                         .setFont(font)
                         .setItalic();
                 document.add(errorParagraph);
-                e.printStackTrace(); // 콘솔에 스택 트레이스 출력
+                log.error("증빙서류 JSON 처리 중 오류 발생: {}", e.getMessage(), e);
             }
         } else {
             // 증빙서류가 없거나 빈 배열인 경우
