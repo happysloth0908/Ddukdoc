@@ -16,46 +16,47 @@ import java.util.Map;
 @Component
 public class SignatureUtil {
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     /**
      * 문서 데이터에 대한 서명을 생성합니다.
      *
-     * @param requestor 요청자 주소
-     * @param name 문서 이름
-     * @param docUri 문서 URI (빈 문자열로 설정)
-     * @param docHash 문서 해시
+     * @param requestor  요청자 주소
+     * @param name       문서 이름
+     * @param docUri     문서 URI (빈 문자열로 설정)
+     * @param docHash    문서 해시
      * @param privateKey 개인키
      * @return 서명 문자열
      * @throws Exception JSON 변환 또는 서명 생성 중 오류 발생 시
      */
-    public String createSignature(String requestor, String name, String docUri, String docHash, String privateKey){
+    public String createSignature(String requestor, String name, String docUri, String docHash, String privateKey) {
         // 서명할 데이터 객체 생성
         Map<String, Object> data = new LinkedHashMap<>();
-            data.put("requestor", requestor);
-            data.put("name", name);
-            data.put("docUri", docUri);
-            data.put("docHash", docHash);
+        data.put("requestor", requestor);
+        data.put("name", name);
+        data.put("docUri", docUri);
+        data.put("docHash", docHash);
 
-        return returnSignature(privateKey,data);
+        return returnSignature(privateKey, data);
     }
 
-    public String createSignatureForDelete(String requestor, String documentName, String privateKey){
+    public String createSignatureForDelete(String requestor, String documentName, String privateKey) {
         // 서명할 데이터 객체 생성 (name과 requestor만 포함)
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("requestor", requestor);
         data.put("name", documentName);
 
-        return returnSignature(privateKey,data);
+        return returnSignature(privateKey, data);
     }
 
-    private String returnSignature(String privateKey,Map<String,Object> data){
+    private String returnSignature(String privateKey, Map<String, Object> data) {
         // 데이터를 JSON 문자열로 변환
         String jsonData = null;
         try {
             jsonData = objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR)
-                    .addParameter("reason",e.getMessage())
-                    .addParameter("data",data);
+                    .addParameter("message", e.getMessage())
+                    .addParameter("data", data);
         }
 
         // Web3j 자격 증명 생성

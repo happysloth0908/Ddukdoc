@@ -37,6 +37,8 @@ public class ShareService {
     private final WebClient webClient;
     private final S3Util s3Util;
 
+    public static final String MATTER_MOST_NO_RESPONSE = "MatterMost 서버 응답이 없습니다.";
+
     public MMLoginResponse mattermostLogin(MMLoginRequest loginRequest) {
         try {
             Map<String, String> requestBody = new HashMap<>();
@@ -58,32 +60,32 @@ public class ShareService {
                     .block();
 
             if (response == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
             }
 
             Map<String, Object> responseBody = response.getBody();
 
             if (responseBody == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답 본문이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 서버 응답 본문이 없습니다.");
             }
 
             // 응답 헤더에서 토큰 추출
             String token = response.getHeaders().getFirst("Token");
             if (token == null) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 토큰을 받아올 수 없습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 로그인 토큰을 받아올 수 없습니다.");
             }
 
             // 응답 본문에서 사용자 ID 추출
             String userId = (String) responseBody.get("id");
             if (userId == null) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 사용자 ID를 받아올 수 없습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 사용자 ID를 받아올 수 없습니다.");
             }
 
             return MMLoginResponse.of(userId, token);
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 로그인 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -108,7 +110,7 @@ public class ShareService {
                     .block();
 
             if (response == null || response.getBody() == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
             }
 
             List<Map<String, Object>> teamsList = response.getBody();
@@ -124,7 +126,7 @@ public class ShareService {
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 로그인 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 로그인 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 로그인 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -152,7 +154,7 @@ public class ShareService {
                     .block();
 
             if (response == null || response.getBody() == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
             }
 
             List<Map<String, Object>> channelsList = response.getBody();
@@ -173,7 +175,7 @@ public class ShareService {
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 인증 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 채널 조회 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -221,12 +223,12 @@ public class ShareService {
                     .block();
 
             if (fileUploadResponse == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드 응답이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 파일 업로드 응답이 없습니다.");
             }
 
             Map<String, Object> responseBody = fileUploadResponse.getBody();
             if (responseBody == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드 응답 본문이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 파일 업로드 응답 본문이 없습니다.");
             }
 
             // 업로드된 파일의 ID 추출
@@ -234,18 +236,18 @@ public class ShareService {
             List<?> fileInfosList = fileInfosObj instanceof List<?> ? (List<?>) fileInfosObj : null;
 
             if (fileInfosList == null || fileInfosList.isEmpty()) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 파일 업로드에 실패했습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 파일 업로드에 실패했습니다.");
             }
 
             // 첫 번째 파일 정보에서 ID 추출
             Object fileInfo = fileInfosList.get(0);
             if (!(fileInfo instanceof Map)) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "파일 정보 형식이 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "파일 정보 형식이 올바르지 않습니다.");
             }
 
             String fileId = (String) ((Map<?, ?>) fileInfo).get("id");
             if (fileId == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "파일 ID를 찾을 수 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "파일 ID를 찾을 수 없습니다.");
             }
 
             // 4. MM에 메시지 보내기
@@ -268,12 +270,12 @@ public class ShareService {
                     .block();
 
             if (messageResponse == null || messageResponse.getBody() == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 메시지 전송 응답이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 메시지 전송 응답이 없습니다.");
             }
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 인증 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 메시지 전송 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -297,12 +299,12 @@ public class ShareService {
                     .block();
 
             if (response == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
             }
 
             Map<String, Object> responseBody = response.getBody();
             if (responseBody == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답 본문이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 서버 응답 본문이 없습니다.");
             }
 
             Object usersObj = responseBody.get("users");
@@ -331,7 +333,7 @@ public class ShareService {
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost 인증 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 인증 정보가 올바르지 않습니다.");
             }
             log.error("MatterMost 사용자 검색 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -359,19 +361,19 @@ public class ShareService {
                 .block();
 
         if (response == null) {
-            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답이 없습니다.");
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
         }
 
         Map<String, Object> responseBody = response.getBody();
 
         if (responseBody == null) {
-            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "msg", "MatterMost 서버 응답 본문이 없습니다.");
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 서버 응답 본문이 없습니다.");
         }
 
         String channelId = (String) responseBody.get("id");
 
         if (channelId == null) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "msg", "MatterMost DM 채널 ID를 받아올 수 없습니다.");
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost DM 채널 ID를 받아올 수 없습니다.");
         }
 
         mattermostMessageToChannel(MMMessageToChannelRequest.of(channelId, messageRequest));

@@ -17,6 +17,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -35,15 +36,16 @@ public class FileAESUtil {
 
     /**
      * 파일 암호화
+     *
      * @param file 암호화할 파일
      * @return 암호화 결과 (암호화된 파일, 암호화된 DEK, IV)
      */
-    public Map<String,Object> encryptFile(File file){
+    public Map<String, Object> encryptFile(File file) {
         if (file == null || !file.exists() || !file.isFile()) {
             log.error("암호화할 파일이 존재하지 않거나 파일이 아닙니다: {}", file);
             throw new CustomException(ErrorCode.FILE_NOT_FOUND, "file", "파일이 존재하지 않거나 파일이 아닙니다");
         }
-        try{
+        try {
             //DEK 생성
             SecretKey dek = aesUtil.generateDek();
 
@@ -51,32 +53,32 @@ public class FileAESUtil {
             byte[] iv = generateIV();
 
             //파일 암호화
-            File encryptedFile = encryptFileWithDek(file,dek,iv);
+            File encryptedFile = encryptFileWithDek(file, dek, iv);
 
             //DEK 암호화
             String encryptedDek = aesUtil.encryptDek(dek);
 
             Map<String, Object> result = new HashMap<>();
             result.put("encryptedFile", encryptedFile);
-            result.put("encryptedDek",encryptedDek);
+            result.put("encryptedDek", encryptedDek);
             result.put("iv", Base64.getEncoder().encodeToString(iv));
 
             return result;
-        }catch(Exception e){
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR,"reason","파일 암호화 실패 : "+e.getMessage());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "파일 암호화 실패 : " + e.getMessage());
         }
     }
 
     //DEK 사용하여 파일 암호화
-    private File encryptFileWithDek(File file, SecretKey dek, byte[] iv) throws Exception{
-        File encryptedFile = new File(file.getParent(),file.getName()+".enc");
+    private File encryptFileWithDek(File file, SecretKey dek, byte[] iv) throws Exception {
+        File encryptedFile = new File(file.getParent(), file.getName() + ".enc");
 
-        try(FileInputStream fis = new FileInputStream(file);
-            FileOutputStream fos = new FileOutputStream(encryptedFile)){
+        try (FileInputStream fis = new FileInputStream(file);
+             FileOutputStream fos = new FileOutputStream(encryptedFile)) {
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH,iv);
-            cipher.init(Cipher.ENCRYPT_MODE,dek,gcmSpec);
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+            cipher.init(Cipher.ENCRYPT_MODE, dek, gcmSpec);
 
             // 버퍼 크기 8KB 설정
             byte[] buffer = new byte[8192];
@@ -85,9 +87,9 @@ public class FileAESUtil {
             //IV를 파일 시작 부분에 저장
             fos.write(iv);
 
-            while((bytesRead = fis.read(buffer)) != -1){
+            while ((bytesRead = fis.read(buffer)) != -1) {
                 byte[] encryptedBuffer = cipher.update(buffer, 0, bytesRead);
-                if(encryptedBuffer != null){
+                if (encryptedBuffer != null) {
                     fos.write(encryptedBuffer);
                 }
             }
@@ -105,12 +107,12 @@ public class FileAESUtil {
 
 
     // 암호화된 파일과 암호화 정보를 이용하여 파일 복호화
-    public File decryptFile(File encryptedFile, String encryptedDek, String base64IV){
+    public File decryptFile(File encryptedFile, String encryptedDek, String base64IV) {
         if (encryptedFile == null || !encryptedFile.exists() || !encryptedFile.isFile()) {
             log.error("복호화할 파일이 존재하지 않거나 파일이 아닙니다: {}", encryptedFile);
             throw new CustomException(ErrorCode.FILE_NOT_FOUND, "file", "파일이 존재하지 않거나 파일이 아닙니다");
         }
-        try{
+        try {
             //DEK 복호화
             SecretKey dek = aesUtil.decryptDek(encryptedDek);
 
@@ -119,8 +121,8 @@ public class FileAESUtil {
 
             // 파일 복호화 - IV는 메타데이터에서 가져온 것 사용
             return decryptFileWithDek(encryptedFile, dek, iv);
-        }catch(Exception e){
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR,"reason","파일 복호화 실패 : "+e.getMessage());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "파일 복호화 실패 : " + e.getMessage());
         }
     }
 
@@ -175,7 +177,7 @@ public class FileAESUtil {
             if (decryptedFile.exists() && !decryptedFile.delete()) {
                 throw new CustomException(ErrorCode.FILE_DELETE_FAILED, "file", decryptedFile.getAbsolutePath());
             }
-            throw new CustomException(ErrorCode.FILE_DECRYPTION_ERROR,"reason",e.getMessage());
+            throw new CustomException(ErrorCode.FILE_DECRYPTION_ERROR, e.getMessage());
         }
     }
 

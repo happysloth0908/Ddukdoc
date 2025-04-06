@@ -63,7 +63,7 @@ public class BlockchainUtil {
         Map<String, Object> body = response.getBody();
 
         if (body == null) {
-            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", "문서 저장 응답 본문이 비어있습니다");
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 저장 응답 본문이 비어있습니다");
         }
         return body;
     }
@@ -78,13 +78,14 @@ public class BlockchainUtil {
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<Map<String, Object>>() {}
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
             );
 
             Map<String, Object> body = response.getBody();
 
             if (body == null) {
-                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", "문서 응답 본문이 비어있습니다");
+                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 응답 본문이 비어있습니다");
             }
 
             return BlockchainDocumentResponseDto.of(
@@ -96,7 +97,7 @@ public class BlockchainUtil {
 
         } catch (Exception e) {
             // 에러 처리 로직
-            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", e.getCause());
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, e.getMessage());
         }
     }
 
@@ -108,13 +109,14 @@ public class BlockchainUtil {
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+                    new ParameterizedTypeReference<List<Map<String, Object>>>() {
+                    }
             );
 
             List<Map<String, Object>> responseBody = response.getBody();
 
             if (responseBody == null) {
-                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", "문서 응답 본문이 비어있습니다");
+                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 응답 본문이 비어있습니다");
             }
 
             log.debug("전체 문서 응답: {}", responseBody);
@@ -161,7 +163,7 @@ public class BlockchainUtil {
         return null;
     }
 
-    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode,String docName) {
+    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode, String docName) {
         try {
             String hash = hashUtil.generateSHA256Hash(pdfData);
             String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
@@ -178,7 +180,7 @@ public class BlockchainUtil {
             String transactionHash = (String) blockchainResponse.get("transactionHash");
 
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, "reason", e.getMessage());
+            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, e.getMessage());
         }
 
     }
