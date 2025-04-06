@@ -30,7 +30,7 @@ public class OpenApiController {
     }
 
     @PostMapping(value = "/validation", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "위변조 검증", description = "")
+    @Operation(summary = "위변조 검증", description = "등록한 파일의 메타데이터를 조회해 위변조 검증을 합니다")
     @ApiErrorCodeExamples({})
     public ResponseEntity<CommonResponse<Void>> validateFile() {
         return CommonResponse.ok();
