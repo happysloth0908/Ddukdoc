@@ -90,7 +90,13 @@ public enum ErrorCode {
 
     // Validation
     VALDIATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "V001","위변조 검증 중 오류가 발생했습니다"),
-    VALIDATION_NOT_MATCH(HttpStatus.BAD_REQUEST, "V002","위조된 문서입니다");
+    VALIDATION_NOT_MATCH(HttpStatus.BAD_REQUEST, "V002","위조된 문서입니다"),
+
+    // superapp
+    BLOCKCHAIN_SAVE_ERROR(HttpStatus.BAD_REQUEST,"Z001","블록체인에 저장 중 오류가 발생했습니다."),
+    VALIDATION_NOT_ACCESS(HttpStatus.BAD_REQUEST,"Z002","등록되지 않거나 위조된 문서입니다."),
+    FILE_METADATA_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"Z003","메타데이터 저장 시 오류가 발생했습니다.")
+    ;
 
     private final HttpStatus status;
     private final String code;
