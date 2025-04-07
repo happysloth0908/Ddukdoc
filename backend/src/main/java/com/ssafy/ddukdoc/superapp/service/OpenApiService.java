@@ -7,6 +7,7 @@ import com.ssafy.ddukdoc.superapp.dto.response.FileRegisterResultDto;
 import com.ssafy.ddukdoc.superapp.util.MetadataAddUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,7 +48,7 @@ public class OpenApiService {
 
         String docName = (String)dataWithMetadata.get("docName");
         byte[] pdfData = (byte[])dataWithMetadata.get("byteData");
-
+        MediaType mediaType = determineMediaType(filename);
         try {
             // 블록체인에 해시값과 docName 저장
             blockchainUtil.saveDocumentInBlockchain(pdfData,null, docName);
@@ -57,7 +58,27 @@ public class OpenApiService {
         }
 
         // 응답 생성
-        return FileRegisterResultDto.of(filename,pdfData,null);
+        return FileRegisterResultDto.of(filename,mediaType,pdfData,null);
+    }
+
+
+    private MediaType determineMediaType(String fileName) {
+        if (fileName == null || !fileName.contains(".")) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+
+        switch (extension) {
+            case "pdf":
+                return MediaType.APPLICATION_PDF;
+            case "doc":
+            case "docx":
+                return MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            case "png":
+                return MediaType.IMAGE_PNG;
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM; // 기본 바이너리 타입
+        }
     }
 
     private String getFileExtension(String filename) {
