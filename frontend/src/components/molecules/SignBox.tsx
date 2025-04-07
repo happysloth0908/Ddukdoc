@@ -8,10 +8,13 @@ import { useIOUDocsStore, useS1Data } from '@/store/docs';
 interface SignBoxProps {
   next: string;
   role?: string;
-  isSsafy?: boolean;
+  ssafy?: {
+    isSsafy: boolean;
+    template: string;
+  };
 }
 
-export const SignBox: React.FC<SignBoxProps> = ({ next, role, isSsafy }) => {
+export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isRotated, setIsRotated] = useState(false);
@@ -199,8 +202,12 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, isSsafy }) => {
       signatureData = canvas.toDataURL('image/png');
     }
     
-    if (isSsafy){
-      setS1Signature(signatureData);
+    if (ssafy?.isSsafy){
+      switch (ssafy.template) {
+        case "S1":
+          setS1Signature(signatureData);
+          break;
+      }
     } else {
       setSignature(signatureData); // Zustand에 저장
     }
