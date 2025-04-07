@@ -2,7 +2,7 @@ import atoms from "@/components/atoms";
 import { Link, useLocation } from "react-router-dom";
 
 
-export const DocsShareComplete = ({curTemplate}: {curTemplate: string}) => {
+export const DocsShareComplete = () => {
     const location = useLocation();
     const docId = location.state?.docId || "알 수 없음";
 
@@ -12,7 +12,7 @@ export const DocsShareComplete = ({curTemplate}: {curTemplate: string}) => {
             <div className="flex flex-1 items-center justify-center">
                 <atoms.CompletePage type="save" />
             </div>
-            <Link to={"/mypage/detail/" + docId }>
+            <Link to={"/ssafy/mypage/detail/" + docId }>
                 <atoms.LongButton className='mb-20' children="문서 확인하기" colorType='black' />
             </Link>
         </div>

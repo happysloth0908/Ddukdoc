@@ -77,7 +77,6 @@ export const DocsWrite = () => {
               path="share"
               element={
                 <docsWriteChildren.DocsShareComplete
-                  curTemplate={templateCode}
                 />
               }
             />
