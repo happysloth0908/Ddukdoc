@@ -92,9 +92,7 @@ public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "V001","위변조 검증 중 오류가 발생했습니다"),
     VALIDATION_NOT_MATCH(HttpStatus.BAD_REQUEST, "V002","위조된 문서입니다"),
     PNG_READER_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "V003","PNG 이미지 리더를 찾을 수 없습니다"),
-    VALIDATION_NOT_REGIST(HttpStatus.BAD_REQUEST, "V004", "뚝딱뚝딱에 등록되지 않은 문서입니다");
-    VALDIATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "V001","위변조 검증 중 오류가 발생했습니다"),
-    VALIDATION_NOT_MATCH(HttpStatus.BAD_REQUEST, "V002","위조된 문서입니다"),
+    VALIDATION_NOT_REGIST(HttpStatus.BAD_REQUEST, "V004", "뚝딱뚝딱에 등록되지 않은 문서입니다"),
 
     // superapp
     BLOCKCHAIN_SAVE_ERROR(HttpStatus.BAD_REQUEST,"Z001","블록체인에 저장 중 오류가 발생했습니다."),

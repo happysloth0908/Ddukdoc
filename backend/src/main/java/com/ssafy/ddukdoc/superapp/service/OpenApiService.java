@@ -31,6 +31,7 @@ public class OpenApiService {
     private final BlockchainUtil blockchainUtil;
     private final HashUtil hashUtil;
     private final FileValidationService fileValidationService;
+    private final MetadataAddUtil metadataAddUtil;
 
     /**
      * SUPER APP 위변조 검증
@@ -64,8 +65,6 @@ public class OpenApiService {
             throw new CustomException(ErrorCode.VALIDATION_ERROR, "reason", e.getCause());
         }
     }
-    private final BlockchainUtil blockchainUtil;
-    private final MetadataAddUtil metadataAddUtil;
     // 지원하는 파일 확장자 목록
     private static final Set<String> SUPPORTED_EXTENSIONS = new HashSet<>(
             Arrays.asList("pdf","png", "docx","doc")
