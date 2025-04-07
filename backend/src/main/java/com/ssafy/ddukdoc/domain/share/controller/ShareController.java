@@ -6,6 +6,7 @@ import com.ssafy.ddukdoc.domain.share.dto.response.MMLoginResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMTeamResponse;
 import com.ssafy.ddukdoc.domain.share.dto.response.MMUserResponse;
 import com.ssafy.ddukdoc.domain.share.service.ShareService;
+import com.ssafy.ddukdoc.global.aop.SSAFYAccess;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -14,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +29,7 @@ public class ShareController {
     private final ShareService shareService;
 
     @PostMapping("/mm/login")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "MM 로그인", description = "id와 password를 통해 SSAFY MatterMost에 로그인합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMLoginResponse>> mattermostLogin(
@@ -39,7 +39,7 @@ public class ShareController {
     }
 
     @PostMapping("/mm/team")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "MM 팀 목록 조회", description = "userId와 token을 통해 SSAFY MatterMost의 팀 목록을 조회합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMTeamResponse>> mattermostTeam(
@@ -50,7 +50,7 @@ public class ShareController {
 
 
     @PostMapping("/mm/login-and-team")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "MM 로그인 및 팀 목록 조회", description = "id와 password를 통해 SSAFY MatterMost에 로그인하고, 팀 목록을 조회하여 반환합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMTeamResponse>> mattermostLoginAndTeam(
@@ -63,7 +63,7 @@ public class ShareController {
     }
 
     @PostMapping("/mm/channel")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "MM 채널 목록 조회", description = "team_id를 통해 SSAFY MatterMost의 채널 목록을 조회합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMChannelResponse>> mattermostChannel(
@@ -73,7 +73,7 @@ public class ShareController {
     }
 
     @PostMapping("/mm/user")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "MM 사용자 목록 조회", description = "검색어를 통해 SSAFY MatterMost의 사용자 목록을 조회합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<MMUserResponse>> mattermostUser(
@@ -83,7 +83,7 @@ public class ShareController {
     }
 
     @PostMapping("/mm/message-channel")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "채널에 MM 메시지 전송", description = "SSAFY MatterMost 채널에 메시지를 전송합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFileToChannel(
@@ -94,7 +94,7 @@ public class ShareController {
     }
 
     @PostMapping("/mm/message-user")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "사용자에게 MM 메시지 전송", description = "SSAFY MatterMost 사용자에 메시지를 전송합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE, ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.EXTERNAL_API_ERROR})
     public ResponseEntity<CommonResponse<Void>> mattermostMessageWithFileToUser(
