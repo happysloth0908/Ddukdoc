@@ -41,8 +41,8 @@ public class VerificationService {
             BlockchainDocumentResponseDto blockchainResponseDto = blockchainUtil.getDocumentByName(docName);
 
             // 받은 PDF로 Hash 생성
-            String pdfHash = "0x"+hashUtil.generateSHA256Hash(pdfFile.getBytes());
-            
+            String pdfHash = "0x" + hashUtil.generateSHA256Hash(pdfFile.getBytes());
+
             // 블록체인 Hash값과 PDF Hash 비교
             if (!pdfHash.equals(blockchainResponseDto.getDocHash())) {
                 throw new CustomException(ErrorCode.VALIDATION_NOT_MATCH, "docName", docName);
@@ -50,7 +50,7 @@ public class VerificationService {
 
         } catch (IOException e) {
             log.error("문서 검증 중 오류발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.VALIDATION_ERROR, "reason", e.getCause());
+            throw new CustomException(ErrorCode.VALDIATION_ERROR, e.getMessage());
         }
     }
 }

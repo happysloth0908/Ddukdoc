@@ -33,10 +33,10 @@ public class MMTeamResponse {
         @Schema(example = "12기 공통 대전1반")
         private String displayName;
 
-        public static MMTeam of(String id, String display_name) {
+        public static MMTeam of(String id, String displayName) {
             return MMTeam.builder()
                     .id(id)
-                    .displayName(display_name)
+                    .displayName(displayName)
                     .build();
         }
     }

@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.global.common.util.blockchain;
 
-import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.dto.request.BlockChainStoreRequestDto;
 import com.ssafy.ddukdoc.domain.contract.dto.response.BlockchainDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
@@ -18,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -55,13 +53,19 @@ public class BlockchainUtil {
         headers.set("Content-Type", "application/json");
 
         HttpEntity<BlockChainStoreRequestDto> requestEntity = new HttpEntity<>(requestData, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 requestEntity,
-                Map.class
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
         );
-        return response.getBody();
+        Map<String, Object> body = response.getBody();
+
+        if (body == null) {
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 저장 응답 본문이 비어있습니다");
+        }
+        return body;
     }
 
     public BlockchainDocumentResponseDto getDocumentByName(String documentName) {
@@ -70,14 +74,19 @@ public class BlockchainUtil {
         log.debug("문서 조회 URL: {}", url);
 
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
-                    Map.class
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
             );
 
             Map<String, Object> body = response.getBody();
+
+            if (body == null) {
+                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 응답 본문이 비어있습니다");
+            }
 
             return BlockchainDocumentResponseDto.of(
                     documentName,
@@ -88,7 +97,7 @@ public class BlockchainUtil {
 
         } catch (Exception e) {
             // 에러 처리 로직
-            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", e.getCause());
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, e.getMessage());
         }
     }
 
@@ -104,9 +113,15 @@ public class BlockchainUtil {
                     }
             );
 
-            log.debug("전체 문서 응답: {}", response.getBody());
+            List<Map<String, Object>> responseBody = response.getBody();
 
-            return response.getBody().stream()
+            if (responseBody == null) {
+                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 응답 본문이 비어있습니다");
+            }
+
+            log.debug("전체 문서 응답: {}", responseBody);
+
+            return responseBody.stream()
                     .map(doc -> {
                         log.debug("개별 문서 데이터: {}", doc);
 
@@ -148,7 +163,7 @@ public class BlockchainUtil {
         return null;
     }
 
-    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode,String docName) {
+    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode, String docName) {
         try {
             String hash = hashUtil.generateSHA256Hash(pdfData);
             String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
@@ -165,7 +180,7 @@ public class BlockchainUtil {
             String transactionHash = (String) blockchainResponse.get("transactionHash");
 
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, "reason", e.getMessage());
+            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, e.getMessage());
         }
 
     }
