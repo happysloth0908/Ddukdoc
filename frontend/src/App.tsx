@@ -16,8 +16,7 @@ function App() {
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
   const isSsafy =
-    location.pathname === '/ssafy/login' ||
-    location.pathname === '/ssafy';
+    location.pathname === '/ssafy/login' || location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
     : isSsafy
@@ -71,9 +70,8 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path='/ssafy/*' element={<SsafyRouter />} />
+          <Route path="/ssafy/*" element={<SsafyRouter />} />
         </Routes>
-
       </div>
     </div>
   );
