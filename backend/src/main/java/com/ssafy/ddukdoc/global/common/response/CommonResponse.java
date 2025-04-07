@@ -253,7 +253,7 @@ public class CommonResponse<T> {
      * @param errorCode 에러 코드
      * @return 에러 응답 예시 객체
      */
-    public static CommonResponse<?> errorExample(ErrorCode errorCode) {
+    public static CommonResponse<Void> errorExample(ErrorCode errorCode) {
         return new CommonResponse<>(
                 false,
                 null,

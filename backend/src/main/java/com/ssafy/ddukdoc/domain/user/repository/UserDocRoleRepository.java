@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserDocRoleRepository extends JpaRepository<UserDocRole,Integer> {
-    List<UserDocRole> findAllByDocument_Id(Integer documentId);
-    Optional<UserDocRole> findAllByDocument_IdAndUser_Id(Integer documentId, Integer userId);
-    Optional<UserDocRole> findByDocumentIdAndUserId(Integer documentId, Integer userId);
+public interface UserDocRoleRepository extends JpaRepository<UserDocRole, Integer> {
+    List<UserDocRole> findAllByDocumentId(Integer documentId);
 
+    Optional<UserDocRole> findAllByDocumentIdAndUserId(Integer documentId, Integer userId);
+
+    Optional<UserDocRole> findByDocumentIdAndUserId(Integer documentId, Integer userId);
 }

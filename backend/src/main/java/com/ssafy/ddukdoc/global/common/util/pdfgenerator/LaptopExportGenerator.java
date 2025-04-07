@@ -29,7 +29,7 @@ public class LaptopExportGenerator implements DocumentGenerator{
         Paragraph title = new Paragraph("노트북 반출 확인서")
                 .setFont(font)
                 .setBold()
-                .setFontSize(22)
+                .setFontSize(20)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(15);
         document.add(title);
@@ -38,15 +38,15 @@ public class LaptopExportGenerator implements DocumentGenerator{
         Paragraph intro = new Paragraph("본 확인서는 노트북 반출 시 작성하여 접수해야 합니다.")
                 .setFont(font)
                 .setFontSize(12)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(5);
+                .setTextAlignment(TextAlignment.LEFT);
         document.add(intro);
 
         Paragraph responsibility = new Paragraph("노트북 반출 이후의 관리 및 분실 책임은 노트북 수령 확인서에 기초하여 사용자의 책임으로 합니다.")
                 .setFont(font)
                 .setFontSize(12)
                 .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(15);
+                .setMarginTop(5)
+                .setMarginBottom(10);
         document.add(responsibility);
 
         // 규정 항목들
@@ -61,7 +61,7 @@ public class LaptopExportGenerator implements DocumentGenerator{
         // 동의 문구
         Paragraph agreement = new Paragraph("본인은 위 사항에 동의하고 작성한 일자를 준수할 것을 확인합니다.")
                 .setFont(font)
-                .setTextAlignment(TextAlignment.LEFT)
+                .setTextAlignment(TextAlignment.CENTER)
                 .setMarginTop(15)
                 .setMarginBottom(15);
         document.add(agreement);
@@ -69,7 +69,7 @@ public class LaptopExportGenerator implements DocumentGenerator{
         // 사용자 정보 표 생성
         Table infoTable = new Table(new float[]{2, 3})
                 .setWidth(UnitValue.createPercentValue(100))
-                .setMarginBottom(10);
+                .setMarginBottom(5);
 
         // 반출 일자
         addTableRow(infoTable, font, "반출 일자", formatDate(fieldMap.get("export_date")));
@@ -96,7 +96,7 @@ public class LaptopExportGenerator implements DocumentGenerator{
             Image signature = new Image(ImageDataFactory.create(signatures.get(APPLICANT_ROLE_ID)))
                     .setWidth(80)
                     .setHeight(40);
-            signature.setRelativePosition(350, -30, 0, 0); // 이름 옆에 서명이 나타나도록 위치 조정
+            signature.setRelativePosition(175, -40, 0, 0); // 이름 옆에 서명이 나타나도록 위치 조정
             document.add(signature);
         }
 
@@ -106,7 +106,7 @@ public class LaptopExportGenerator implements DocumentGenerator{
                 .setBold()
                 .setFontSize(20)
                 .setTextAlignment(TextAlignment.CENTER)
-                .setMarginTop(30);
+                .setMarginTop(10);
         document.add(footer);
     }
 
@@ -114,9 +114,8 @@ public class LaptopExportGenerator implements DocumentGenerator{
     private void addRegulationItem(Document document, PdfFont font, String number, String content) {
         Paragraph item = new Paragraph()
                 .setFont(font)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(5);
-
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.LEFT);
         // 번호와 내용을 굵게 표시
         Text numberText = new Text(number + ". ").setBold();
         Text contentText = new Text(content).setBold();
@@ -130,14 +129,14 @@ public class LaptopExportGenerator implements DocumentGenerator{
     // 테이블 행 추가 헬퍼 메소드
     private void addTableRow(Table table, PdfFont font, String label, String value) {
         Cell labelCell = new Cell()
-                .add(new Paragraph(label).setFont(font))
+                .add(new Paragraph(label).setFont(font).setFontSize(10))
                 .setBorder(null)
-                .setPadding(5);
+                .setPadding(2);
 
         Cell valueCell = new Cell()
                 .add(new Paragraph(value).setFont(font))
                 .setBorder(null)
-                .setPadding(5);
+                .setPadding(2);
 
         table.addCell(labelCell);
         table.addCell(valueCell);
