@@ -38,7 +38,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .subject(userId)
-                .claim("typ", userType)
+                .claim(SecurityConstants.ROLE_NAME, userType)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + validityTime))
                 .signWith(getSigningKey())
@@ -63,7 +63,7 @@ public class JwtTokenProvider {
     }
 
     public String getUserType(String token) {
-        return extractAllClaims(token).get("typ", String.class);
+        return extractAllClaims(token).get(SecurityConstants.ROLE_NAME, String.class);
     }
 
     // Claims 추출
@@ -78,7 +78,7 @@ public class JwtTokenProvider {
     // 토큰 유효성 + 만료일자 확인
     public TokenValidationResult validateToken(String token) {
         try {
-            Claims claims = extractAllClaims(token);
+            extractAllClaims(token);
             return new TokenValidationResult(true, null);
         } catch (ExpiredJwtException e) {
             return new TokenValidationResult(false, TokenError.EXPIRED);
@@ -94,7 +94,7 @@ public class JwtTokenProvider {
 
         UserPrincipal userPrincipal = UserPrincipal.builder()
                 .id(userId)
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority(userType)))
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority(SecurityConstants.ROLE_PREFIX + userType)))
                 .build();
 
         return new UsernamePasswordAuthenticationToken(
