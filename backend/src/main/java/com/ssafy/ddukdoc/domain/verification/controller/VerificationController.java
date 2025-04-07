@@ -27,7 +27,7 @@ public class VerificationController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "일반 문서 위변조 검증", description = "일반 문서의 위변조를 검증합니다")
-    @ApiErrorCodeExamples({ErrorCode.FILE_METADATA_ERROR, ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, ErrorCode.INVALID_ENCRYPTION_ALGORITHM, ErrorCode.VALIDATION_NOT_MATCH, ErrorCode.VALDIATION_ERROR})
+    @ApiErrorCodeExamples({ErrorCode.FILE_METADATA_ERROR, ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, ErrorCode.INVALID_ENCRYPTION_ALGORITHM, ErrorCode.VALIDATION_NOT_MATCH, ErrorCode.VALIDATION_ERROR})
     public ResponseEntity<CommonResponse<Void>> verificationDocument(
             @RequestPart("file") MultipartFile file) {
 
