@@ -3,6 +3,7 @@ import { SsafyLogin } from './ssafyLoginPages/SsafyLogin';
 import { SsafyMain } from './mainPages/SsafyMain';
 import { DocsWrite } from './docsWritePages/DocsWrite';
 import { ProtectedRoute } from '@/functions/ProtectedRoute';
+import SsafyMyPage from './mypages/MyPage';
 
 function SsafyRouter() {
   return (
@@ -22,6 +23,14 @@ function SsafyRouter() {
           element={
             <ProtectedRoute>
               <DocsWrite />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="mypage/*"
+          element={
+            <ProtectedRoute>
+              <SsafyMyPage />
             </ProtectedRoute>
           }
         />

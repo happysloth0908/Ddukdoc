@@ -35,3 +35,17 @@ export interface FileData {
   created_at: string;
   updated_at: string;
 }
+
+export interface SsafyDocData {
+  document_id: number;
+  template_id: number;
+  template_code: string;
+  template_name: string;
+  title: string;
+  status: string;
+  creator_id: number;
+  creator_name: string;
+  created_at: string;
+  updated_at: string;
+  creator_signature: string;
+}
