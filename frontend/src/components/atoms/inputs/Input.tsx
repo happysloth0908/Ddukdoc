@@ -22,7 +22,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="flex w-full justify-center">
         <div className="flex w-full flex-col">
           {label && (
-            <div className="mb-1 text-md font-medium text-text-default">
+            <div className="mb-1 text-xl font-medium text-text-default">
               {label}
             </div>
           )}
@@ -31,7 +31,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             // value={value}
             placeholder={placeholder}
             onChange={handleChange}
-            className={`h-12 w-full rounded-md border bg-bg-default px-3 py-2 text-md text-text-default placeholder:text-text-description focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:bg-gray-100 disabled:text-text-description ${className}`}
+            className={`h-12 w-full rounded-md border bg-bg-default px-3 py-2 text-xl text-text-default placeholder:text-text-description focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:bg-gray-100 disabled:text-text-description ${className}`}
             {...props}
           />
         </div>
