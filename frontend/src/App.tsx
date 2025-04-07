@@ -4,6 +4,7 @@ import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
 import { MainMenuPage } from '@/pages/mainPage/Main';
 // import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
+import { SsafyLogin } from './pages/ssafy/ssafyLoginPages/SsafyLogin';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
 import { ProtectedRoute } from './functions/ProtectedRoute';
@@ -16,8 +17,7 @@ function App() {
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
   const isSsafy =
-    location.pathname === '/ssafy/login' ||
-    location.pathname === '/ssafy';
+    location.pathname === '/ssafy/login' || location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
     : isSsafy
@@ -34,6 +34,7 @@ function App() {
           {/*  공개 라우트  */}
           {/* 로그인 페이지 */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/ssafy/login" element={<SsafyLogin />} />
 
           {/* 문서 작성입니다. */}
           <Route
@@ -71,9 +72,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path='/ssafy/*' element={<SsafyRouter />} />
+          <Route
+            path="/ssafy/*"
+            element={
+              <ProtectedRoute>
+                <SsafyRouter />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-
       </div>
     </div>
   );
