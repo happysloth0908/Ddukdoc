@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class BlockchainUtil {
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate blockchainRestTemplate;
+    //private final RestTemplate restTemplate = new RestTemplate();
     @Value("${blockchain.baseurl}")
     private String baseUrl;
     @Value("${blockchain.contractAddress}")
@@ -55,7 +56,7 @@ public class BlockchainUtil {
         headers.set("Content-Type", "application/json");
 
         HttpEntity<BlockChainStoreRequestDto> requestEntity = new HttpEntity<>(requestData, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(
+        ResponseEntity<Map> response = blockchainRestTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 requestEntity,
@@ -70,7 +71,7 @@ public class BlockchainUtil {
         log.debug("문서 조회 URL: {}", url);
 
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -96,7 +97,7 @@ public class BlockchainUtil {
         String url = baseUrl + contractAddress + "/documents";
 
         try {
-            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+            ResponseEntity<List<Map<String, Object>>> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -191,7 +192,7 @@ public class BlockchainUtil {
             HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // DELETE 요청 전송
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.DELETE,
                     requestEntity,
