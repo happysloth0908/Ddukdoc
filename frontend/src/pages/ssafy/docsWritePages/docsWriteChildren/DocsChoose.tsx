@@ -19,7 +19,7 @@ export const DocsChoose = ({
 
   return (
     <div className="flex h-full flex-col gap-y-6">
-      <div className="flex flex-1 flex-col justify-center gap-y-6">
+      <div className="flex flex-1 flex-col justify-center gap-y-2">
         <p className="text-info-large font-bold">
           어떤 문서를
           <br />
@@ -29,7 +29,7 @@ export const DocsChoose = ({
           onToggleClick={handleSelect}
           id='S1'
           title='노트북 반출 서약서'
-          description=''
+          description='노트북 반출을 위한 신청서'
           isSelected={templateCode === 'S1' ? true : false}
           icon={ssafyIcons.laptopIcon}
         />
@@ -37,41 +37,46 @@ export const DocsChoose = ({
           onToggleClick={handleSelect}
           id='S2'
           title='노트북 수령 확인서'
-          description=''
+          description='노트북 수령 확인을 위한 서류'
           isSelected={templateCode === 'S2' ? true : false}
-          icon={ssafyIcons.laptopIcon}
+          icon={ssafyIcons.tickboxIcon}
+          disabled={true}
         />
         <DocSelectCard
           onToggleClick={handleSelect}
           id='S3'
-          title='출결 확인서'
-          description=''
+          title='출결 소명서'
+          description='출결 상황에 대한 소명 서류'
           isSelected={templateCode === 'S3' ? true : false}
-          icon={ssafyIcons.laptopIcon}
+          icon={ssafyIcons.checklistIcon}
+          disabled={true}
         />
         <DocSelectCard
           onToggleClick={handleSelect}
           id='S4'
-          title='출결 변경 요청서'
-          description=''
+          title='출결 변경서'
+          description='출결 기록 변경을 위한 서류'
           isSelected={templateCode === 'S4' ? true : false}
-          icon={ssafyIcons.laptopIcon}
+          icon={ssafyIcons.changeIcon}
+          disabled={true}
         />
         <DocSelectCard
           onToggleClick={handleSelect}
           id='S5'
           title='소스코드 반출 요청서'
-          description=''
+          description='프로젝트 소스코드 반출을 위한 신청서'
           isSelected={templateCode === 'S5' ? true : false}
-          icon={ssafyIcons.laptopIcon}
+          icon={ssafyIcons.codeIcon}
+          disabled={true}
         />
         <DocSelectCard
           onToggleClick={handleSelect}
           id='S6'
           title='프로젝트 활용 동의서'
-          description=''
+          description='프로젝트 활용에 대한 동의 서류'
           isSelected={templateCode === 'S6' ? true : false}
-          icon={ssafyIcons.laptopIcon}
+          icon={ssafyIcons.likeIcon}
+          disabled={true}
         />
       </div>
       <Link to="check" state={{ from: currentPath }}>
