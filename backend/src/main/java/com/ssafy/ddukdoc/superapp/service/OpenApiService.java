@@ -31,7 +31,7 @@ public class OpenApiService {
 
         // 빈 파일인 경우 체크
         if (file.isEmpty()) {
-            throw new CustomException(ErrorCode.FILE_IS_EMPTY);
+            throw new CustomException(ErrorCode.MATERIAL_UPLOAD_ERROR);
         }
 
         // 파일 이름 및 데이터 가져오기
