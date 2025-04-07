@@ -56,6 +56,15 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException e, HttpServletRequest request) {
 
         FieldError fieldError = e.getBindingResult().getFieldError();
+
+        if (fieldError == null) {
+            log.error("[ValidationException] {} {}: 유효성 검증 오류가 발생했지만 필드 에러 정보가 없습니다.",
+                    request.getMethod(),
+                    request.getRequestURI()
+            );
+            return CommonResponse.error(ErrorCode.INVALID_INPUT_VALUE, "입력값이 유효하지 않습니다.");
+        }
+
         String field = fieldError.getField();
         String defaultMessage = fieldError.getDefaultMessage();
         Object rejectedValue = fieldError.getRejectedValue();

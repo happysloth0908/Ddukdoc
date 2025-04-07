@@ -1,11 +1,9 @@
 package com.ssafy.ddukdoc.domain.template.entity;
 
-import com.ssafy.ddukdoc.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "role")
