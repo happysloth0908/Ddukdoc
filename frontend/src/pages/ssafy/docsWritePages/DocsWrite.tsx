@@ -67,11 +67,18 @@ export const DocsWrite = () => {
             />
             <Route
               path="detail/*"
-              element={<docsWriteChildren.DocsWriteDetail />}
+              element={
+                <docsWriteChildren.DocsWriteDetail
+                  curTemplate={templateCode}
+                />
+              }
             />
             <Route
               path="share"
-              element={<docsWriteChildren.DocsShareComplete />}
+              element={
+                <docsWriteChildren.DocsShareComplete
+                />
+              }
             />
           </Routes>
         </div>
