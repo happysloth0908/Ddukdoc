@@ -18,14 +18,14 @@ import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
-import com.ssafy.ddukdoc.global.common.util.encrypt.AESUtil;
+import com.ssafy.ddukdoc.global.common.util.encrypt.data.EncryptionStrategy;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DocumentService {
     private final UserDocRoleRepository userDocRoleRepository;
     private final RoleRepository roleRepository;
     private final S3Util s3Util;
-    private final AESUtil aesUtil;
+    private final EncryptionStrategy encryptionStrategy;
     
     public static final String DOCUMENT_ID = "documentId";
     public static final String USER_ID = "userId";
@@ -94,7 +94,7 @@ public class DocumentService {
         List<DocumentFieldResponseDto> decryptedData = fieldValues.stream()
                 .map(value -> {
                     // 암호화된 필드 값 복호화
-                    String decryptedValue = aesUtil.decrypt(value.getFieldValue());
+                    String decryptedValue = encryptionStrategy.decrypt(value.getFieldValue());
                     // DocumentFieldResponseDto 객체로 변환
                     return DocumentFieldResponseDto.of(value, decryptedValue);
                 })
