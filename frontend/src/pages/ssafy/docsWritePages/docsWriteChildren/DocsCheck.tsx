@@ -75,8 +75,7 @@ export const DocsCheck = ({
     }
 
     const response = await contractSave(curTemplate, formData, signature);
-    console.log(response);
-    navigate("/ssafy/docs/share");
+    navigate("/ssafy/docs/share", {state: { docId: response.data}});
   }
 
   
@@ -90,6 +89,7 @@ export const DocsCheck = ({
           subTitle="문서를"
           description="확인하고 다음을 눌러주세요!"
         />
+        {/* 일단 노트북 반출 서류만 */}
         <S1/>
       </div>
       {previousPage == '/ssafy/docs/detail/S1/signature' ? (
