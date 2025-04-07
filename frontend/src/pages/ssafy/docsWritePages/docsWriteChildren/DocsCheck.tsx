@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { S1 } from '@/pdfs/SSAFY/S1';
 import { contractSave } from '@/apis/ssafy/docsWrite';
 import { useS1Data } from '@/store/docs';
+import blockchainLoading from '@/assets/images/blockchain/blockchain.gif';
+import { useEffect, useState } from 'react';
 
 export const DocsCheck = ({
   curTemplate,
@@ -14,6 +16,20 @@ export const DocsCheck = ({
   const navigate = useNavigate();
   const previousPage = location.state?.from || '알 수 없음';
   const { data, signature } = useS1Data();
+  const [isLoading, setIsLoading] = useState(false);
+  const [dots, setDots] = useState(0);
+  
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      interval = setInterval(() => {
+        setDots((prev) => (prev >= 3 ? 0 : prev + 1));
+      }, 700);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading]);
 
   const getNextPage = () => {
     switch (previousPage) {
@@ -37,6 +53,7 @@ export const DocsCheck = ({
   const formatted = formatDateToYYMMDD(today);
 
   const save = async () => {
+    setIsLoading(true);
     const formData = {
       "role_id": 6,
       "title": `${formatted}_노트북 반출 확인서_${data.applicant_name}`,
@@ -73,9 +90,15 @@ export const DocsCheck = ({
         }
       ]
     }
-
-    const response = await contractSave(curTemplate, formData, signature);
-    navigate("/ssafy/docs/share", {state: { docId: response.data}});
+    try {
+      await contractSave(curTemplate, formData, signature).then((res) => {
+        setIsLoading(false);
+        navigate("/ssafy/docs/share", {state: { docId: res.data}});
+      });
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
   }
 
   
@@ -107,6 +130,20 @@ export const DocsCheck = ({
             colorType="black"
           />
         </Link>
+      )}
+      {isLoading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="flex flex-col items-center justify-center rounded-lg p-8">
+            <img
+              src={blockchainLoading}
+              alt="blockchain"
+              className="h-40 w-40"
+            />
+            <p className="mt-4 text-lg font-medium text-white">
+              블록체인에 저장중{'.'.repeat(dots)}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
