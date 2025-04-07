@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.global.security;
 
+import com.ssafy.ddukdoc.global.common.constants.UserType;
 import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,7 +47,7 @@ public class DevAuthenticationFilter extends OncePerRequestFilter {
                 // 테스트 사용자 ID로 인증 객체 생성
                 UserPrincipal userPrincipal = UserPrincipal.builder()
                         .id(Integer.parseInt(testUserId))
-                        .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")))
+                        .authorities(Collections.singletonList(new SimpleGrantedAuthority(UserType.ADMIN.name())))
                         .build();
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
