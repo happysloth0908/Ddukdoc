@@ -15,7 +15,7 @@ export const DocsCheck = ({
   const location = useLocation();
   const navigate = useNavigate();
   const previousPage = location.state?.from || '알 수 없음';
-  const { data, signature } = useS1Data();
+  const { data, signature, resetData } = useS1Data();
   const [isLoading, setIsLoading] = useState(false);
   const [dots, setDots] = useState(0);
   
@@ -93,6 +93,7 @@ export const DocsCheck = ({
     try {
       await contractSave(curTemplate, formData, signature).then((res) => {
         setIsLoading(false);
+        resetData();
         navigate("/ssafy/docs/share", {state: { docId: res.data}});
       });
     } catch (error) {

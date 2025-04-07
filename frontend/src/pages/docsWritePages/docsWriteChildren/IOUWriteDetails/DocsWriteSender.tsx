@@ -74,7 +74,7 @@ export const DocsWriteSender = ({
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    let newValue = value;
+    const newValue = value;
     checkValidation(name, newValue);
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
