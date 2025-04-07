@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.superapp.util;
 
-import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

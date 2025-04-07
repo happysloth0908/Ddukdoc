@@ -150,22 +150,44 @@ public class BlockchainUtil {
 
     public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode,String docName) {
         try {
+            if (pdfData == null || pdfData.length == 0) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "pdfData", "빈 데이터");
+            }
+
+            if (docName == null || docName.isEmpty()) {
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "docName", "문서명 누락");
+            }
+            log.debug("saveDocumentInBlockchain 시작 - 데이터: {}, 템플릿: {}, 문서명: {}",
+                    pdfData != null ? pdfData.length : "null",
+                    templateCode,
+                    docName);
             String hash = hashUtil.generateSHA256Hash(pdfData);
             String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
-
+            log.debug("해시 생성 완료: {}", docHashWithPrefix);
+            // 서명 생성 전 파라미터 확인
+            log.debug("서명 생성 파라미터 - requestor: {}, docName: {}, privateKey: {}",
+                    requestor,
+                    docName,
+                    privateKey != null ? "유효함" : "null");
             // 서명 생성
             String signature = signatureUtil.createSignature(requestor, docName, "", docHashWithPrefix, privateKey);
+            log.debug("서명 생성 완료: {}", signature);
 
             // 블록체인 객체 생성
             BlockChainStoreRequestDto storeData = new BlockChainStoreRequestDto(requestor, docName, "", docHashWithPrefix, signature);
+            log.debug("블록체인 요청 데이터 생성 완료: {}", storeData);
 
             // 블록체인 API 호출
             Map<String, Object> blockchainResponse = storeDocument(storeData);
+            log.debug("블록체인 응답: {}", blockchainResponse);
+
             // 블록체인 트랜잭션 ID 추출
             String transactionHash = (String) blockchainResponse.get("transactionHash");
+            log.debug("트랜잭션 해시: {}", transactionHash);
 
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, "reason", e.getMessage());
+            log.error("블록체인 저장 중 오류 발생: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.BLOCKCHAIN_SAVE_ERROR, "reason", e.getMessage());
         }
 
     }
@@ -199,7 +221,7 @@ public class BlockchainUtil {
             );
 
             // 응답 처리
-            log.info("문서 삭제 성공: {}", documentName);
+            log.debug("문서 삭제 성공: {}", documentName);
             return true;
         } catch (Exception e) {
             log.error("문서 삭제 중 오류 발생: {}", documentName, e);
