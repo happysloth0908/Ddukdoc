@@ -58,7 +58,7 @@ public class OpenApiService {
         }
 
         // 응답 생성
-        return FileRegisterResultDto.of(filename,mediaType,pdfData,null);
+        return FileRegisterResultDto.of(filename,mediaType,Base64.getEncoder().encodeToString(pdfData));
     }
 
 

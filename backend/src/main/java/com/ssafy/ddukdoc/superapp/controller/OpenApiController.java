@@ -30,22 +30,22 @@ public class OpenApiController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "파일 등록", description = "파일 메타데이터에 값을 추가하고 그 파일에 대한 해시값을 블록체인에 저장합니다.")
     @ApiErrorCodeExamples({ErrorCode.MATERIAL_UPLOAD_ERROR, ErrorCode.BLOCKCHAIN_SAVE_ERROR,ErrorCode.MATERIAL_INVALID_FORMAT,ErrorCode.FILE_IS_EMPTY})
-    public ResponseEntity<byte[]> registerFile(
+    public ResponseEntity<CommonResponse<FileRegisterResultDto>> registerFile(
             @Parameter(description = "업로드할 파일(빈 파일 전송 불가)")
             @RequestPart(value = "file") MultipartFile file) {
         FileRegisterResultDto responseDto = openApiService.registerFile(file);
-        // 응답 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(responseDto.getMediaType());
 
-        // 다운로드 설정 (파일명 인코딩)
-        String encodedFileName = UriUtils.encode(responseDto.getFileName(), StandardCharsets.UTF_8);
-        headers.setContentDisposition(ContentDisposition.attachment()
-                .filename(encodedFileName)
-                .build());
+//        // 응답 헤더 설정
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(responseDto.getMediaType());
+//
+//        // 다운로드 설정 (파일명 인코딩)
+//        String encodedFileName = UriUtils.encode(responseDto.getFileName(), StandardCharsets.UTF_8);
+//        headers.setContentDisposition(ContentDisposition.attachment()
+//                .filename(encodedFileName)
+//                .build());
 
-        // 바이트 배열 직접 반환
-        return new ResponseEntity<>(responseDto.getFileContent(), headers, HttpStatus.OK);
+        return CommonResponse.ok(responseDto);
     }
 
 

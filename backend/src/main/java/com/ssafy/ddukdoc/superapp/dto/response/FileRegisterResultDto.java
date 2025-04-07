@@ -13,19 +13,15 @@ public class FileRegisterResultDto {
     @Schema(description = "파일명", example = "doc_1234abcd")
     private String fileName;
 
-    @Schema(description = "파일 바이트 데이터(인코딩 x)")
-    private byte[] fileContent;
-
     @Schema(description = "파일 바이트 데이터 (Base64 인코딩)")
     private String fileData;
 
     private MediaType mediaType;
 
-    public static FileRegisterResultDto of(String fileName,MediaType mediaType,byte[] fileContent, String fileData){
+    public static FileRegisterResultDto of(String fileName,MediaType mediaType,String fileData){
         return FileRegisterResultDto.builder()
                 .fileName(fileName)
                 .mediaType(mediaType)
-                .fileContent(fileContent)
                 .fileData(fileData)
                 .build();
     }
