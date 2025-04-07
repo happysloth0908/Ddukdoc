@@ -17,6 +17,10 @@ export const SsafyMain = () => {
     }
   }, []);
 
+  const saveRoute = () => {
+    sessionStorage.setItem('origin', 'ssafy');
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col items-center p-4">
       {/* 제목 */}
@@ -47,7 +51,7 @@ export const SsafyMain = () => {
         </Link>
 
         {/* 블록 3 */}
-        <Link to="/ssafy/forgery">
+        <Link onClick={saveRoute} to="/ssafy/forgery">
           <div className="flex aspect-square items-center justify-center rounded-lg shadow-sm">
             <SmallButton
               imageSrc={SsafyLoginSVG.ssafy_forgery_icon}
