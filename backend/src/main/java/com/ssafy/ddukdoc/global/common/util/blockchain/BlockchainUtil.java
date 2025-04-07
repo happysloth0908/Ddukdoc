@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class BlockchainUtil {
-    private final RestTemplate restTemplate = new RestTemplate();
+
     @Value("${blockchain.baseurl}")
     private String baseUrl;
     @Value("${blockchain.contractAddress}")
@@ -37,8 +37,10 @@ public class BlockchainUtil {
 
     @Value("${blockchain.private-key}")
     private String privateKey;
+
     private final SignatureUtil signatureUtil;
     private final HashUtil hashUtil;
+    private final RestTemplate blockchainRestTemplate;
 
     /**
      * 문서 저장 API 호출 (PUT)
@@ -55,13 +57,19 @@ public class BlockchainUtil {
         headers.set("Content-Type", "application/json");
 
         HttpEntity<BlockChainStoreRequestDto> requestEntity = new HttpEntity<>(requestData, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = blockchainRestTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 requestEntity,
-                Map.class
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
         );
-        return response.getBody();
+        Map<String, Object> body = response.getBody();
+
+        if (body == null) {
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 저장 응답 본문이 비어있습니다");
+        }
+        return body;
     }
 
     public BlockchainDocumentResponseDto getDocumentByName(String documentName) {
@@ -70,14 +78,19 @@ public class BlockchainUtil {
         log.debug("문서 조회 URL: {}", url);
 
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map<String, Object>> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
-                    Map.class
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
             );
 
             Map<String, Object> body = response.getBody();
+
+            if (body == null) {
+                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 응답 본문이 비어있습니다");
+            }
 
             return BlockchainDocumentResponseDto.of(
                     documentName,
@@ -88,7 +101,7 @@ public class BlockchainUtil {
 
         } catch (Exception e) {
             // 에러 처리 로직
-            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "reason", e.getCause());
+            throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, e.getMessage());
         }
     }
 
@@ -96,7 +109,7 @@ public class BlockchainUtil {
         String url = baseUrl + contractAddress + "/documents";
 
         try {
-            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+            ResponseEntity<List<Map<String, Object>>> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -104,9 +117,15 @@ public class BlockchainUtil {
                     }
             );
 
-            log.debug("전체 문서 응답: {}", response.getBody());
+            List<Map<String, Object>> responseBody = response.getBody();
 
-            return response.getBody().stream()
+            if (responseBody == null) {
+                throw new CustomException(ErrorCode.BLOCKCHAIN_DOCUMENT_ERROR, "문서 응답 본문이 비어있습니다");
+            }
+
+            log.debug("전체 문서 응답: {}", responseBody);
+
+            return responseBody.stream()
                     .map(doc -> {
                         log.debug("개별 문서 데이터: {}", doc);
 
@@ -165,7 +184,7 @@ public class BlockchainUtil {
             String transactionHash = (String) blockchainResponse.get("transactionHash");
 
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, "reason", e.getMessage());
+            throw new CustomException(ErrorCode.BLOCKCHAIN_SIGNATURE_ERROR, e.getMessage());
         }
 
     }
@@ -191,7 +210,7 @@ public class BlockchainUtil {
             HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // DELETE 요청 전송
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.DELETE,
                     requestEntity,

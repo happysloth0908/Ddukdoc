@@ -1,4 +1,4 @@
-package com.ssafy.ddukdoc.global.common.util;
+package com.ssafy.ddukdoc.global.common.util.encrypt;
 
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -29,19 +29,20 @@ public class AESUtil {
         new SecureRandom().nextBytes(iv);
         return iv;
     }
+
     //DEK 생성
     public SecretKey generateDek() {
-        try{
+        try {
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(256);
             return keyGen.generateKey();
-        }catch (NoSuchAlgorithmException e) {
-            throw new CustomException(ErrorCode.GENERATED_DEK, "reason", "DEK 생성 실패");
+        } catch (NoSuchAlgorithmException e) {
+            throw new CustomException(ErrorCode.GENERATED_DEK, "DEK 생성 실패");
         }
     }
 
     //데이터 암호화 메서드
-    public String encryptData(String data, SecretKey dek){
+    public String encryptData(String data, SecretKey dek) {
         try {
             // 데이터 암호화
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -58,13 +59,13 @@ public class AESUtil {
 
             return Base64.getEncoder().encodeToString(combined);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "reason", e.getMessage());
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, e.getMessage());
         }
     }
 
     //KEK로 DEK 암호화
-    public String encryptDek(SecretKey dek){
-        try{
+    public String encryptDek(SecretKey dek) {
+        try {
             byte[] kekBytes = Base64.getDecoder().decode(KEK_STRING);
 
             if (kekBytes.length != 32) {
@@ -88,12 +89,12 @@ public class AESUtil {
 
             return Base64.getEncoder().encodeToString(combined);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "reason", e.getMessage());
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, e.getMessage());
         }
     }
 
     //암호화 호출 메서드
-    public String encrypt(String data){
+    public String encrypt(String data) {
         // dek 생성
         SecretKey dek = generateDek();
         //data 암호화
@@ -105,8 +106,8 @@ public class AESUtil {
     }
 
     //KEK로 DEK 복호화
-    public SecretKey decryptDek(String encryptedDek){
-        try{
+    public SecretKey decryptDek(String encryptedDek) {
+        try {
             byte[] kekBytes = Base64.getDecoder().decode(KEK_STRING);
 
             if (kekBytes.length != 32) {
@@ -129,19 +130,19 @@ public class AESUtil {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
 
-            cipher.init(Cipher.DECRYPT_MODE,kek,gcmSpec);
+            cipher.init(Cipher.DECRYPT_MODE, kek, gcmSpec);
             byte[] dekBytes = cipher.doFinal(encryptedBytes);
 
-            
-            return new SecretKeySpec(dekBytes,"AES");
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR,"reason","DEK 복호화 실패 : "+e.getMessage());
+
+            return new SecretKeySpec(dekBytes, "AES");
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "DEK 복호화 실패 : " + e.getMessage());
         }
     }
 
     //DEK로 암호화된 data 복호화
-    public String decryptData(String encryptedData, SecretKey dek){
-        try{
+    public String decryptData(String encryptedData, SecretKey dek) {
+        try {
 
             //Base64 리코딩
             byte[] decoded = Base64.getDecoder().decode(encryptedData);
@@ -163,19 +164,19 @@ public class AESUtil {
 
             return new String(decryptedData, StandardCharsets.UTF_8);
 
-        }catch (Exception e){
-            throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "데이터 복호화 실패: " + e.getMessage());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.DECRYPTION_ERROR, "데이터 복호화 실패: " + e.getMessage());
         }
     }
 
     //호출 복호화 메서드
-    public String decrypt(String encryptedInput){
-        try{
+    public String decrypt(String encryptedInput) {
+        try {
 
             //DEK 와 data 분리 (DEK//data)
             String[] parts = encryptedInput.split(":");
-            if(parts.length != 2){
-                throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "잘못된 암호화 형식 길이가 작아요");
+            if (parts.length != 2) {
+                throw new CustomException(ErrorCode.DECRYPTION_ERROR, "잘못된 암호화 형식 길이가 작아요");
             }
 
             String encryptedDek = parts[0];
@@ -186,8 +187,8 @@ public class AESUtil {
 
             //DEK로 데이터 복호화
             return decryptData(encryptedData, dek);
-        }catch(Exception e){
-            throw new CustomException(ErrorCode.DECRYPTION_ERROR, "reason", "복호화 실패: " + e.getMessage());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.DECRYPTION_ERROR, "복호화 실패: " + e.getMessage());
         }
     }
 

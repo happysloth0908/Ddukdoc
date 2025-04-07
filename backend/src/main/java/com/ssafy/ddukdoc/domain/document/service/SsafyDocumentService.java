@@ -15,10 +15,10 @@ import com.ssafy.ddukdoc.domain.document.repository.DocumentFieldValueRepository
 import com.ssafy.ddukdoc.domain.document.repository.DocumentRepository;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
 import com.ssafy.ddukdoc.global.common.CustomPage;
-import com.ssafy.ddukdoc.global.common.util.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
+import com.ssafy.ddukdoc.global.common.util.encrypt.data.EncryptionStrategy;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -46,10 +46,11 @@ public class SsafyDocumentService {
     private final DocumentRepository documentRepository;
     private final SignatureRepository signatureRepository;
     private final DocumentFieldValueRepository documentFieldValueRepository;
-    private final AESUtil aesUtil;
+//    private final AESUtil aesUtil;
     private final S3Util s3Util;
     private final PdfGeneratorUtil pdfGeneratorUtil;
     private final BlockchainUtil blockchainUtil;
+    private final EncryptionStrategy encryptionStrategy;
 
     public CustomPage<SsafyDocumentResponseDto> getDocsList(Integer userId, SsafyDocumentSearchRequestDto ssafyDocumentSearchRequestDto, Pageable pageable) {
         Page<Document> documentList = documentRepository.findSsafyDocumentList(
@@ -93,7 +94,7 @@ public class SsafyDocumentService {
         List<DocumentFieldResponseDto> decryptedData = fieldValues.stream()
                 .map(value -> {
                     // 암호화된 필드 값 복호화
-                    String decryptedValue = aesUtil.decrypt(value.getFieldValue());
+                    String decryptedValue = encryptionStrategy.decrypt(value.getFieldValue());
                     // DocumentFieldResponseDto 객체로 변환
                     return DocumentFieldResponseDto.of(value, decryptedValue);
                 })
@@ -146,7 +147,7 @@ public class SsafyDocumentService {
                             .addParameter("documentId", documentId)
                             .addParameter("userId", userId));
 
-            String encryptedValue = aesUtil.encrypt(fieldDto.getFieldValue());
+            String encryptedValue = encryptionStrategy.encrypt(fieldDto.getFieldValue());
             fieldValue.updateFieldValue(encryptedValue);
         }
 
