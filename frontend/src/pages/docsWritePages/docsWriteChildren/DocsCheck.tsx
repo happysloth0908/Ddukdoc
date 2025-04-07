@@ -12,7 +12,7 @@ export const DocsCheck = ({
   curTemplate: string;
   role: string;
 }) => {
-  const { data, creditor_signature, debtor_signature } = useIOUDocsStore();
+  const { data, creditor_signature, debtor_signature, resetData } = useIOUDocsStore();
   const location = useLocation();
   const navigate = useNavigate();
   const previousPage = location.state?.from || '알 수 없음';
@@ -152,21 +152,25 @@ export const DocsCheck = ({
     const signatureURL =
       role == '채권자' ? creditor_signature : debtor_signature;
 
-    const response = await contractSave('G1', jsonData, signatureURL);
-    console.log(response);
-
-    // KAKAO 공유하기
-    // ✅ SDK 초기화 확인 후 공유
-    if (window.Kakao && window.Kakao.isInitialized()) {
-      shareToKakao(
-        data.creditor_name || data.debtor_name,
-        response.data.pin_code,
-        curTemplate == 'G1' ? '차용증' : '근로계약서',
-        response.data.document_id,
-      );
-      navigate('/docs/share', { state: { docId: response.data.doc_id } });
-    } else {
-      console.error('Kakao SDK가 초기화되지 않았습니다.');
+    try {
+      const response = await contractSave('G1', jsonData, signatureURL);
+      
+      // KAKAO 공유하기
+      // ✅ SDK 초기화 확인 후 공유
+      if (window.Kakao && window.Kakao.isInitialized()) {
+        shareToKakao(
+          data.creditor_name || data.debtor_name,
+          response.data.pin_code,
+          curTemplate == 'G1' ? '차용증' : '근로계약서',
+          response.data.document_id,
+        );
+        resetData();
+        navigate('/docs/share', { state: { docId: response.data.doc_id } });
+      } else {
+        console.error('Kakao SDK가 초기화되지 않았습니다.');
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   return (

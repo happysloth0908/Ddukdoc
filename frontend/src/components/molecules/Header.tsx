@@ -16,9 +16,9 @@ export const Header = () => {
   };
 
   const getTitleByPath = () => {
-    if (pathname.startsWith('/docs')) return '문서 작성';
-    if (pathname.startsWith('/mypage')) return '나의 문서';
-    if (pathname.startsWith('/forgery')) return '위변조 확인';
+    if (pathname.startsWith('*/docs')) return '문서 작성';
+    if (pathname.startsWith('*/mypage')) return '나의 문서';
+    if (pathname.startsWith('*/forgery')) return '위변조 확인';
     return '';
   };
 
@@ -28,7 +28,9 @@ export const Header = () => {
         !(pathname === '/') &&
         !(pathname === '/ssafy') &&
         !(pathname === '/ssafy/login') &&
-        !(pathname === '/docs/share') && (
+        !(pathname === '/docs/share') &&
+        !(pathname === '/ssafy/docs/share') &&
+        !(pathname === '/mypage/pin/*') && (
           <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
             <ArrowLeft className="text-primary-300" onClick={onClick} />
             <span className="text-md"></span>

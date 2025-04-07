@@ -7,9 +7,7 @@ import { LoginPage } from '@/pages/loginPages/Login';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
 import { ProtectedRoute } from './functions/ProtectedRoute';
-import { SsafyLogin } from './pages/ssafy/ssafyLoginPages/SsafyLogin';
-import { SsafyMain } from './pages/ssafy/mainPages/SsafyMain';
-import SsafyMyPage from '@/pages/ssafy/mypages/MyPage';
+import SsafyRouter from './pages/ssafy/SsafyRouter';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
 // }
@@ -72,19 +70,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* SSAFY 로그인 */}
-          <Route path="/ssafy/login/*" element={<SsafyLogin />} />
-          {/* 위변조 검사 */}
-          <Route
-            path="/ssafy/*"
-            element={
-              // <ProtectedRoute>
-              <SsafyMain />
-              // </ProtectedRoute>
-            }
-          />
-          {/* SSAFY 마이페이지 */}
-          <Route path="/ssafy/mypage/*" element={<SsafyMyPage />} />
+          <Route path="/ssafy/*" element={<SsafyRouter />} />
         </Routes>
       </div>
     </div>

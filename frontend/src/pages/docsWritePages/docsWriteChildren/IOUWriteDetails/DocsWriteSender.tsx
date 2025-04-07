@@ -74,7 +74,7 @@ export const DocsWriteSender = ({
   // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    let newValue = value;
+    const newValue = value;
     checkValidation(name, newValue);
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
@@ -121,13 +121,13 @@ export const DocsWriteSender = ({
     <div className="flex h-full w-full flex-col">
       <atoms.ProgressBar curStage={1} totalStage={6} />
       <div className="flex flex-1 items-center justify-center">
-        <div className="m-1 flex w-full flex-col gap-y-20">
+        <div className="m-1 flex w-full flex-col gap-y-2">
           <atoms.DocsDescription
             title="정보를 입력해주세요"
             subTitle={role + ' 정보'}
             description="를 입력하고 있어요"
           />
-          <form className="flex flex-col gap-y-6">
+          <form className="flex flex-col gap-y-2">
             <div>
               <atoms.Input
                 className={errorStatus.title ? 'ring-1 ring-red-500' : ''}
