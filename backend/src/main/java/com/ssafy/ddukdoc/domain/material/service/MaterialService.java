@@ -38,16 +38,20 @@ public class MaterialService {
     private final FileValidationUtil fileValidationUtil;
     private final S3Util s3Util;
 
+    public static final String DOCUMENT_ID = "documentId";
+    public static final String USER_ID = "userId";
+    public static final String MATERIAL_ID = "materialId";
+
     @Transactional
     public void uploadMaterial(Integer userId, Integer documentId, String title, MultipartFile file) {
 
         // Document 조회, 엔티티를 id로 조회 했을때 없으면 예외 발생
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, DOCUMENT_ID, documentId));
 
         // User 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, "userId", userId));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_ID, USER_ID, userId));
 
         // 파일 검증
         String fileExtension = fileValidationUtil.isValidFileExtension(file);
@@ -72,13 +76,13 @@ public class MaterialService {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, DOCUMENT_ID, documentId));
 
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
                 (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                    .addParameter("documentId", documentId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, USER_ID, userId)
+                    .addParameter(DOCUMENT_ID, documentId);
         }
 
         // 문서 내 등록된 추가자료 모두 조회
@@ -93,24 +97,24 @@ public class MaterialService {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, DOCUMENT_ID, documentId));
 
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
                 (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                    .addParameter("documentId", documentId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, USER_ID, userId)
+                    .addParameter(DOCUMENT_ID, documentId);
         }
 
         // 추가자료 검증
         DocumentEvidence material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, MATERIAL_ID, materialId));
 
         // 이미지만 상세 조회 가능
         if (!fileValidationUtil.isImageExtension(material.getMimeType())) {
             throw new CustomException(ErrorCode.MATERIAL_NOT_IMAGE, "fileFormat", material.getMimeType())
-                    .addParameter("materialId", materialId)
-                    .addParameter("documentId", documentId);
+                    .addParameter(MATERIAL_ID, materialId)
+                    .addParameter(DOCUMENT_ID, documentId);
         }
 
 
@@ -125,24 +129,24 @@ public class MaterialService {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, DOCUMENT_ID, documentId));
 
         // 사용자 검증
         if (!(document.getCreator().getId().equals(userId) ||
                 (document.getRecipient() != null && document.getRecipient().getId().equals(userId)))) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                    .addParameter("documentId", documentId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, USER_ID, userId)
+                    .addParameter(DOCUMENT_ID, documentId);
         }
 
         // 추가자료 검증
         DocumentEvidence material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, "materialId", materialId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MATERIAL_NOT_FOUND, MATERIAL_ID, materialId));
 
         // 추가자료 생성자 검증
         if (!material.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                    .addParameter("documentId", documentId)
-                    .addParameter("materialId", materialId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, USER_ID, userId)
+                    .addParameter(DOCUMENT_ID, documentId)
+                    .addParameter(MATERIAL_ID, materialId);
         }
 
         // S3에서 파일 삭제
@@ -156,18 +160,18 @@ public class MaterialService {
 
         // 문서 검증
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, "documentId", documentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_NOT_FOUND, DOCUMENT_ID, documentId));
 
         // 사용자 접근 권한 확인 (문서 생성자 또는 수신자만 다운로드 가능)
         if (!(document.getCreator().getId().equals(userId) || document.getRecipient().getId().equals(userId))) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, "userId", userId)
-                    .addParameter("documentId", documentId);
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS, USER_ID, userId)
+                    .addParameter(DOCUMENT_ID, documentId);
         }
 
         // 추가자료 목록 조회
         List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
         if (documentEvidenceList.isEmpty()) {
-            throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_EMPTY, "documentId", documentId);
+            throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_EMPTY, DOCUMENT_ID, documentId);
         }
 
         // Zip 파일 생성
@@ -185,14 +189,14 @@ public class MaterialService {
                     zipStream.closeEntry();
                 } catch (IOException e) {
                     log.error("자료 파일 처리 실패 - 증빙 제목: {}. 에러: {}", evidence.getTitle(), e.getMessage(), e);
-                    throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, "documentId", documentId)
-                            .addParameter("materialId", evidence.getId());
+                    throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, DOCUMENT_ID, documentId)
+                            .addParameter(MATERIAL_ID, evidence.getId());
                 }
             }
             zipStream.finish();
         } catch (IOException e) {
             log.error("ZIP 파일 생성 실패 - documentId: {}. 에러: {}", documentId, e.getMessage(), e);
-            throw new CustomException(ErrorCode.MATERIAL_ZIP_CONVERT_ERROR, "documentId", documentId)
+            throw new CustomException(ErrorCode.MATERIAL_ZIP_CONVERT_ERROR, DOCUMENT_ID, documentId)
                     .addParameter("예외 메세지", e.getMessage());
         }
         return MaterialDownloadResponseDto.of(document, byteStream.toByteArray());

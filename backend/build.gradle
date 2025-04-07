@@ -75,6 +75,7 @@ dependencies {
 	//word 메타데이터 추가
 	implementation("org.apache.poi:poi:5.3.0")
 	implementation("org.apache.poi:poi-ooxml:5.3.0")
+    implementation 'software.amazon.awssdk:kms:2.31.16'
 }
 
 tasks.named('test') {
