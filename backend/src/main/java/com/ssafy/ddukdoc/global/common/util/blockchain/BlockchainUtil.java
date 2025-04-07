@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.global.common.util.blockchain;
 
+import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.dto.request.BlockChainStoreRequestDto;
 import com.ssafy.ddukdoc.domain.contract.dto.response.BlockchainDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class BlockchainUtil {
-    private final RestTemplate restTemplate = new RestTemplate();
+
     @Value("${blockchain.baseurl}")
     private String baseUrl;
     @Value("${blockchain.contractAddress}")
@@ -35,8 +37,10 @@ public class BlockchainUtil {
 
     @Value("${blockchain.private-key}")
     private String privateKey;
+
     private final SignatureUtil signatureUtil;
     private final HashUtil hashUtil;
+    private final RestTemplate blockchainRestTemplate;
 
     /**
      * 문서 저장 API 호출 (PUT)
@@ -53,7 +57,7 @@ public class BlockchainUtil {
         headers.set("Content-Type", "application/json");
 
         HttpEntity<BlockChainStoreRequestDto> requestEntity = new HttpEntity<>(requestData, headers);
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = blockchainRestTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 requestEntity,
@@ -74,7 +78,7 @@ public class BlockchainUtil {
         log.debug("문서 조회 URL: {}", url);
 
         try {
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+            ResponseEntity<Map<String, Object>> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -105,7 +109,7 @@ public class BlockchainUtil {
         String url = baseUrl + contractAddress + "/documents";
 
         try {
-            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+            ResponseEntity<List<Map<String, Object>>> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
@@ -163,7 +167,7 @@ public class BlockchainUtil {
         return null;
     }
 
-    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode, String docName) {
+    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode,String docName) {
         try {
             String hash = hashUtil.generateSHA256Hash(pdfData);
             String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
@@ -206,7 +210,7 @@ public class BlockchainUtil {
             HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // DELETE 요청 전송
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<Map> response = blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.DELETE,
                     requestEntity,
