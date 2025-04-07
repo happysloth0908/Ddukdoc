@@ -84,7 +84,8 @@ public class DocumentService {
         UserRoleResponseDto userRoleInfo = extractUserRoleInfo(document);
         SignatureResponseDto signatureInfo = extractSignatureInfo(document);
 
-        boolean isRecipient = userId.equals(document.getRecipient().getId());
+        User recipient = document.getRecipient();
+        boolean isRecipient = recipient != null && userId.equals(recipient.getId());
 
         return DocumentDetailResponseDto.of(document, fieldValues, signatureInfo, userRoleInfo, isRecipient);
     }
