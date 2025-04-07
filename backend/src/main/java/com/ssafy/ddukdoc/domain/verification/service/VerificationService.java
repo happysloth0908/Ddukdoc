@@ -50,7 +50,7 @@ public class VerificationService {
 
         } catch (IOException e) {
             log.error("문서 검증 중 오류발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.VALDIATION_ERROR, "reason", e.getCause());
+            throw new CustomException(ErrorCode.VALIDATION_ERROR, "reason", e.getCause());
         }
     }
 }

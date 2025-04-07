@@ -37,14 +37,22 @@ public class OpenApiService {
 
             // 메타데이터에서 docName 추출
             String docName = fileValidationService.extractDocName(file);
+            if(docName == null) {
+                throw new CustomException(ErrorCode.VALIDATION_NOT_REGIST);
+            }
 
             // docName으로 블록체인 Hash 조회
             BlockchainDocumentResponseDto blockchainDto = blockchainUtil.getDocumentByName(docName);
 
             String fileHash = "0x" + hashUtil.generateSHA256Hash(file.getBytes());
+
+            // 블록체인 Hash값과 PDF Hash 비교
+            if (!fileHash.equals(blockchainDto.getDocHash())) {
+                throw new CustomException(ErrorCode.VALIDATION_NOT_MATCH, "docName", docName);
+            }
         } catch (IOException e) {
             log.error("파일 검증 오류: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.VALDIATION_ERROR, "reason", e.getCause());
+            throw new CustomException(ErrorCode.VALIDATION_ERROR, "reason", e.getCause());
         }
     }
 }
