@@ -9,6 +9,7 @@ import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspect
 import { ProtectedRoute } from './functions/ProtectedRoute';
 import { SsafyLogin } from './pages/ssafy/ssafyLoginPages/SsafyLogin';
 import { SsafyMain } from './pages/ssafy/mainPages/SsafyMain';
+import SsafyMyPage from '@/pages/ssafy/mypages/MyPage';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
 // }
@@ -17,8 +18,7 @@ function App() {
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
   const isSsafy =
-    location.pathname === '/ssafy/login' ||
-    location.pathname === '/ssafy';
+    location.pathname === '/ssafy/login' || location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
     : isSsafy
@@ -79,12 +79,13 @@ function App() {
             path="/ssafy/*"
             element={
               // <ProtectedRoute>
-                <SsafyMain />
+              <SsafyMain />
               // </ProtectedRoute>
             }
           />
+          {/* SSAFY 마이페이지 */}
+          <Route path="/ssafy/mypage/*" element={<SsafyMyPage />} />
         </Routes>
-
       </div>
     </div>
   );
