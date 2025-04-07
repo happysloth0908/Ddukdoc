@@ -14,7 +14,6 @@ export const MainMenuPage = () => {
   useEffect(() => {
     if (isLoggedIn) {
       // localStorage에서 리다이렉트 경로 가져오기
-      // const redirectPath = localStorage.getItem('auth_redirect_path');
       const redirectPath = getCookie('auth_redirect_path');
 
       if (redirectPath) {
