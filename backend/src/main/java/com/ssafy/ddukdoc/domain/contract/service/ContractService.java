@@ -23,10 +23,10 @@ import com.ssafy.ddukdoc.domain.user.entity.User;
 import com.ssafy.ddukdoc.domain.user.entity.UserDocRole;
 import com.ssafy.ddukdoc.domain.user.repository.UserDocRoleRepository;
 import com.ssafy.ddukdoc.domain.user.repository.UserRepository;
-import com.ssafy.ddukdoc.global.common.util.AESUtil;
 import com.ssafy.ddukdoc.global.common.util.MultipartFileUtils;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.common.util.blockchain.BlockchainUtil;
+import com.ssafy.ddukdoc.global.common.util.encrypt.data.EncryptionStrategy;
 import com.ssafy.ddukdoc.global.common.util.pdfgenerator.PdfGeneratorUtil;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
@@ -56,9 +56,10 @@ public class ContractService {
     private final SignatureRepository signatureRepository;
     private final RoleRepository roleRepository;
     private final UserDocRoleRepository userDocRoleRepository;
-    private final AESUtil aesUtil;
+//    private final AESUtil aesUtil;
     private final PdfGeneratorUtil pdfGeneratorUtil;
     private final BlockchainUtil blockchainUtil;
+    private final EncryptionStrategy encryptionStrategy;
 
     public static final String USER_ID = "userId";
     public static final String DOCUMENT_ID = "documentId";
@@ -156,7 +157,7 @@ public class ContractService {
                                     "template_field_id", fieldValueDto.getFieldId()));
 
                     // 필드 값을 암호화하여 저장
-                    String encryptedValue = aesUtil.encrypt(fieldValueDto.getFieldValue());
+                    String encryptedValue = encryptionStrategy.encrypt(fieldValueDto.getFieldValue());
 
                     return fieldValueDto.toEntity(document, field, user, encryptedValue);
 
@@ -214,7 +215,7 @@ public class ContractService {
                     // 암호화된 필드 값 복호화 (필요한 경우)
                     String decryptedValue = value.getFieldValue();
                     try {
-                        decryptedValue = aesUtil.decrypt(value.getFieldValue());
+                        decryptedValue = encryptionStrategy.decrypt(value.getFieldValue());
                     } catch (Exception e) {
                         log.warn("필드 값 복호화 실패: {}", e.getMessage());
                     }
@@ -301,7 +302,7 @@ public class ContractService {
                                     "template_field_id", fieldValueDto.getFieldId()));
 
                     // 필드 값을 암호화하여 저장
-                    String encryptedValue = aesUtil.encrypt(fieldValueDto.getFieldValue());
+                    String encryptedValue = encryptionStrategy.encrypt(fieldValueDto.getFieldValue());
 
                     return fieldValueDto.toEntity(document, field, user, encryptedValue);
 

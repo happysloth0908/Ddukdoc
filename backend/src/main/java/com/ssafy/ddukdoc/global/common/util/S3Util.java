@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.global.common.util;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import com.ssafy.ddukdoc.global.common.util.encrypt.file.FileEncryptionStrategy;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class S3Util {
     private final AmazonS3 amazonS3;
-    private final FileAESUtil fileAesUtil;
+    private final FileEncryptionStrategy fileAes;
 
     public static final String PATH_PREFIX = "eftoj1/";
     public static final String PATH_SPLIT = "/eftoj1/";
@@ -38,7 +39,7 @@ public class S3Util {
             File originalFile = convert(multipartFile)
                     .orElseThrow(() -> new CustomException(ErrorCode.FILE_CONVERT_ERROR));
             // 파일 암호화
-            Map<String, Object> encryptionResult = fileAesUtil.encryptFile(originalFile);
+            Map<String, Object> encryptionResult = fileAes.encryptFile(originalFile);
             File encryptedFile = (File) encryptionResult.get("encryptedFile");
             String encryptedDek = (String) encryptionResult.get("encryptedDek");
             String iv = (String) encryptionResult.get("iv");
@@ -95,7 +96,7 @@ public class S3Util {
             }
 
             //파일 복호화
-            File decryptedFile = fileAesUtil.decryptFile(encryptedTempFile, encryptedDek, iv);
+            File decryptedFile = fileAes.decryptFile(encryptedTempFile, encryptedDek, iv);
 
             //임시 암호화 파일 삭제
             if (!encryptedTempFile.delete()) {

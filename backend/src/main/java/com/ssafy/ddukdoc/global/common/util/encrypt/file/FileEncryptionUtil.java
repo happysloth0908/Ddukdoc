@@ -1,9 +1,7 @@
-package com.ssafy.ddukdoc.global.common.util;
+package com.ssafy.ddukdoc.global.common.util.encrypt.file;
 
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
@@ -14,63 +12,30 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
-public class FileAESUtil {
-    private final AESUtil aesUtil;
+public class FileEncryptionUtil {
 
     private static final int GCM_TAG_LENGTH = 128;
     private static final int IV_LENGTH = 12;
-    private static final int BUFFER_SIZE = 8192; // 8KB
 
-    private byte[] generateIV() {
+    public byte[] generateIV() {
         byte[] iv = new byte[IV_LENGTH];
         new SecureRandom().nextBytes(iv);
         return iv;
     }
 
-    /**
-     * 파일 암호화
-     *
-     * @param file 암호화할 파일
-     * @return 암호화 결과 (암호화된 파일, 암호화된 DEK, IV)
-     */
-    public Map<String, Object> encryptFile(File file) {
-        if (file == null || !file.exists() || !file.isFile()) {
-            log.error("암호화할 파일이 존재하지 않거나 파일이 아닙니다: {}", file);
-            throw new CustomException(ErrorCode.FILE_NOT_FOUND, "file", "파일이 존재하지 않거나 파일이 아닙니다");
+    public String getFileExtension(String fileName) {
+        String originalName = fileName.replace(".enc", "");
+        int lastDotIndex = originalName.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            return originalName.substring(lastDotIndex);
         }
-        try {
-            //DEK 생성
-            SecretKey dek = aesUtil.generateDek();
-
-            //IV 생성
-            byte[] iv = generateIV();
-
-            //파일 암호화
-            File encryptedFile = encryptFileWithDek(file, dek, iv);
-
-            //DEK 암호화
-            String encryptedDek = aesUtil.encryptDek(dek);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("encryptedFile", encryptedFile);
-            result.put("encryptedDek", encryptedDek);
-            result.put("iv", Base64.getEncoder().encodeToString(iv));
-
-            return result;
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "파일 암호화 실패 : " + e.getMessage());
-        }
+        // 기본 확장자가 없는 경우
+        return ".tmp";
     }
 
-    //DEK 사용하여 파일 암호화
-    private File encryptFileWithDek(File file, SecretKey dek, byte[] iv) throws Exception {
+    public File encryptFileWithDek(File file, SecretKey dek, byte[] iv) throws Exception {
         File encryptedFile = new File(file.getParent(), file.getName() + ".enc");
 
         try (FileInputStream fis = new FileInputStream(file);
@@ -102,32 +67,9 @@ public class FileAESUtil {
 
             return encryptedFile;
         }
-
     }
 
-
-    // 암호화된 파일과 암호화 정보를 이용하여 파일 복호화
-    public File decryptFile(File encryptedFile, String encryptedDek, String base64IV) {
-        if (encryptedFile == null || !encryptedFile.exists() || !encryptedFile.isFile()) {
-            log.error("복호화할 파일이 존재하지 않거나 파일이 아닙니다: {}", encryptedFile);
-            throw new CustomException(ErrorCode.FILE_NOT_FOUND, "file", "파일이 존재하지 않거나 파일이 아닙니다");
-        }
-        try {
-            //DEK 복호화
-            SecretKey dek = aesUtil.decryptDek(encryptedDek);
-
-            //IV 디코딩
-            byte[] iv = Base64.getDecoder().decode(base64IV);
-
-            // 파일 복호화 - IV는 메타데이터에서 가져온 것 사용
-            return decryptFileWithDek(encryptedFile, dek, iv);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.ENCRYPTION_ERROR, "파일 복호화 실패 : " + e.getMessage());
-        }
-    }
-
-    //DEK로 파일 복호화
-    private File decryptFileWithDek(File encryptedFile, SecretKey dek, byte[] iv) throws IOException {
+    public File decryptFileWithDek(File encryptedFile, SecretKey dek, byte[] iv) throws IOException {
         // 임시 디렉토리에 고유한 이름으로 복호화된 파일 생성
         File decryptedFile = File.createTempFile("decrypted-", getFileExtension(encryptedFile.getName()));
         try {
@@ -179,16 +121,5 @@ public class FileAESUtil {
             }
             throw new CustomException(ErrorCode.FILE_DECRYPTION_ERROR, e.getMessage());
         }
-    }
-
-    // 파일 확장자 추출 메서드
-    private String getFileExtension(String fileName) {
-        String originalName = fileName.replace(".enc", "");
-        int lastDotIndex = originalName.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return originalName.substring(lastDotIndex);
-        }
-        // 기본 확장자가 없는 경우
-        return ".tmp";
     }
 }
