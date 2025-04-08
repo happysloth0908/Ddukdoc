@@ -8,6 +8,7 @@ import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
 import { ProtectedRoute } from './functions/ProtectedRoute';
 import SsafyRouter from './pages/ssafy/SsafyRouter';
+import { ErrorPage } from './pages/errorPages/error';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
 // }
@@ -71,6 +72,7 @@ function App() {
             }
           />
           <Route path="/ssafy/*" element={<SsafyRouter />} />
+          <Route path="/error" element={<ErrorPage />} />
         </Routes>
       </div>
     </div>
