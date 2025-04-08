@@ -94,7 +94,7 @@ const DocCheck = () => {
       setData({
         // field에서 가져오는 정보들
         loan_purpose: fieldMap['loan_purpose'] || '',
-        loan_date: fieldMap['loan_data'] || '',
+        loan_date: fieldMap['loan_date'] || '',
         principal_amount_text: fieldMap['principal_amount_text'] || '',
         principal_amount_numeric:
           Number(fieldMap['principal_amount_numeric']) || 0,
@@ -118,17 +118,30 @@ const DocCheck = () => {
         debtor_id: fieldMap['debtor_id'] || '',
       });
 
-      // 서명 정보 업데이트
-      if (response.data.data.user_role_info.recipient_role_id === 2) {
-        setDebtorSignature(
-          'data:image/png;base64,' +
-            response.data.data.signature.creator_signature
-        );
-      } else if (response.data.data.user_role_info.recipient_role_id === 3) {
-        setCreditorSignature(
-          'data:image/png;base64,' +
-            response.data.data.signature.creator_signature
-        );
+      if (isRecipient) {
+        if (response.data.data.user_role_info.recipient_role_id === 2) {
+          setDebtorSignature(
+            'data:image/png;base64,' +
+              response.data.data.signature.creator_signature
+          );
+        } else if (response.data.data.user_role_info.recipient_role_id === 3) {
+          setCreditorSignature(
+            'data:image/png;base64,' +
+              response.data.data.signature.creator_signature
+          );
+        }
+      } else {
+        if (response.data.data.user_role_info.creator_role_id === 2) {
+          setCreditorSignature(
+            'data:image/png;base64,' +
+              response.data.data.signature.creator_signature
+          );
+        } else if (response.data.data.user_role_info.creator_role_id === 3) {
+          setDebtorSignature(
+            'data:image/png;base64,' +
+              response.data.data.signature.creator_signature
+          );
+        }
       }
 
       setRecipientRoleId(response.data.data.user_role_info.recipient_role_id);
@@ -210,7 +223,7 @@ const DocCheck = () => {
         </>
       )}
 
-      {isRecipient && (
+      {isRecipient && !isRefused && (
         <>
           {/* 체크박스 영역 */}
           <div className="mt-16 flex items-center space-x-2">
