@@ -11,7 +11,7 @@ export const Result = ({
 }) => {
   return (
     <div className="flex w-full flex-col justify-center">
-      <div className="my-10 mt-20 text-info-large font-bold">
+      <div className="my-10 mt-10 text-info-large font-bold">
         <div>문서 검증 결과를</div>
         <div>알려드릴게요</div>
       </div>
