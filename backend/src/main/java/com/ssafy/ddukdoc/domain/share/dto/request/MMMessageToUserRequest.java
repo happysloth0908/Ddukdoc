@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.domain.share.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,7 +19,7 @@ public class MMMessageToUserRequest {
     @NotBlank(message = "receiverId는 필수입니다.")
     private String receiverId;
     @Schema(example = "12")
-    @NotBlank(message = "documentId는 필수입니다.")
+    @NotNull(message = "documentId는 필수입니다.")
     private Integer documentId;
     @Schema(example = "안녕하세요")
     @NotBlank(message = "message는 필수입니다.")
