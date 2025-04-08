@@ -7,35 +7,33 @@ import SsafyMyPage from './mypages/MyPage';
 
 function SsafyRouter() {
   return (
-    <div className="h-full w-full">
-      <Routes>
-        <Route path="login/*" element={<SsafyLogin />} />
-        <Route
-          index
-          element={
-            <ProtectedRoute>
-              <SsafyMain />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="docs/*"
-          element={
-            <ProtectedRoute>
-              <DocsWrite />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="mypage/*"
-          element={
-            <ProtectedRoute>
-              <SsafyMyPage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="login/*" element={<SsafyLogin />} />
+      <Route
+        index
+        element={
+          <ProtectedRoute>
+            <SsafyMain />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="docs/*"
+        element={
+          // <ProtectedRoute>
+          <DocsWrite />
+          // </ProtectedRoute>
+        }
+      />
+      <Route
+        path="mypage/*"
+        element={
+          <ProtectedRoute>
+            <SsafyMyPage />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
