@@ -12,8 +12,8 @@ const SelectMessage = () => {
   const { user_id, token, receiver_id, channel_id } = useShareInfoStore();
 
   const predefinedMessages = [
-    '안녕하세요!',
-    '좋은 하루 되세요!',
+    '안녕하세요, 서류 전달드립니다',
+    '좋은 하루 되세요, 서류 제출합니다!',
     '감사합니다!',
     '직접 입력',
   ];
