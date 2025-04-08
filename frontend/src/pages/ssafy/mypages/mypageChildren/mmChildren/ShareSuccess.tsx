@@ -10,7 +10,7 @@ const ShareSuccess = () => {
       <Link to={'/ssafy/mypage'}>
         <atoms.LongButton
           className="mb-20"
-          children="문서 확인하기"
+          children="문서 목록으로"
           colorType="black"
         />
       </Link>

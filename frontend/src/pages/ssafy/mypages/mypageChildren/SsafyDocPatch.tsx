@@ -93,6 +93,7 @@ const SsafyDocPatch = () => {
   // 개별 필드 유효성 검사 함수
   const checkValidation = (name: string, value: string): boolean => {
     let errorMsg = '';
+    let numbersOnly;
 
     const isAllFieldsEmpty = Object.values(formData).every(
       (v) => v.trim() === ''
@@ -141,10 +142,14 @@ const SsafyDocPatch = () => {
           break;
 
         case 'contact_number':
-          if (value.length != 11)
-            errorMsg = '전화번호는 (-)를 제외한 11자리를 입력해주세요.';
-          else if (!/^\d{3}-\d{4}-\d{4}$/.test(formatPhoneNumber(value)))
+          numbersOnly = value.replace(/\D/g, '');
+          if (numbersOnly.length > 11) {
+            errorMsg = '전화번호는 11자리를 초과할 수 없습니다.';
+          } else if (value.length != 13) {
+            errorMsg = '전화번호 11자리를 입력해주세요.';
+          } else if (!/^\d{3}-\d{4}-\d{4}$/.test(formatPhoneNumber(value))) {
             errorMsg = '연락처는 (-)제외 숫자로만 작성해주세요';
+          }
           break;
 
         case 'applicant_name':
@@ -171,8 +176,12 @@ const SsafyDocPatch = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    checkValidation(name, value);
+    let newValue = value;
+    if (name === 'contact_number') {
+      newValue = formatPhoneNumber(value);
+    }
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    checkValidation(name, newValue);
   };
 
   const handleSenderData = () => {
