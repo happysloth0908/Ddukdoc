@@ -18,7 +18,7 @@ export const SsafyMain = () => {
   }, []);
 
   const saveRoute = () => {
-    sessionStorage.setItem('origin', 'ssafy');
+    navigate('/forgery', { state: { fromSsafy: true } });
   };
 
   return (
@@ -40,7 +40,7 @@ export const SsafyMain = () => {
         </div>
 
         {/* 블록 2 */}
-        <Link to="/ssafy/mydocs">
+        <Link to="/ssafy/mypage">
           <div className="flex aspect-square items-center justify-center rounded-lg shadow-sm">
             <SmallButton
               imageSrc={SsafyLoginSVG.ssafy_myhome_icon}
@@ -51,15 +51,16 @@ export const SsafyMain = () => {
         </Link>
 
         {/* 블록 3 */}
-        <Link onClick={saveRoute} to="/ssafy/forgery">
-          <div className="flex aspect-square items-center justify-center rounded-lg shadow-sm">
-            <SmallButton
-              imageSrc={SsafyLoginSVG.ssafy_forgery_icon}
-              subtitle="블록체인 기술로 위변조 검사"
-              title="위변조 검사"
-            />
-          </div>
-        </Link>
+        <div
+          onClick={saveRoute}
+          className="flex aspect-square items-center justify-center rounded-lg shadow-sm"
+        >
+          <SmallButton
+            imageSrc={SsafyLoginSVG.ssafy_forgery_icon}
+            subtitle="블록체인 기술로 위변조 검사"
+            title="위변조 검사"
+          />
+        </div>
 
         {/* 블록 4 */}
         <Link to="/ssafy/docs">

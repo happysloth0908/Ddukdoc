@@ -45,6 +45,7 @@ const InfoInput = ({
 
   const checkValidation = (name: string, value: string) => {
     let error = '';
+    let numbersOnly;
     switch (name) {
       case 'name':
         if (!/^[가-힣a-zA-Z]{2,20}$/.test(value.trim()))
@@ -54,11 +55,17 @@ const InfoInput = ({
         if (value.length >= 60) error = '주소는 60자 미만으로 작성해주세요.';
         break;
       case 'id':
-        if (!/^\d{6}-\d{7}$/.test(value))
+        numbersOnly = value.replace(/\D/g, '');
+        if (numbersOnly.length > 13)
+          error = '주민번호는 13자리를 초과할 수 없습니다.';
+        else if (!/^\d{6}-\d{7}$/.test(value))
           error = '주민번호는 13자리 숫자로만 작성해주세요.';
         break;
       case 'contact':
-        if (value.length != 13) error = '전화번호 11자리를 입력해주세요.';
+        numbersOnly = value.replace(/\D/g, '');
+        if (numbersOnly.length > 11)
+          error = '전화번호는 11자리를 초과할 수 없습니다.';
+        else if (value.length != 13) error = '전화번호 11자리를 입력해주세요.';
         else if (!/^\d{3}-\d{4}-\d{4}$/.test(formatPhoneNumber(value)))
           error = '연락처는 (-)제외 숫자로만 작성해주세요';
         break;
@@ -133,6 +140,7 @@ const InfoInput = ({
                 className={errorStatus.name ? 'ring-1 ring-red-500' : ''}
                 name="name"
                 label="이름"
+                value={formData.name}
                 onChange={handleChange}
               />
               <p
@@ -148,6 +156,7 @@ const InfoInput = ({
                 className={errorStatus.id ? 'ring-1 ring-red-500' : ''}
                 name="id"
                 label="주민등록번호"
+                value={formData.id}
                 onChange={handleChange}
               />
               <p
@@ -163,6 +172,7 @@ const InfoInput = ({
                 className={errorStatus.address ? 'ring-1 ring-red-500' : ''}
                 name="address"
                 label="주소"
+                value={formData.address}
                 onChange={handleChange}
               />
               <p
@@ -179,6 +189,7 @@ const InfoInput = ({
                 className={errorStatus.contact ? 'ring-1 ring-red-500' : ''}
                 name="contact"
                 label="연락처"
+                value={formData.contact}
                 onChange={handleChange}
               />
               <p
