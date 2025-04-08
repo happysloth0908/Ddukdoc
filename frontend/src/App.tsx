@@ -65,9 +65,9 @@ function App() {
           <Route
             path="/forgery/*"
             element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <ForgeryInspection />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
           <Route path="/ssafy/*" element={<SsafyRouter />} />

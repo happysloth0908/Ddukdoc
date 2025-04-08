@@ -13,6 +13,8 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@react-three/drei": "^10.0.6",
+    "@react-three/fiber": "^9.1.2",
     "@types/react-transition-group": "^4.4.12",
     "axios": "^1.8.3",
     "lucide-react": "^0.483.0",
@@ -21,6 +23,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.4.0",
     "react-transition-group": "^4.4.5",
+    "three": "^0.175.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
