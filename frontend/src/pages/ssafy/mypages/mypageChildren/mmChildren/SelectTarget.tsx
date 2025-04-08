@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import personal from '@/assets/images/ssafy/mypage/personal.svg';
 import team from '@/assets/images/ssafy/mypage/team.svg';
+import { useShareInfoStore } from '@/store/mmStore';
 
 const SelectTarget = () => {
   const { id } = useParams();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { setShare_type } = useShareInfoStore();
 
   const handleToggleClick = (id: string) => {
     setSelectedId(id);
@@ -16,8 +18,10 @@ const SelectTarget = () => {
 
   const handleNextClick = () => {
     if (selectedId === '1') {
+      setShare_type('user');
       navigate(`/ssafy/mypage/share/${id}/personal`);
     } else if (selectedId === '2') {
+      setShare_type('channel');
       navigate(`/ssafy/mypage/share/${id}/team`);
     }
   };
