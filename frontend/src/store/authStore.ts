@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true });
       console.log('API 호출 전');
-      const response = await api.get('/api/users/general');
+      const response = await api.get('/api/users/status/general');
       console.log('API 응답:', response.data);
 
       if (response.data && response.data.success) {
