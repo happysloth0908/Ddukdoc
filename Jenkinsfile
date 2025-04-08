@@ -7,8 +7,9 @@ pipeline {
 
     environment {
         // 동적으로 현재 활성 환경과 대기 환경을 결정하는 변수
-        ACTIVE_ENV = ""
-        INACTIVE_ENV = ""
+        DEPLOY_ENV = "${env.DEPLOY_ENV ?: 'development'}"  // 기본값 설정
+        ACTIVE_ENV = "${sh(script: 'cat /home/ubuntu/active_${env.DEPLOY_ENV}_env.txt || echo \"blue\"', returnStdout: true).trim()}"
+        INACTIVE_ENV = "${env.ACTIVE_ENV == 'blue' ? 'green' : 'blue'}"
     }
 
     stages {
@@ -59,53 +60,53 @@ pipeline {
             }
         }
 
-        stage('Determine Active Environment') {
-            when {
-                expression { return env.BACKEND_CHANGES == 'true' }
-            }
-            steps {
-                script {
-
-                    // 디버깅
-                    sh "echo '--- 파일 존재 확인 ---'"
-                    sh "ls -la /home/ubuntu/ | grep active"
-
-                    sh "echo '--- 파일 내용 확인 ---'"
-                    sh "cat /home/ubuntu/active_dev_env.txt || echo '파일 읽기 실패'"
-
-                    sh "echo '--- 명령어 결과 테스트 ---'"
-                    def testResult = sh(script: "echo 'test output'", returnStdout: true).trim()
-                    echo "테스트 결과: ${testResult}"
-
-                    // 현재 활성화된 환경 확인
-                    if (env.DEPLOY_ENV == 'production') {
-                        // 여기서 바로 변수에 할당하지 않고 출력 확인
-                        echo "Production 환경 파일 읽기 시도"
-                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_prod_env.txt || echo 'blue'", returnStdout: true)
-                        echo "파일 내용 출력: ${activeEnvOutput}"
-                        // 변수 트림 후 할당
-                        def activeEnv = activeEnvOutput.trim()
-                        echo "트림 후 값: ${activeEnv}"
-                        // 환경 변수 설정
-                        env.ACTIVE_ENV = activeEnv
-                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
-                    } else {
-                        echo "개발 환경 파일 읽기 시도"
-                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_dev_env.txt || echo 'blue'", returnStdout: true)
-                        echo "파일 내용 출력: ${activeEnvOutput}"
-                        // 변수 트림 후 할당
-                        def activeEnv = activeEnvOutput.trim()
-                        echo "트림 후 값: ${activeEnv}"
-                        // 환경 변수 설정
-                        env.ACTIVE_ENV = activeEnv
-                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
-                    }
-
-                    echo "현재 활성 환경: ${env.ACTIVE_ENV}"
-                    echo "배포할 환경: ${env.INACTIVE_ENV}"
-                }
-            }
-        }
+//        stage('Determine Active Environment') {
+//            when {
+//                expression { return env.BACKEND_CHANGES == 'true' }
+//            }
+//            steps {
+//                script {
+//
+//                    // 디버깅
+//                    sh "echo '--- 파일 존재 확인 ---'"
+//                    sh "ls -la /home/ubuntu/ | grep active"
+//
+//                    sh "echo '--- 파일 내용 확인 ---'"
+//                    sh "cat /home/ubuntu/active_dev_env.txt || echo '파일 읽기 실패'"
+//
+//                    sh "echo '--- 명령어 결과 테스트 ---'"
+//                    def testResult = sh(script: "echo 'test output'", returnStdout: true).trim()
+//                    echo "테스트 결과: ${testResult}"
+//
+//                    // 현재 활성화된 환경 확인
+//                    if (env.DEPLOY_ENV == 'production') {
+//                        // 여기서 바로 변수에 할당하지 않고 출력 확인
+//                        echo "Production 환경 파일 읽기 시도"
+//                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_prod_env.txt || echo 'blue'", returnStdout: true)
+//                        echo "파일 내용 출력: ${activeEnvOutput}"
+//                        // 변수 트림 후 할당
+//                        def activeEnv = activeEnvOutput.trim()
+//                        echo "트림 후 값: ${activeEnv}"
+//                        // 환경 변수 설정
+//                        env.ACTIVE_ENV = activeEnv
+//                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
+//                    } else {
+//                        echo "개발 환경 파일 읽기 시도"
+//                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_dev_env.txt || echo 'blue'", returnStdout: true)
+//                        echo "파일 내용 출력: ${activeEnvOutput}"
+//                        // 변수 트림 후 할당
+//                        def activeEnv = activeEnvOutput.trim()
+//                        echo "트림 후 값: ${activeEnv}"
+//                        // 환경 변수 설정
+//                        env.ACTIVE_ENV = activeEnv
+//                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
+//                    }
+//
+//                    echo "현재 활성 환경: ${env.ACTIVE_ENV}"
+//                    echo "배포할 환경: ${env.INACTIVE_ENV}"
+//                }
+//            }
+//        }
 
         stage('Blockchain API Build') {
             when {
