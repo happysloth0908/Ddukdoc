@@ -53,7 +53,7 @@
 
 body {
   touch-action: pan-y;
-  font-family: 'interop';
+  font-family: 'interop', sans-serif;
   -ms-overflow-style: none;
 }
 
