@@ -35,6 +35,7 @@ export const Header = () => {
     <div className="flex w-full justify-center">
       {!pathname.startsWith('/login') &&
         !(pathname === '/') &&
+        !(pathname === '/error') &&
         !(pathname === '/ssafy') &&
         !(pathname === '/ssafy/login') &&
         !(pathname === '/docs/share') &&
