@@ -9,7 +9,8 @@ const SelectMessage = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
-  const { user_id, token, receiver_id, channel_id } = useShareInfoStore();
+  const { user_id, token, receiver_id, channel_id, share_type } =
+    useShareInfoStore();
 
   const predefinedMessages = [
     '안녕하세요, 서류 전달드립니다',
@@ -19,7 +20,7 @@ const SelectMessage = () => {
   ];
 
   const handleShare = async () => {
-    if (receiver_id && !channel_id) {
+    if (share_type === 'user' && receiver_id) {
       try {
         await apiClient.post(`/api/share/mm/message-user`, {
           user_id: user_id,
@@ -30,9 +31,9 @@ const SelectMessage = () => {
         });
         navigate(`/ssafy/mypage/success`);
       } catch (error) {
-        console.error('공유 중 오류가 발생했습니다:', error);
+        console.error('개인 메시지 전송 중 오류가 발생했습니다:', error);
       }
-    } else if (!receiver_id && channel_id) {
+    } else if (share_type === 'channel' && channel_id) {
       try {
         await apiClient.post(`/api/share/mm/message-channel`, {
           user_id: user_id,
@@ -43,7 +44,7 @@ const SelectMessage = () => {
         });
         navigate(`/ssafy/mypage/success`);
       } catch (error) {
-        console.error('공유 중 오류가 발생했습니다:', error);
+        console.error('채널 메시지 전송 중 오류가 발생했습니다:', error);
       }
     }
   };
