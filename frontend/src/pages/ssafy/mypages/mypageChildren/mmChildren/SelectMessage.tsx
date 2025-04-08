@@ -29,7 +29,9 @@ const SelectMessage = () => {
           document_id: id,
           message: message,
         });
-        navigate(`/ssafy/mypage/success`);
+        navigate(`/ssafy/mypage/success`, {
+          state: { from: `/ssafy/mypage/share/${id}` },
+        });
       } catch (error) {
         console.error('개인 메시지 전송 중 오류가 발생했습니다:', error);
       }
@@ -42,7 +44,9 @@ const SelectMessage = () => {
           document_id: id,
           message: message,
         });
-        navigate(`/ssafy/mypage/success`);
+        navigate(`/ssafy/mypage/success`, {
+          state: { from: `/ssafy/mypage/share/${id}` },
+        });
       } catch (error) {
         console.error('채널 메시지 전송 중 오류가 발생했습니다:', error);
       }

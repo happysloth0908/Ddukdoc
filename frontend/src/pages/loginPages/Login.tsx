@@ -22,11 +22,11 @@ export const LoginPage = () => {
       <div className="flex items-center justify-center">
         <img
           alt="로고"
-          src={Login.logo}
+          src={Login.hammer}
           style={{
-            width: '50%',
+            width: '65%',
             height: 'auto',
-            maxWidth: '150px',
+            maxWidth: '400px',
           }}
         />
       </div>

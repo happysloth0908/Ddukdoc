@@ -6,7 +6,7 @@ const BlockChainPage = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/mypage', { replace: true });
+    navigate('/mypage', { state: { from: '/' } });
   };
 
   return (

@@ -30,7 +30,7 @@ export default function DocSelectCard({
   return (
     <button
       className={`${className} ${isSelected ? 'bg-primary-300 text-gray-white' : ''} relative w-full flex gap-x-10 items-center justify-center cursor-pointer rounded px-5 py-4 border border-gray-400 transition-colors overflow-hidden`}
-      onClick={() => handleClick}
+      onClick={handleClick}
     >
       <img className='w-8 h-8' src={icon} alt="" />
       <div className="text-left flex-1">
