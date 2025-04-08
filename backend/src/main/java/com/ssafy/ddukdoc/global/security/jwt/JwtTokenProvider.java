@@ -33,11 +33,12 @@ public class JwtTokenProvider {
     }
 
     // 기존 토큰 생성 메소드 유지
-    public String createToken(String userId, long validityTime) {
+    public String createToken(String userId, String userType, long validityTime) {
         Date now = new Date();
 
         return Jwts.builder()
                 .subject(userId)
+                .claim(SecurityConstants.ROLE_NAME, userType)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + validityTime))
                 .signWith(getSigningKey())
@@ -45,20 +46,24 @@ public class JwtTokenProvider {
     }
 
     // Refresh Token 생성
-    public String createAccessToken(String userId) {
+    public String createAccessToken(String userId, String userType) {
         long accessTokenValidTime = SecurityConstants.ACCESS_TOKEN_VALIDITY_SECONDS * 1000L;
-        return createToken(userId, accessTokenValidTime);
+        return createToken(userId, userType, accessTokenValidTime);
     }
 
     // Refresh Token 생성
-    public String createRefreshToken(String userId) {
+    public String createRefreshToken(String userId, String userType) {
         long refreshTokenValidTime = SecurityConstants.REFRESH_TOKEN_VALIDITY_SECONDS * 1000L;
-        return createToken(userId, refreshTokenValidTime);
+        return createToken(userId, userType, refreshTokenValidTime);
     }
 
     // 토큰에서 회원 정보 추출
     public Integer getUserId(String token) {
         return Integer.parseInt(extractAllClaims(token).getSubject());
+    }
+
+    public String getUserType(String token) {
+        return extractAllClaims(token).get(SecurityConstants.ROLE_NAME, String.class);
     }
 
     // Claims 추출
@@ -73,7 +78,7 @@ public class JwtTokenProvider {
     // 토큰 유효성 + 만료일자 확인
     public TokenValidationResult validateToken(String token) {
         try {
-            Claims claims = extractAllClaims(token);
+            extractAllClaims(token);
             return new TokenValidationResult(true, null);
         } catch (ExpiredJwtException e) {
             return new TokenValidationResult(false, TokenError.EXPIRED);
@@ -85,10 +90,11 @@ public class JwtTokenProvider {
     // Spring Security 인증 객체 생성
     public Authentication getAuthentication(String token) {
         Integer userId = getUserId(token);
+        String userType = getUserType(token);
 
         UserPrincipal userPrincipal = UserPrincipal.builder()
                 .id(userId)
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")))
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority(SecurityConstants.ROLE_PREFIX + userType)))
                 .build();
 
         return new UsernamePasswordAuthenticationToken(
