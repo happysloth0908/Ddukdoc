@@ -42,8 +42,9 @@ export const DocsWriteSender = ({
   };
 
   const formatUserId = (input: string) => {
-    const userId = input.replace(/-/g, '');
-    return`${userId.slice(0,6)}-${userId.slice(6, 13)}`
+    const numbersOnly = input.replace(/\D/g, '');
+    if (numbersOnly.length <= 6) return numbersOnly;
+    return `${numbersOnly.slice(0, 6)}-${numbersOnly.slice(6, 13)}`;
   };
 
   const checkValidation = (name: string, value: string) => {
@@ -60,14 +61,20 @@ export const DocsWriteSender = ({
         if (value.length == 0|| value.length >= 60) error = '주소는 60자 미만으로 작성해주세요.';
         break;
       case 'id':
-        if (!/^\d{13}$/.test(value))
+        // Check the raw number input without hyphens
+        const idWithoutHyphens = value.replace(/-/g, '');
+        if (!/^\d{0,13}$/.test(idWithoutHyphens))
           error = '주민번호는 (-)를 제외한 13자리 숫자로만 작성해주세요.';
+        else if (idWithoutHyphens.length > 0 && idWithoutHyphens.length < 13)
+          error = '주민번호는 13자리여야 합니다.';
         break;
       case 'contact':
-        console.log(value.length);
-        if (value.length != 11) error = '전화번호는 (-)를 제외한 11자리를 입력해주세요.';
-        else if (!/^\d{3}-\d{4}-\d{4}$/.test(formatPhoneNumber(value)))
-          error = '연락처는 (-)제외 숫자로만 작성해주세요';
+        // Check the raw number input without hyphens
+        const contactWithoutHyphens = value.replace(/-/g, '');
+        if (contactWithoutHyphens.length > 0 && contactWithoutHyphens.length < 11)
+          error = '전화번호는 11자리여야 합니다.';
+        else if (!/^\d*$/.test(contactWithoutHyphens))
+          error = '연락처는 숫자로만 작성해주세요';
         break;
       default:
         break;
@@ -76,12 +83,33 @@ export const DocsWriteSender = ({
     return error;
   };
 
-  // 입력값 변경 핸들러
+  // 입력값 변경 핸들러 (실시간 하이픈 포맷팅 추가)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const newValue = value;
-    checkValidation(name, newValue);
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    let formattedValue = value;
+    
+    // Apply formatting as the user types
+    if (name === 'contact') {
+      // Remove existing hyphens first then format
+      const rawValue = value.replace(/-/g, '');
+      // Only keep digits
+      const digitsOnly = rawValue.replace(/\D/g, '').slice(0, 11);
+      formattedValue = formatPhoneNumber(digitsOnly);
+      console.log(formattedValue);
+    } 
+    else if (name === 'id') {
+      // Remove existing hyphens first then format
+      const rawValue = value.replace(/-/g, '');
+      // Only keep digits
+      const digitsOnly = rawValue.replace(/\D/g, '').slice(0, 13);
+      formattedValue = formatUserId(digitsOnly);
+    }
+    else {
+      formattedValue = value;
+    }
+    
+    checkValidation(name, formattedValue);
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
   };
 
   // 전체 필드 유효성 검사
@@ -96,7 +124,6 @@ export const DocsWriteSender = ({
 
   // 데이터 저장 및 유효성 검사
   const handleSenderData = () => {
-    console.log(formData);
     if (!validateAllFields()) {
       return;
     } else {
@@ -105,16 +132,16 @@ export const DocsWriteSender = ({
           ? {
               title: formData.title,
               creditor_name: formData.name,
-              creditor_id: formatUserId(formData.id),
+              creditor_id: formData.id, // Already formatted
               creditor_address: formData.address,
-              creditor_contact: formatPhoneNumber(formData.contact),
+              creditor_contact: formData.contact, // Already formatted
             }
           : {
               title: formData.title,
               debtor_name: formData.name,
-              debtor_id: formatUserId(formData.id),
+              debtor_id: formData.id, // Already formatted
               debtor_address: formData.address,
-              debtor_contact: formatPhoneNumber(formData.contact),
+              debtor_contact: formData.contact, // Already formatted
             };
 
       handleData(updatedData);
@@ -137,7 +164,7 @@ export const DocsWriteSender = ({
               <atoms.Input
                 className={errorStatus.title ? 'ring-1 ring-red-500' : ''}
                 name="title"
-                defaultValue={data.title || ''}
+                value={formData.title}
                 label="문서 제목"
                 onChange={handleChange}
               />
@@ -153,7 +180,7 @@ export const DocsWriteSender = ({
               <atoms.Input
                 className={errorStatus.name ? 'ring-1 ring-red-500' : ''}
                 name="name"
-                defaultValue={data.creditor_name || data.debtor_name || ''}
+                value={formData.name}
                 label="이름"
                 onChange={handleChange}
               />
@@ -169,7 +196,7 @@ export const DocsWriteSender = ({
               <atoms.Input
                 className={errorStatus.id ? 'ring-1 ring-red-500' : ''}
                 name="id"
-                defaultValue={data.creditor_id.replace(/-/g, '') || data.debtor_id.replace(/-/g, '') || ''}
+                value={formData.id}
                 label="주민등록번호"
                 onChange={handleChange}
               />
@@ -185,9 +212,7 @@ export const DocsWriteSender = ({
               <atoms.Input
                 className={errorStatus.address ? 'ring-1 ring-red-500' : ''}
                 name="address"
-                defaultValue={
-                  data.creditor_address || data.debtor_address || ''
-                }
+                value={formData.address}
                 label="주소"
                 onChange={handleChange}
               />
@@ -204,11 +229,7 @@ export const DocsWriteSender = ({
               <atoms.Input
                 className={errorStatus.contact ? 'ring-1 ring-red-500' : ''}
                 name="contact"
-                defaultValue={
-                  (data.creditor_contact ? data.creditor_contact.replace(/-/g, '') : '') ||
-                  (data.debtor_contact ? data.debtor_contact.replace(/-/g, '') : '') ||
-                  ''
-                }
+                value={formData.contact}
                 label="연락처"
                 onChange={handleChange}
               />
