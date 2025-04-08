@@ -362,14 +362,11 @@ pipeline {
                 script {
                     try {
                         // 새 배포가 정상적으로 시작되었는지 확인
-                        def port
                         def healthUrl
 
                         if (env.DEPLOY_ENV == 'production') {
-                            port = env.INACTIVE_ENV == 'blue' ? '8080' : '8081'
-                            healthUrl = "http://backend-prod-${env.INACTIVE_ENV}:8085/api/actuator/health"
+                            healthUrl = "http://backend-prod-${env.INACTIVE_ENV}:8080/api/actuator/health"
                         } else {
-                            port = env.INACTIVE_ENV == 'blue' ? '8085' : '8086'
                             healthUrl = "http://backend-dev-${env.INACTIVE_ENV}:8085/api/actuator/health"
                         }
 
@@ -385,7 +382,7 @@ pipeline {
                                 echo "새 환경(${env.INACTIVE_ENV})이 정상 동작 중입니다."
                             } else {
                                 attempts++
-                                echo "헬스체크 실패 (${attempts}/10). 5초 후 다시 시도합니다... (응답 코드: ${response})"
+                                echo "헬스체크 실패 (${attempts}/15). 5초 후 다시 시도합니다... (응답 코드: ${response})"
                                 sleep 5
                             }
                         }
