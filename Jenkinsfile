@@ -20,6 +20,8 @@ pipeline {
                 echo "DEPLOY_ENV: ${env.DEPLOY_ENV}"
                 echo "SPRING_PROFILE: ${env.SPRING_PROFILE}"
                 echo "DEPLOY_PATH: ${env.DEPLOY_PATH}"
+                echo "ACTIVE_ENV: ${env.ACTIVE_ENV}"
+                echo "INACTIVE_ENV: ${env.INACTIVE_ENV}"
                 echo "DB 관련 환경변수가 설정되어 있는지 확인합니다."
                 sh 'env | grep DB_ || echo "DB 환경변수가 없습니다"'
             }
@@ -61,54 +63,6 @@ pipeline {
                 }
             }
         }
-
-//        stage('Determine Active Environment') {
-//            when {
-//                expression { return env.BACKEND_CHANGES == 'true' }
-//            }
-//            steps {
-//                script {
-//
-//                    // 디버깅
-//                    sh "echo '--- 파일 존재 확인 ---'"
-//                    sh "ls -la /home/ubuntu/ | grep active"
-//
-//                    sh "echo '--- 파일 내용 확인 ---'"
-//                    sh "cat /home/ubuntu/active_dev_env.txt || echo '파일 읽기 실패'"
-//
-//                    sh "echo '--- 명령어 결과 테스트 ---'"
-//                    def testResult = sh(script: "echo 'test output'", returnStdout: true).trim()
-//                    echo "테스트 결과: ${testResult}"
-//
-//                    // 현재 활성화된 환경 확인
-//                    if (env.DEPLOY_ENV == 'production') {
-//                        // 여기서 바로 변수에 할당하지 않고 출력 확인
-//                        echo "Production 환경 파일 읽기 시도"
-//                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_prod_env.txt || echo 'blue'", returnStdout: true)
-//                        echo "파일 내용 출력: ${activeEnvOutput}"
-//                        // 변수 트림 후 할당
-//                        def activeEnv = activeEnvOutput.trim()
-//                        echo "트림 후 값: ${activeEnv}"
-//                        // 환경 변수 설정
-//                        env.ACTIVE_ENV = activeEnv
-//                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
-//                    } else {
-//                        echo "개발 환경 파일 읽기 시도"
-//                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_dev_env.txt || echo 'blue'", returnStdout: true)
-//                        echo "파일 내용 출력: ${activeEnvOutput}"
-//                        // 변수 트림 후 할당
-//                        def activeEnv = activeEnvOutput.trim()
-//                        echo "트림 후 값: ${activeEnv}"
-//                        // 환경 변수 설정
-//                        env.ACTIVE_ENV = activeEnv
-//                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
-//                    }
-//
-//                    echo "현재 활성 환경: ${env.ACTIVE_ENV}"
-//                    echo "배포할 환경: ${env.INACTIVE_ENV}"
-//                }
-//            }
-//        }
 
         stage('Blockchain API Build') {
             when {
@@ -464,13 +418,13 @@ pipeline {
                             if (env.DEPLOY_ENV == 'production') {
                                 // Nginx 설정 파일에서 활성 환경 변수 업데이트
                                 sh """
-                                sed -i 's/set \\\$active_backend "backend-prod-[^"]*";/set \\\$active_backend "backend-prod-${env.INACTIVE_ENV}";/g' /home/ubuntu/nginx/conf/default.conf
+                                sed -i 's/server backend-prod-[^:]*:8080;/server backend-prod-${env.INACTIVE_ENV}:8080;/g' /home/ubuntu/nginx/conf/prod.conf
                                 
                                 # Nginx 설정 테스트 및 리로드
                                 docker exec nginx nginx -t && docker exec nginx nginx -s reload
                                 
                                 # 활성 환경 정보 저장
-                                echo "${env.INACTIVE_ENV}" > /home/ubuntu/active_prod_env.txt
+                                echo "${env.INACTIVE_ENV}" > /home/ubuntu/active_production_env.txt
                                 """
                             } else {
                                 // 개발 환경 Nginx 설정 업데이트
@@ -481,7 +435,7 @@ pipeline {
                                 docker exec nginx nginx -t && docker exec nginx nginx -s reload
                                 
                                 # 활성 환경 정보 저장
-                                echo "${env.INACTIVE_ENV}" > /home/ubuntu/active_dev_env.txt
+                                echo "${env.INACTIVE_ENV}" > /home/ubuntu/active_development_env.txt
                                 """
                             }
 
