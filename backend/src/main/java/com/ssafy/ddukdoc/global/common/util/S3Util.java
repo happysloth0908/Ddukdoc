@@ -2,6 +2,7 @@ package com.ssafy.ddukdoc.global.common.util;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import com.ssafy.ddukdoc.global.common.util.encrypt.file.FileEncryptionStrategy;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -23,36 +24,47 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class S3Util {
     private final AmazonS3 amazonS3;
-    private final FileAESUtil fileAesUtil;
+    private final FileEncryptionStrategy fileAes;
+
+    public static final String PATH_PREFIX = "eftoj1/";
+    public static final String PATH_SPLIT = "/eftoj1/";
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     //multipartFile 암호화 후 S3에 업로드
-    public String uploadEncryptedFile(MultipartFile multipartFile, String dirName){
-        try{
+    public String uploadEncryptedFile(MultipartFile multipartFile, String dirName) {
+        try {
             //MultipartFile을 File 객체로 변환 후 S3에 업로드
             File originalFile = convert(multipartFile)
-                    .orElseThrow(()-> new CustomException(ErrorCode.FILE_CONVERT_ERROR));
+                    .orElseThrow(() -> new CustomException(ErrorCode.FILE_CONVERT_ERROR));
             // 파일 암호화
-            Map<String, Object> encryptionResult = fileAesUtil.encryptFile(originalFile);
+            Map<String, Object> encryptionResult = fileAes.encryptFile(originalFile);
             File encryptedFile = (File) encryptionResult.get("encryptedFile");
             String encryptedDek = (String) encryptionResult.get("encryptedDek");
             String iv = (String) encryptionResult.get("iv");
 
             // 암호화된 파일 업로드
-            String uploadUrl = uploadEncryptedFile(encryptedFile, dirName,encryptedDek,iv);
+            String uploadUrl = uploadEncryptedFile(encryptedFile, dirName, encryptedDek, iv);
 
             // 로컬 임시 파일 삭제
-            originalFile.delete();
-            encryptedFile.delete();
+            if (!originalFile.delete()) {
+                String name = originalFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "OriginalFileName", name);
+            }
+            if (!encryptedFile.delete()) {
+                String name = encryptedFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "encryptedFileFileName", name);
+            }
+
 
             return uploadUrl;
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error("파일 암호화 업로드 중 오류 발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR,"dirName",dirName);
+            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR, "dirName", dirName);
         }
     }
+
     //S3에서 암호화된 파일 다운로드 및 복호화
     public File downloadAndDecryptFile(String fileKey) {
         try {
@@ -84,10 +96,13 @@ public class S3Util {
             }
 
             //파일 복호화
-            File decryptedFile = fileAesUtil.decryptFile(encryptedTempFile, encryptedDek, iv);
+            File decryptedFile = fileAes.decryptFile(encryptedTempFile, encryptedDek, iv);
 
             //임시 암호화 파일 삭제
-            encryptedTempFile.delete();
+            if (!encryptedTempFile.delete()) {
+                String name = encryptedTempFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filename", name);
+            }
             // 복호화된 파일이 존재하는지 확인
             if (!decryptedFile.exists()) {
                 throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file",
@@ -96,33 +111,32 @@ public class S3Util {
 
             return decryptedFile;
         } catch (AmazonS3Exception e) {
-            e.printStackTrace();
-            // S3 자체 에러 처리
+            log.error("S3 파일 다운로드 오류: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "S3 오류: ", e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
-            // 파일 저장/복사 관련 I/O 에러
+            log.error("파일 I/O 처리 오류: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_CONVERT_ERROR, "파일 처리 중 오류 발생: ", e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-            // 그 외 알 수 없는 예외 처리
+            log.error("파일 처리 중 예상치 못한 오류: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "알 수 없는 오류: ", e.getMessage());
         }
     }
+
     // 암호화 안하고 s3 업로드
-    public String uploadFile(MultipartFile multipartFile, String dirName){
+    public String uploadFile(MultipartFile multipartFile, String dirName) {
         try {
             File uploadFile = convert(multipartFile)
                     .orElseThrow(() -> new CustomException(ErrorCode.FILE_CONVERT_ERROR));
 
             return upload(uploadFile, dirName);
         } catch (IOException e) {
-            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR,"dirName",dirName);
+            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR, "dirName", dirName);
         }
     }
+
     //암호화된 File을 S3에 업로드
-    private String uploadEncryptedFile(File encryptedFile, String dirName, String encryptedDek,String iv){
-        String fileName = "eftoj1/" + dirName + "/" + UUID.randomUUID() + "-encrypted-" + encryptedFile.getName();
+    private String uploadEncryptedFile(File encryptedFile, String dirName, String encryptedDek, String iv) {
+        String fileName = PATH_PREFIX + dirName + "/" + UUID.randomUUID() + "-encrypted-" + encryptedFile.getName();
 
         //메타데이터에 암호화된 dek, iv 저장
         ObjectMetadata metadata = new ObjectMetadata();
@@ -136,20 +150,26 @@ public class S3Util {
 
         return amazonS3.getUrl(bucket, fileName).toString();
     }
+
     //일반 파일을 S3에 업로드
-    private String upload(File uploadFile, String dirName){
-        String fileName = "eftoj1/"+dirName +"/"+ UUID.randomUUID() + "-"+uploadFile.getName();
+    private String upload(File uploadFile, String dirName) {
+        String fileName = PATH_PREFIX + dirName + "/" + UUID.randomUUID() + "-" + uploadFile.getName();
 
         //s3에 파일 업로드
-        amazonS3.putObject(new PutObjectRequest(bucket,fileName,uploadFile)
+        amazonS3.putObject(new PutObjectRequest(bucket, fileName, uploadFile)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        uploadFile.delete();
-        return amazonS3.getUrl(bucket,fileName).toString();
+        if (!uploadFile.delete()) {
+            String name = uploadFile.getName();
+
+            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "FileName", name);
+        }
+
+        return amazonS3.getUrl(bucket, fileName).toString();
     }
 
     //MultiFile을 파일객체로 변환
-    private Optional<File> convert(MultipartFile file) throws IOException{
+    private Optional<File> convert(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             log.warn("파일이 비어 있습니다.");
             return Optional.empty();
@@ -160,19 +180,23 @@ public class S3Util {
         String safeFilename = originalFilename != null
                 ? originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_")
                 : "unknown_" + UUID.randomUUID().toString();
-        File convertFile = new File(System.getProperty("java.io.tmpdir")+"/",safeFilename);
+        File convertFile = new File(System.getProperty("java.io.tmpdir") + "/", safeFilename);
 
-        if(convertFile.exists()){
-            convertFile.delete();
+        if (convertFile.exists()) {
+            if (!convertFile.delete()) {
+                String name = convertFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "fileName", name);
+            }
         }
-        if(convertFile.createNewFile()){
-            try(FileOutputStream fos = new FileOutputStream(convertFile)){
+        if (convertFile.createNewFile()) {
+            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
                 fos.write(file.getBytes());
             }
             return Optional.of(convertFile);
         }
         return Optional.empty();
     }
+
     // Service 호출 파일 키 추출 후 파일 다운로드 및 복호화
     public byte[] downloadAndDecryptFileToBytes(String s3Path) {
         String fileKey;
@@ -180,8 +204,8 @@ public class S3Util {
 
         try {
             // S3 URL에서 파일 키 추출
-            if (s3Path.contains("/eftoj1/")) {
-                fileKey = "eftoj1/" + s3Path.split("/eftoj1/")[1];
+            if (s3Path.contains(PATH_SPLIT)) {
+                fileKey = PATH_PREFIX + s3Path.split(PATH_SPLIT)[1];
             } else {
                 throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "잘못된 파일 경로 형식입니다: " + s3Path);
             }
@@ -199,27 +223,33 @@ public class S3Util {
             byte[] fileContent = java.nio.file.Files.readAllBytes(decryptedFile.toPath());
 
             // 임시 파일 삭제
-            boolean deleted = decryptedFile.delete();
+            if (!decryptedFile.delete()) {
+                String name = decryptedFile.getName();
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "fileName", name);
+            }
 
             return fileContent;
         } catch (Exception e) {
             // 예외 발생 시 임시 파일 정리
             if (decryptedFile != null && decryptedFile.exists()) {
-                decryptedFile.delete();
+                if (!decryptedFile.delete()) {
+                    String name = decryptedFile.getName();
+                    throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filename", name);
+                }
             }
-            e.printStackTrace();
+            log.error("파일 다운로드 및 복호화 중 오류 발생: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "파일 다운로드 및 복호화 중 오류: " + e.getMessage());
         }
     }
 
     // S3에 업로드 된 파일 삭제
-    public void deleteFileFromS3(String s3Path){
-        try{
+    public void deleteFileFromS3(String s3Path) {
+        try {
             String fileKey;
 
             // S3 URL에서 파일 키 추출
-            if (s3Path.contains("/eftoj1/")) {
-                fileKey = "eftoj1/" + s3Path.split("/eftoj1/")[1];
+            if (s3Path.contains(PATH_SPLIT)) {
+                fileKey = PATH_PREFIX + s3Path.split(PATH_SPLIT)[1];
             } else {
                 log.warn("잘못된 파일 경로 형식: {}", s3Path);
                 throw new CustomException(ErrorCode.FILE_PATH_ERROR, "filePath", s3Path);

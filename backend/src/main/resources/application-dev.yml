@@ -14,6 +14,8 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      max-lifetime: 177000
   data:
     redis:
       host: redis-dev

@@ -18,7 +18,7 @@ export const initializeKakao = () => {
 };
 
 // ✅ 공유 함수
-export const shareToKakao = (sender: string, pin_code: number, docType: string) => {
+export const shareToKakao = (sender: string, pin_code: number, docType: string, id: string) => {
   // 초기화 확인
   if (!window.Kakao || !window.Kakao.isInitialized()) {
     console.error("Kakao SDK가 초기화되지 않았습니다.");
@@ -34,7 +34,7 @@ export const shareToKakao = (sender: string, pin_code: number, docType: string) 
         sender: sender,
         pinCode: pin_code,
         docType: docType,
+        id: id,
     },
-    serverCallbackArgs: "test",
   });
 };

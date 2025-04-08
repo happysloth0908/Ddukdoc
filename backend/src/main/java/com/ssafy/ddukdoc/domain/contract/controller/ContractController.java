@@ -6,6 +6,7 @@ import com.ssafy.ddukdoc.domain.contract.service.ContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.DocumentSaveResponseDto;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
+import com.ssafy.ddukdoc.global.aop.GeneralAccess;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -20,7 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,7 +44,7 @@ public class ContractController {
     }
 
     @PostMapping(value = "/{templateCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("isAuthenticated()")
+    @GeneralAccess
     @Operation(summary = "문서 저장", description = "템플릿 코드에 해당하는 문서를 저장합니다. \n\n pin 번호를 return 합니다.")
     @ApiErrorCodeExamples({ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.TEMPLATE_NOT_FOUND, ErrorCode.TEMPLATE_FIELD_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.FILE_UPLOAD_ERROR, ErrorCode.INVALID_INPUT_VALUE})
     public ResponseEntity<CommonResponse<DocumentSaveResponseDto>> saveInfo(
@@ -81,7 +81,7 @@ public class ContractController {
     }
 
     @PostMapping(value = "/{documentId}/signature", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("isAuthenticated()")
+    @GeneralAccess
     @Operation(summary = "수신자 서명 저장", description = "문서의 수신자 서명 및 필드 정보를 저장합니다.")
     @ApiErrorCodeExamples({ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.DECRYPTION_ERROR, ErrorCode.FILE_DOWNLOAD_ERROR, ErrorCode.PDF_GENERATION_ERROR, ErrorCode.FILE_UPLOAD_ERROR})
     public ResponseEntity<CommonResponse<Void>> saveRecipientSignature(
@@ -104,7 +104,7 @@ public class ContractController {
 
     // 사용자의 문서 반송
     @PatchMapping("/return/{doc_id}")
-    @PreAuthorize("isAuthenticated()")
+    @GeneralAccess
     @Operation(summary = "문서 반송", description = "사용자가 문서를 반송 처리합니다.")
     @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.INVALID_DOCUMENT_STATUS})
     public ResponseEntity<CommonResponse<Void>> returnDocument(

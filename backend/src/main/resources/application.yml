@@ -17,3 +17,8 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true  # 페이징 1부터
+
+management:
+  endpoints:
+    web:
+      base-path: /api/actuator

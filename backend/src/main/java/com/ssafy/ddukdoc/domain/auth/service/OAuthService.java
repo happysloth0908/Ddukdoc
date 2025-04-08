@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OAuthService {
     private final Map<Provider, OAuthStrategy> oAuthStrategyMap;
@@ -31,6 +31,7 @@ public class OAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthRedisService authRedisService;
 
+    @Transactional
     public LoginResult handleOAuthLogin(Provider provider, String code) {
 
         // 1. 전략 가져오기
@@ -51,9 +52,10 @@ public class OAuthService {
         Boolean isNew = existingUser.isEmpty();
         User user = existingUser.orElseGet(() -> createUser(userInfoFromOAuth, provider));
         String userId = user.getId().toString();
+        String userType = user.getUserType().name();
 
-        String accessToken = jwtTokenProvider.createAccessToken(userId);
-        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+        String accessToken = jwtTokenProvider.createAccessToken(userId, userType);
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId, userType);
 
         // Redis에 RefreshToken 저장
         authRedisService.saveRefreshToken(userId, refreshToken);
@@ -68,7 +70,7 @@ public class OAuthService {
         User newUser = User.builder()
                 .name(userInfo.getNickname())
                 .email(userInfo.getEmail())
-                .userType(UserType.GENERAL) // 일반 사용자로 가입
+                .userType(UserType.getUserTypeByProvider(provider))
                 .socialProvider(provider)
                 .socialKey(userInfo.getId())
                 .build();
@@ -85,6 +87,7 @@ public class OAuthService {
 
         // 2. Redis에 저장된 Refresh 토큰과 비교
         String userId = jwtTokenProvider.getUserId(refreshToken).toString();
+        String userType = jwtTokenProvider.getUserType(refreshToken);
         String savedRefreshToken = authRedisService.getRefreshToken(userId);
 
         if (savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)) {
@@ -92,8 +95,7 @@ public class OAuthService {
         }
 
         // 3. 새로운 Access 토큰 발급
-
-        return jwtTokenProvider.createAccessToken(userId);
+        return jwtTokenProvider.createAccessToken(userId, userType);
     }
 }
 

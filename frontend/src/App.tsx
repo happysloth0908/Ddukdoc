@@ -1,12 +1,15 @@
 import { Route, Routes, useLocation } from 'react-router-dom';
 import molecules from '@/components/molecules';
 import { DocsWrite } from '@/pages/docsWritePages/DocsWrite';
-import { MainMenuPage } from '@/pages/mainPage/MainMenuPage';
+import { MainMenuPage } from '@/pages/mainPage/Main';
 // import { worker } from './mocks/browser';
 import { LoginPage } from '@/pages/loginPages/Login';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
-
+import { ProtectedRoute } from './functions/ProtectedRoute';
+import { SsafyProtectedRoute } from './functions/SsafyProtectedRoute';
+import SsafyRouter from './pages/ssafy/SsafyRouter';
+import { ErrorPage } from './pages/errorPages/error';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
 // }
@@ -14,9 +17,13 @@ import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspect
 function App() {
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
+  const isSsafy =
+    location.pathname === '/ssafy/login' || location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
-    : 'bg-bg-default';
+    : isSsafy
+      ? 'bg-blue-gradient'
+      : 'bg-bg-default';
 
   return (
     <div className="flex h-dvh w-dvw items-center justify-center">
@@ -25,16 +32,54 @@ function App() {
       >
         <molecules.Header />
         <Routes>
-          {/* 문서 작성입니다. */}
-          <Route path="/docs/*" element={<DocsWrite />} />
-          {/* 메인 페이지 */}
-          <Route path="/" element={<MainMenuPage />} />
+          {/*  공개 라우트  */}
           {/* 로그인 페이지 */}
           <Route path="/login" element={<LoginPage />} />
+
+          {/* 문서 작성입니다. */}
+          <Route
+            path="/docs/*"
+            element={
+              <ProtectedRoute>
+                <DocsWrite />
+              </ProtectedRoute>
+            }
+          />
+          {/* 메인 페이지 */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainMenuPage />
+              </ProtectedRoute>
+            }
+          />
           {/* 마이페이지 */}
-          <Route path="/mypage/*" element={<MyPage />} />
+          <Route
+            path="/mypage/*"
+            element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            }
+          />
           {/* 위변조 검사 */}
-          <Route path="/forgery/*" element={<ForgeryInspection />} />
+          <Route
+            path="/forgery/*"
+            element={
+              location.state?.fromSsafy ? (
+                <SsafyProtectedRoute>
+                  <ForgeryInspection />
+                </SsafyProtectedRoute>
+              ) : (
+                <ProtectedRoute>
+                  <ForgeryInspection />
+                </ProtectedRoute>
+              )
+            }
+          />
+          <Route path="/ssafy/*" element={<SsafyRouter />} />
+          <Route path="/error" element={<ErrorPage />} />
         </Routes>
       </div>
     </div>
