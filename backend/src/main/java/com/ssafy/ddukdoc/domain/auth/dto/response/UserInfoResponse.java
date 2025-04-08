@@ -28,7 +28,7 @@ public class UserInfoResponse {
                 .email(user.getEmail())
                 .socialProvider(user.getSocialProvider().getName())
                 .isNew(isNew)
-                .userType(user.getUserType().getName())
+                .userType(user.getUserType().getLowerCaseName())
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.domain.contract.controller;
 import com.ssafy.ddukdoc.domain.contract.service.SsafyContractService;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentSaveRequestDto;
 import com.ssafy.ddukdoc.domain.template.dto.response.TemplateFieldResponseDto;
+import com.ssafy.ddukdoc.global.aop.SSAFYAccess;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
@@ -15,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +39,7 @@ public class SsafyContractController {
     }
 
     @PostMapping(value = "/{templateCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "싸피 문서 저장", description = "템플릿 코드에 해당하는 문서를 저장합니다. \n\n문서 ID를 return 합니다.")
     @ApiErrorCodeExamples({ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.TEMPLATE_NOT_FOUND, ErrorCode.TEMPLATE_FIELD_NOT_FOUND, ErrorCode.INVALID_USER_ID, ErrorCode.FORBIDDEN_ACCESS, ErrorCode.FILE_UPLOAD_ERROR, ErrorCode.INVALID_INPUT_VALUE,ErrorCode.TEMPLATE_NOT_MATCH})
     public ResponseEntity<CommonResponse<Integer>> saveInfo(

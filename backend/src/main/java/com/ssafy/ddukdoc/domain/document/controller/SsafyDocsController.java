@@ -6,6 +6,7 @@ import com.ssafy.ddukdoc.domain.document.dto.response.DocumentDownloadResponseDt
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentDetailResponseDto;
 import com.ssafy.ddukdoc.domain.document.dto.response.SsafyDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.document.service.SsafyDocumentService;
+import com.ssafy.ddukdoc.global.aop.SSAFYAccess;
 import com.ssafy.ddukdoc.global.aop.swagger.ApiErrorCodeExamples;
 import com.ssafy.ddukdoc.global.common.CustomPage;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +38,7 @@ public class SsafyDocsController {
     private final SsafyDocumentService ssafyDocumentService;
 
     @GetMapping("")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "싸피 문서 목록 조회", description = "싸피 사용자가 접근 가능한 문서 목록을 조회합니다  \n\n **각 필드는 필수값이 아닙니다!** \n\n sort: asc / desc")
     @ApiErrorCodeExamples({ErrorCode.INVALID_INPUT_VALUE})
     public ResponseEntity<CommonResponse<CustomPage<SsafyDocumentResponseDto>>> getDocsList(
@@ -51,7 +51,7 @@ public class SsafyDocsController {
     }
 
     @GetMapping("/{doc_id}")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary="싸피 문서 상세 조회", description = "doc_id를 통한 싸피 상세 문서를 조회합니다")
     @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.SIGNATURE_FILE_NOT_FOUND, ErrorCode.FILE_DOWNLOAD_ERROR})
     public ResponseEntity<CommonResponse<SsafyDocumentDetailResponseDto>> getSsafyDocumentDetail(
@@ -63,7 +63,7 @@ public class SsafyDocsController {
     }
 
     @GetMapping("/{doc_id}/download")
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "싸피 문서 다운로드", description = "doc_id를 통한 싸피 문서를 다운로드합니다")
     @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.FILE_DOWNLOAD_ERROR})
     public ResponseEntity<byte[]> downloadSsafyDocument(
@@ -84,7 +84,7 @@ public class SsafyDocsController {
     }
 
     @PutMapping(value = "/{doc_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("isAuthenticated()")
+    @SSAFYAccess
     @Operation(summary = "싸피 문서 수정", description = "doc_id를 통한 싸피 문서를 수정합니다")
     @ApiErrorCodeExamples({ErrorCode.DOCUMENT_NOT_FOUND, ErrorCode.CREATOR_NOT_MATCH, ErrorCode.TEMPLATE_FIELD_NOT_FOUND,
             ErrorCode.GENERATED_DEK, ErrorCode.ENCRYPTION_ERROR, ErrorCode.INVALID_KEK, ErrorCode.SIGNATURE_FILE_NOT_FOUND,

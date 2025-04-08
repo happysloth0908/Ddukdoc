@@ -3,6 +3,7 @@ package com.ssafy.ddukdoc.global.error.handler;
 import com.ssafy.ddukdoc.global.common.response.CommonResponse;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
+import com.ssafy.ddukdoc.global.security.auth.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -123,8 +124,15 @@ public class GlobalExceptionHandler {
             AuthorizationDeniedException e, HttpServletRequest request) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        String userInfo = auth != null ?
+//                auth.getPrincipal() instanceof UserPrincipal ?
+//                ((UserPrincipal) auth.getPrincipal()).getId() + " - " + auth.getAuthorities()
+//                : "No Authentication";
         String userInfo = auth != null ?
-                auth.toString() : "No Authentication";
+                auth.getPrincipal() instanceof UserPrincipal ?
+                        ((UserPrincipal) auth.getPrincipal()).getId() + " - " + auth.getAuthorities()
+                        : "No Authentication"
+                : "No Authentication";
 
         log.error("[AccessDenied] {} {}: {} - User: {}",
                 request.getMethod(),
