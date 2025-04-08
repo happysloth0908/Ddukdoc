@@ -37,7 +37,9 @@ export const ForgeryInspection = () => {
     }
     try {
       setError(null);
-      navigate('waiting');
+      navigate('/forgery/waiting', {
+        state: { ...location.state, fromUpload: true },
+      }); //
 
       // waiting 화면 시작 시간 기록
       const waitingStartTime = Date.now();
@@ -63,7 +65,10 @@ export const ForgeryInspection = () => {
         );
       }
 
-      navigate('result', { replace: true });
+      navigate('/forgery/result', {
+        replace: true,
+        state: { ...location.state, fromWaiting: true },
+      });
     } catch (e) {
       if (e instanceof AxiosError) {
         // 400 에러는 정상 응답으로 처리하고 result 페이지로 이동
@@ -83,7 +88,10 @@ export const ForgeryInspection = () => {
             );
           }
 
-          navigate('result', { replace: true });
+          navigate('/forgery/result', {
+            replace: true,
+            state: { ...location.state, fromWaiting: true },
+          });
           return;
         }
 
@@ -131,15 +139,36 @@ export const ForgeryInspection = () => {
             />
           }
         />
-        <Route path="waiting" element={<forgeryInspectionChildren.Waiting />} />
+        <Route
+          path="waiting"
+          element={
+            location.state?.fromUpload ? (
+              <forgeryInspectionChildren.Waiting />
+            ) : (
+              <forgeryInspectionChildren.FileUpload
+                onFileSelect={handleFileSelect}
+                onUploadClick={onUploadClick}
+                externalError={error}
+              />
+            )
+          }
+        />
         <Route
           path="result"
           element={
-            <forgeryInspectionChildren.Result
-              fileTitle={fileRef.current?.name}
-              result={forgeryTestResponceRef.current?.success}
-              onReset={handleReset}
-            />
+            location.state?.fromWaiting ? (
+              <forgeryInspectionChildren.Result
+                fileTitle={fileRef.current?.name}
+                result={forgeryTestResponceRef.current?.success}
+                onReset={handleReset}
+              />
+            ) : (
+              <forgeryInspectionChildren.FileUpload
+                onFileSelect={handleFileSelect}
+                onUploadClick={onUploadClick}
+                externalError={error}
+              />
+            )
           }
         />
       </Routes>
