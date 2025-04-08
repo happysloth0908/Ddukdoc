@@ -39,6 +39,7 @@ export const DocsChoose = ({
           isSelected={templateCode === 'G2' ? true : false}
           icon={DefaultIcons.PaperIcon}
           className="text-info-small"
+          disabled={true}
         />
       </div>
       <Link to="check" state={{ from: currentPath }}>

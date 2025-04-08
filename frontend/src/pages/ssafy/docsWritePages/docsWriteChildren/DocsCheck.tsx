@@ -135,7 +135,7 @@ export const DocsCheck = ({
         try {
           await contractSave(curTemplate, formData, S6Data.signature).then((res) => {
             setIsLoading(false);
-            S1Data.resetData();
+            S6Data.resetData();
             navigate("/ssafy/docs/share", {state: { docId: res.data}});
           });
         } catch (error) {
