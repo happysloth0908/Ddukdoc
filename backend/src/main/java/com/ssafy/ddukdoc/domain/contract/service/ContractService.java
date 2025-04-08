@@ -56,7 +56,6 @@ public class ContractService {
     private final SignatureRepository signatureRepository;
     private final RoleRepository roleRepository;
     private final UserDocRoleRepository userDocRoleRepository;
-//    private final AESUtil aesUtil;
     private final PdfGeneratorUtil pdfGeneratorUtil;
     private final BlockchainUtil blockchainUtil;
     private final EncryptionStrategy encryptionStrategy;

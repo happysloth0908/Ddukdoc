@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -92,16 +91,17 @@ public class DocumentService {
 
     //문서 데이터 복호화
     public List<DocumentFieldResponseDto> getDecryptData(List<DocumentFieldValue> fieldValues) {
-        List<DocumentFieldResponseDto> decryptedData = fieldValues.stream()
+        // 암호화된 필드 값 복호화
+        // DocumentFieldResponseDto 객체로 변환
+
+        return fieldValues.stream()
                 .map(value -> {
                     // 암호화된 필드 값 복호화
                     String decryptedValue = encryptionStrategy.decrypt(value.getFieldValue());
                     // DocumentFieldResponseDto 객체로 변환
                     return DocumentFieldResponseDto.of(value, decryptedValue);
                 })
-                .collect(Collectors.toList());
-
-        return decryptedData;
+                .toList();
     }
 
 

@@ -24,8 +24,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BlockchainUtil {
 
-    public static final String DOC_URI = "docUri";
-    public static final String DOC_HASH = "docHash";
     @Value("${blockchain.baseurl}")
     private String baseUrl;
     @Value("${blockchain.contractAddress}")
@@ -39,6 +37,9 @@ public class BlockchainUtil {
     private final SignatureUtil signatureUtil;
     private final HashUtil hashUtil;
     private final RestTemplate blockchainRestTemplate;
+
+    public static final String DOC_URI = "docUri";
+    public static final String DOC_HASH = "docHash";
 
     /**
      * 문서 저장 API 호출 (PUT)

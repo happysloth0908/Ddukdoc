@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,11 +27,17 @@ public class S3Util {
     private final AmazonS3 amazonS3;
     private final FileEncryptionStrategy fileAes;
 
-    public static final String PATH_PREFIX = "eftoj1/";
-    public static final String PATH_SPLIT = "/eftoj1/";
+    @Value("${cloud.aws.s3.path-prefix}")
+    private String pathPrefix;
+
+    @Value("${cloud.aws.s3.path-split}")
+    private String pathSplit;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    public static final String PATH_DELIMITER = "/";
+    public static final String FILE_PATH = "filePath";
 
     //multipartFile 암호화 후 S3에 업로드
     public String uploadEncryptedFile(MultipartFile multipartFile, String dirName) {
@@ -48,12 +55,19 @@ public class S3Util {
             String uploadUrl = uploadEncryptedFile(encryptedFile, dirName, encryptedDek, iv);
 
             // 로컬 임시 파일 삭제
-            if (!originalFile.delete()) {
+            try {
+                Files.delete(originalFile.toPath());
+            } catch (IOException e) {
                 String name = originalFile.getName();
+                log.error("원본 파일 삭제 실패: {}, 원인: {}", name, e.getMessage());
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "OriginalFileName", name);
             }
-            if (!encryptedFile.delete()) {
+
+            try {
+                Files.delete(encryptedFile.toPath());
+            } catch (IOException e) {
                 String name = encryptedFile.getName();
+                log.error("암호화 파일 삭제 실패: {}, 원인: {}", name, e.getMessage());
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "encryptedFileFileName", name);
             }
 
@@ -99,10 +113,14 @@ public class S3Util {
             File decryptedFile = fileAes.decryptFile(encryptedTempFile, encryptedDek, iv);
 
             //임시 암호화 파일 삭제
-            if (!encryptedTempFile.delete()) {
+            try {
+                Files.delete(encryptedTempFile.toPath());
+            } catch (IOException e) {
                 String name = encryptedTempFile.getName();
+                log.error("임시 암호화 파일 삭제 실패: {}, 원인: {}", name, e.getMessage());
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filename", name);
             }
+
             // 복호화된 파일이 존재하는지 확인
             if (!decryptedFile.exists()) {
                 throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file",
@@ -136,7 +154,7 @@ public class S3Util {
 
     //암호화된 File을 S3에 업로드
     private String uploadEncryptedFile(File encryptedFile, String dirName, String encryptedDek, String iv) {
-        String fileName = PATH_PREFIX + dirName + "/" + UUID.randomUUID() + "-encrypted-" + encryptedFile.getName();
+        String fileName = pathPrefix + dirName + PATH_DELIMITER + UUID.randomUUID() + "-encrypted-" + encryptedFile.getName();
 
         //메타데이터에 암호화된 dek, iv 저장
         ObjectMetadata metadata = new ObjectMetadata();
@@ -153,15 +171,17 @@ public class S3Util {
 
     //일반 파일을 S3에 업로드
     private String upload(File uploadFile, String dirName) {
-        String fileName = PATH_PREFIX + dirName + "/" + UUID.randomUUID() + "-" + uploadFile.getName();
+        String fileName = pathPrefix + dirName + PATH_DELIMITER + UUID.randomUUID() + "-" + uploadFile.getName();
 
         //s3에 파일 업로드
         amazonS3.putObject(new PutObjectRequest(bucket, fileName, uploadFile)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        if (!uploadFile.delete()) {
+        try {
+            Files.delete(uploadFile.toPath());
+        } catch (IOException e) {
             String name = uploadFile.getName();
-
+            log.error("파일 삭제 실패: {}, 원인: {}", name, e.getMessage());
             throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "FileName", name);
         }
 
@@ -180,14 +200,18 @@ public class S3Util {
         String safeFilename = originalFilename != null
                 ? originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_")
                 : "unknown_" + UUID.randomUUID().toString();
-        File convertFile = new File(System.getProperty("java.io.tmpdir") + "/", safeFilename);
+        File convertFile = new File(System.getProperty("java.io.tmpdir") + PATH_DELIMITER, safeFilename);
 
         if (convertFile.exists()) {
-            if (!convertFile.delete()) {
+            try {
+                Files.delete(convertFile.toPath());
+            } catch (IOException e) {
                 String name = convertFile.getName();
+                log.error("파일 삭제 실패: {}, 원인: {}", name, e.getMessage());
                 throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "fileName", name);
             }
         }
+
         if (convertFile.createNewFile()) {
             try (FileOutputStream fos = new FileOutputStream(convertFile)) {
                 fos.write(file.getBytes());
@@ -204,8 +228,8 @@ public class S3Util {
 
         try {
             // S3 URL에서 파일 키 추출
-            if (s3Path.contains(PATH_SPLIT)) {
-                fileKey = PATH_PREFIX + s3Path.split(PATH_SPLIT)[1];
+            if (s3Path.contains(pathSplit)) {
+                fileKey = pathPrefix + s3Path.split(pathSplit)[1];
             } else {
                 throw new CustomException(ErrorCode.FILE_DOWNLOAD_ERROR, "file", "잘못된 파일 경로 형식입니다: " + s3Path);
             }
@@ -248,11 +272,11 @@ public class S3Util {
             String fileKey;
 
             // S3 URL에서 파일 키 추출
-            if (s3Path.contains(PATH_SPLIT)) {
-                fileKey = PATH_PREFIX + s3Path.split(PATH_SPLIT)[1];
+            if (s3Path.contains(pathSplit)) {
+                fileKey = pathPrefix + s3Path.split(pathSplit)[1];
             } else {
                 log.warn("잘못된 파일 경로 형식: {}", s3Path);
-                throw new CustomException(ErrorCode.FILE_PATH_ERROR, "filePath", s3Path);
+                throw new CustomException(ErrorCode.FILE_PATH_ERROR, FILE_PATH, s3Path);
             }
 
             // S3에서 파일 삭제
@@ -261,10 +285,10 @@ public class S3Util {
 
         } catch (AmazonS3Exception e) {
             log.error("S3 파일 삭제 중 오류 발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filePath", s3Path);
+            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, FILE_PATH, s3Path);
         } catch (Exception e) {
             log.error("파일 삭제 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
-            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "filePath", s3Path);
+            throw new CustomException(ErrorCode.FILE_DELETE_ERROR, FILE_PATH, s3Path);
         }
 
     }
