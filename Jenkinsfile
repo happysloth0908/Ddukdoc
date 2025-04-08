@@ -17,6 +17,8 @@ pipeline {
     stages {
         stage('Debug Variables') {
             steps {
+                sh 'whoami'
+                sh 'id'
                 echo "DEPLOY_ENV: ${env.DEPLOY_ENV}"
                 echo "SPRING_PROFILE: ${env.SPRING_PROFILE}"
                 echo "DEPLOY_PATH: ${env.DEPLOY_PATH}"
