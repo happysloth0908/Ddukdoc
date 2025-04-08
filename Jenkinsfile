@@ -413,10 +413,10 @@ pipeline {
 
                         if (env.DEPLOY_ENV == 'production') {
                             port = env.INACTIVE_ENV == 'blue' ? '8080' : '8081'
-                            healthUrl = "http://localhost:${port}/api/actuator/health"
+                            healthUrl = "http://backend-prod-${env.INACTIVE_ENV}:8085/api/actuator/health"
                         } else {
                             port = env.INACTIVE_ENV == 'blue' ? '8085' : '8086'
-                            healthUrl = "http://localhost:${port}/api/actuator/health"
+                            healthUrl = "http://backend-dev-${env.INACTIVE_ENV}:8085/api/actuator/health"
                         }
 
                         // 헬스체크 요청 및 응답 확인 (최대 10회 시도)
@@ -475,7 +475,7 @@ pipeline {
                             } else {
                                 // 개발 환경 Nginx 설정 업데이트
                                 sh """
-                                sed -i 's/set \\\$active_backend_dev "backend-dev-[^"]*";/set \\\$active_backend_dev "backend-dev-${env.INACTIVE_ENV}";/g' /home/ubuntu/nginx/conf/dev.conf
+                                sed -i 's/server backend-dev-[^:]*:8085;/server backend-dev-${env.INACTIVE_ENV}:8085;/g' /home/ubuntu/nginx/conf/dev.conf
                                 
                                 # Nginx 설정 테스트 및 리로드
                                 docker exec nginx nginx -t && docker exec nginx nginx -s reload
