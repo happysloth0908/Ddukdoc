@@ -123,14 +123,14 @@ export const FileUpload: FC<FileUploadProps> = ({
   };
 
   return (
-   <div className="flex h-full flex-col overflow-hidden">
+   <div className="flex h-full w-full flex-col overflow-hidden">
    {/* 헤더 영역 */}
    <div className="py-6 text-info-large font-bold">
      <div className="">검증할 문서를</div>
      <div className="">업로드해주세요!</div>
    </div>
    
-   <div className="flex-1 overflow-hidden">
+   <div className="flex-1 overflow-hidden flex items-center justify-center">
      {!file ? (
        <>
          <div
@@ -145,7 +145,7 @@ export const FileUpload: FC<FileUploadProps> = ({
            onDragOver={handleDragOver}
            onDrop={handleDrop}
          >
-           <p className="text-xl font-medium text-gray-700">
+           <p className="text-xl font-medium text-gray-700 text-center">
              파일을 끌어다 놓거나 클릭하여 업로드하세요
            </p>
            <p className="mt-2 text-sm text-gray-500">
