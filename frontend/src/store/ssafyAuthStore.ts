@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import api from '@/apis/axios';
 
-interface AuthState {
+interface SsafyAuthState {
   isLoggedIn: boolean;
   loading: boolean;
   error: Error | null;
   checkAuthStatus: () => Promise<void>;
 }
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useSsafyAuthStore = create<SsafyAuthState>((set, get) => ({
   isLoggedIn: false,
   loading: false,
   error: null,
@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true });
       console.log('API 호출 전');
-      const response = await api.get('/api/users/general');
+      const response = await api.get('/api/users/ssafy');
       console.log('API 응답:', response.data);
 
       if (response.data && response.data.success) {

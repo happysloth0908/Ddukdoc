@@ -1,23 +1,21 @@
-import atoms from '@/components/atoms';
-import { FileData } from '@/types/mypage.ts';
 import { useEffect, useRef, useState } from 'react';
-import { apiClient } from '@/apis/mypage.ts';
-import { useParams } from 'react-router-dom';
+import atoms from '@/components/atoms';
+import { SsafyDocData } from '@/types/mypage';
 
-interface AdditionalFileProps {
-  data: FileData;
-  onDelete?: (id: number) => void;
+interface DocsCardProps {
+  data: SsafyDocData;
+  onPatch?: (id: number) => void; // 수정 핸들러 props (선택)
 }
 
-export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
+export const SsafyDocsCard = ({ data, onPatch }: DocsCardProps) => {
   const formattedDate = new Date(data.updated_at)
     .toISOString()
     .split('T')[0]
     .replace(/-/g, '.');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { id } = useParams();
 
+  // 외부 클릭 시 메뉴 닫기
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -30,32 +28,27 @@ export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
     };
   }, []);
 
-  const handleDelete = async () => {
-    try {
-      await apiClient.delete(`/api/material/${id}/${data.material_id}`);
-      setIsMenuOpen(false);
-      if (onDelete) onDelete(data.material_id);
-    } catch (error) {
-      console.error('파일 삭제 중 오류가 발생했습니다:', error);
-    }
+  const handlePatch = () => {
+    setIsMenuOpen(false);
+    if (onPatch) onPatch(data.document_id);
   };
 
   return (
     <div className="relative grid w-full grid-cols-4 grid-rows-2 rounded-lg border border-bg-card p-5">
       <div className="row-span-2 flex justify-center">
-        <atoms.RoundIcon isRejected={false} />
+        <atoms.RoundIcon isRejected={data.status === '반송'} />
       </div>
       <div className="col-span-3 row-span-2 flex flex-col gap-y-[6px]">
         <div className="text-l font-bold">
-          {data.title.length > 10
-            ? `${data.title.substring(0, 10)}...`
+          {data.title.length > 15
+            ? `${data.title.substring(0, 15)}...`
             : data.title}
-          .{data.format}
         </div>
-        <div className="text-s text-[#828282]">
-          {data.user_name} | {formattedDate}
-        </div>
+        <div className="text-s text-[#828282]">작성일 | {formattedDate}</div>
+        <atoms.Badge type={data.template_code} />
       </div>
+
+      {/* 점 세 개 버튼 + 메뉴 */}
       <div
         className="absolute right-6 top-6"
         ref={menuRef}
@@ -73,10 +66,10 @@ export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
         {isMenuOpen && (
           <div className="absolute right-4 top-2 z-10 mt-2 w-20 rounded border border-gray-200 bg-white shadow-md">
             <button
-              onClick={handleDelete}
-              className="flex w-full items-center justify-center px-3 py-2 text-left text-sm text-red-500 hover:bg-gray-100"
+              onClick={handlePatch}
+              className="flex w-full items-center justify-center px-3 py-2 text-left text-sm hover:bg-gray-100"
             >
-              삭제
+              수정
             </button>
           </div>
         )}

@@ -18,6 +18,17 @@ const DocPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const fetchDocInfo = useCallback(async () => {
+    try {
+      const response = await apiClient.get(`/api/docs/${id}`);
+      if (response.data.success) {
+        fileNameRef.current = `${response.data.data.docs_info.title}.pdf`;
+      }
+    } catch (error) {
+      console.error('문서 정보 조회 실패:', error);
+    }
+  }, [id]);
+
   const handleError = useCallback(() => {
     alert('해당 문서에 접근할 수 없습니다');
     navigate(-1);
@@ -81,6 +92,7 @@ const DocPreview = () => {
   }, [id]);
 
   useEffect(() => {
+    fetchDocInfo();
     fetchPdf();
 
     return () => {
@@ -88,7 +100,7 @@ const DocPreview = () => {
         URL.revokeObjectURL(pdfUrlRef.current);
       }
     };
-  }, [fetchPdf]);
+  }, [fetchDocInfo, fetchPdf]);
 
   useEffect(() => {
     if (error) {
