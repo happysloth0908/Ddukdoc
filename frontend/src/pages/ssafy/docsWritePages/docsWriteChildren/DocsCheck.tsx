@@ -103,6 +103,7 @@ export const DocsCheck = ({
         } catch (error) {
           console.log(error);
           setIsLoading(false);
+          navigate('/error');
         }
       }
       else if (curTemplate == "S6") {
@@ -141,6 +142,7 @@ export const DocsCheck = ({
         } catch (error) {
           console.log(error);
           setIsLoading(false);
+          navigate('/error');
         }
       }
     }
