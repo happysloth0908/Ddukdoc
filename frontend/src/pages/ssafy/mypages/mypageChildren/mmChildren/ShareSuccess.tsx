@@ -7,7 +7,7 @@ const ShareSuccess = () => {
       <div className="flex flex-1 items-center justify-center">
         <atoms.CompletePage type="save" />
       </div>
-      <Link to={'/ssafy/mypage'}>
+      <Link to={'/ssafy/mypage'} state={{ from: '/ssafy' }}>
         <atoms.LongButton
           className="mb-20"
           children="문서 목록으로"
