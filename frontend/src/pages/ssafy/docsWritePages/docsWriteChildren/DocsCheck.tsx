@@ -4,8 +4,8 @@ import { S1 } from '@/pdfs/SSAFY/S1';
 import { S6 } from '@/pdfs/SSAFY/S6';
 import { contractSave } from '@/apis/ssafy/docsWrite';
 import { useS1Data, useS6Data } from '@/store/docs';
-import blockchainLoading from '@/assets/images/blockchain/blockchain.gif';
 import { useEffect, useState } from 'react';
+import { Viewer } from '@/components/atoms/three/Viewer';
 
 export const DocsCheck = ({
   curTemplate,
@@ -172,7 +172,7 @@ export const DocsCheck = ({
         <atoms.LongButton
           onClick={save}
           className="mb-20"
-          children="저장 후 공유"
+          children="문서 저장"
           colorType="black"
         />
       ) : (
@@ -187,14 +187,12 @@ export const DocsCheck = ({
       {isLoading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="flex flex-col items-center justify-center rounded-lg p-8">
-            <img
-              src={blockchainLoading}
-              alt="blockchain"
-              className="h-40 w-40"
-            />
-            <p className="mt-4 text-lg font-medium text-white">
-              블록체인에 저장중{'.'.repeat(dots)}
-            </p>
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-10 bg-black bg-opacity-70">
+              <p className="my-4 text-lg font-medium text-white">
+                블록체인에 저장중{'.'.repeat(dots)}
+              </p>
+              <Viewer />
+            </div> 
           </div>
         </div>
       )}
