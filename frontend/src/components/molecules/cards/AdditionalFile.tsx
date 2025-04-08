@@ -46,7 +46,12 @@ export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
         <atoms.RoundIcon isRejected={false} />
       </div>
       <div className="col-span-3 row-span-2 flex flex-col gap-y-[6px]">
-        <div className="text-l font-bold">{data.title + '.' + data.format}</div>
+        <div className="text-l font-bold">
+          {data.title.length > 10
+            ? `${data.title.substring(0, 10)}...`
+            : data.title}
+          .{data.format}
+        </div>
         <div className="text-s text-[#828282]">
           {data.user_name} | {formattedDate}
         </div>
