@@ -49,9 +49,9 @@ function App() {
           <Route
             path="/"
             element={
-              // <ProtectedRoute>
-              <MainMenuPage />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <MainMenuPage />
+              </ProtectedRoute>
             }
           />
           {/* 마이페이지 */}
