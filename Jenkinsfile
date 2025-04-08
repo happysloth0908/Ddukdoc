@@ -6,10 +6,12 @@ pipeline {
     }
 
     environment {
-        // 동적으로 현재 활성 환경과 대기 환경을 결정하는 변수
-        DEPLOY_ENV = "${env.DEPLOY_ENV ?: 'development'}"  // 기본값 설정
-        ACTIVE_ENV = "${sh(script: 'cat /home/ubuntu/active_${env.DEPLOY_ENV}_env.txt || echo \"blue\"', returnStdout: true).trim()}"
-        INACTIVE_ENV = "${env.ACTIVE_ENV == 'blue' ? 'green' : 'blue'}"
+        // 기본값 설정
+        DEPLOY_ENV = "${env.DEPLOY_ENV ?: 'development'}"
+        // 변수 대체 방식 수정
+        ENV_FILE = "active_${DEPLOY_ENV}_env.txt"
+        ACTIVE_ENV = sh(script: "cat /home/ubuntu/${ENV_FILE} || echo 'blue'", returnStdout: true).trim()
+        INACTIVE_ENV = "${ACTIVE_ENV == 'blue' ? 'green' : 'blue'}"
     }
 
     stages {
@@ -537,29 +539,31 @@ pipeline {
         }
 
         failure {
-            echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
-            echo "실패 원인을 확인합니다."
-            sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
+            node {
+                echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
+                echo "실패 원인을 확인합니다."
+                sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
 
-            script {
-                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
-                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+                script {
+                    def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+                    def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
 
-                // 실패 단계와 메시지 확인
-                def failStage = env.FAILURE_STAGE ?: "알 수 없음"
-                def failMessage = env.FAILURE_MESSAGE ?: "자세한 로그를 확인해주세요"
+                    // 실패 단계와 메시지 확인
+                    def failStage = env.FAILURE_STAGE ?: "알 수 없음"
+                    def failMessage = env.FAILURE_MESSAGE ?: "자세한 로그를 확인해주세요"
 
-                mattermostSend(
-                        color: 'danger',
-                        message: "❌ 배포 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
-                                "👤 작성자: ${Author_ID} (${Author_Name})\n" +
-                                "⚠️ 실패 단계: ${failStage}\n" +
-                                "📝 실패 내용: ${failMessage}\n" +
-                                "🌐 환경: ${env.DEPLOY_ENV}\n" +
-                                "🔍 <${env.BUILD_URL}|상세 정보 보기>",
-                        endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
-                        channel: '78077804f0d7f41a4976e15a024145e8'
-                )
+                    mattermostSend(
+                            color: 'danger',
+                            message: "❌ 배포 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
+                                    "👤 작성자: ${Author_ID} (${Author_Name})\n" +
+                                    "⚠️ 실패 단계: ${failStage}\n" +
+                                    "📝 실패 내용: ${failMessage}\n" +
+                                    "🌐 환경: ${env.DEPLOY_ENV}\n" +
+                                    "🔍 <${env.BUILD_URL}|상세 정보 보기>",
+                            endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
+                            channel: '78077804f0d7f41a4976e15a024145e8'
+                    )
+                }
             }
         }
 
