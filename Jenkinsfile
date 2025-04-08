@@ -415,7 +415,7 @@ pipeline {
                             if (env.DEPLOY_ENV == 'production') {
                                 // Nginx 설정 파일에서 활성 환경 변수 업데이트
                                 sh """
-                                sed -i 's/server backend-prod-[^:]*:8080;/server backend-prod-${env.INACTIVE_ENV}:8080;/g' /home/ubuntu/nginx/conf/prod.conf
+                                sed -i 's/server backend-prod-[^:]*:8080;/server backend-prod-${env.INACTIVE_ENV}:8080;/g' /home/ubuntu/nginx/conf/default.conf
                                 
                                 # Nginx 설정 테스트 및 리로드
                                 docker exec nginx nginx -t && docker exec nginx nginx -s reload
