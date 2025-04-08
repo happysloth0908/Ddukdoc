@@ -72,11 +72,6 @@ const DocCheck = () => {
     try {
       const response = await apiClient.get<apiResponse>(`/api/docs/${id}`);
 
-      console.log('Response headers:', response.headers);
-      console.log('Set-Cookie header:', response.headers['set-cookie']);
-
-      console.log(response.data.data);
-
       setDocData(response.data.data.docs_info);
 
       if (response.data.data.docs_info.status === '반송') {
@@ -124,18 +119,35 @@ const DocCheck = () => {
       });
 
       // 서명 정보 업데이트
-      setCreditorSignature(
-        response.data.data.signature.creator_signature
-          ? 'data:image/png;base64,' +
-              response.data.data.signature.creator_signature
-          : ''
-      );
-      setDebtorSignature(
-        response.data.data.signature.recipient_signature
-          ? 'data:image/png;base64,' +
-              response.data.data.signature.recipient_signature
-          : ''
-      );
+      if (isRecipient) {
+        // 수신자인 경우
+        setCreditorSignature(
+          response.data.data.signature.recipient_signature
+            ? 'data:image/png;base64,' +
+                response.data.data.signature.recipient_signature
+            : ''
+        );
+        setDebtorSignature(
+          response.data.data.signature.creator_signature
+            ? 'data:image/png;base64,' +
+                response.data.data.signature.creator_signature
+            : ''
+        );
+      } else {
+        // 발신자인 경우
+        setCreditorSignature(
+          response.data.data.signature.creator_signature
+            ? 'data:image/png;base64,' +
+                response.data.data.signature.creator_signature
+            : ''
+        );
+        setDebtorSignature(
+          response.data.data.signature.recipient_signature
+            ? 'data:image/png;base64,' +
+                response.data.data.signature.recipient_signature
+            : ''
+        );
+      }
       setRecipientRoleId(response.data.data.user_role_info.recipient_role_id);
     } catch (error) {
       console.error(error);
