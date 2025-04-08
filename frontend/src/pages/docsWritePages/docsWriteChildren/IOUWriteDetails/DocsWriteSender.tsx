@@ -41,6 +41,11 @@ export const DocsWriteSender = ({
     return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3, 7)}-${numbersOnly.slice(7, 11)}`;
   };
 
+  const formatUserId = (input: string) => {
+    const userId = input.replace(/-/g, '');
+    return`${userId.slice(0,6)}-${userId.slice(6, 13)}`
+  };
+
   const checkValidation = (name: string, value: string) => {
     let error = '';
     switch (name) {
@@ -100,14 +105,14 @@ export const DocsWriteSender = ({
           ? {
               title: formData.title,
               creditor_name: formData.name,
-              creditor_id: formData.id,
+              creditor_id: formatUserId(formData.id),
               creditor_address: formData.address,
               creditor_contact: formatPhoneNumber(formData.contact),
             }
           : {
               title: formData.title,
               debtor_name: formData.name,
-              debtor_id: formData.id,
+              debtor_id: formatUserId(formData.id),
               debtor_address: formData.address,
               debtor_contact: formatPhoneNumber(formData.contact),
             };
@@ -164,7 +169,7 @@ export const DocsWriteSender = ({
               <atoms.Input
                 className={errorStatus.id ? 'ring-1 ring-red-500' : ''}
                 name="id"
-                defaultValue={data.creditor_id || data.debtor_id || ''}
+                defaultValue={data.creditor_id.replace(/-/g, '') || data.debtor_id.replace(/-/g, '') || ''}
                 label="주민등록번호"
                 onChange={handleChange}
               />

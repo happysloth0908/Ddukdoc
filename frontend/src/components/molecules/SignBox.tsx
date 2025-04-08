@@ -4,6 +4,7 @@ import ShortButton from '../atoms/buttons/ShortButton';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
 import { useIOUDocsStore, useS1Data } from '@/store/docs';
+import { Trash2 } from 'lucide-react';
 
 interface SignBoxProps {
   next: string;
@@ -23,9 +24,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
     role === '채권자' ? state.setCreditorSignature : state.setDebtorSignature
   );
 
-  const setS1Signature = useS1Data((state) => 
-    state.setSignature  
-  )
+  const setS1Signature = useS1Data((state) => state.setSignature);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -184,7 +183,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
   const saveSignature = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     // 가로 모드일 때 90도 회전하여 저장
     let signatureData;
     if (isRotated) {
@@ -201,10 +200,10 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
     } else {
       signatureData = canvas.toDataURL('image/png');
     }
-    
-    if (ssafy?.isSsafy){
+
+    if (ssafy?.isSsafy) {
       switch (ssafy.template) {
-        case "S1":
+        case 'S1':
           setS1Signature(signatureData);
           break;
       }
@@ -223,6 +222,14 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
       />
       <div className="pointer-events-none absolute left-0 top-1/2 w-full border-t border-dotted border-gray-500" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-full border-l border-dotted border-gray-500" />
+      <div
+        onClick={clearCanvas}
+        className={`absolute cursor-pointer rounded-full bg-white p-2 shadow-md hover:bg-gray-100 ${
+          isRotated ? 'bottom-2 right-2 rotate-90' : 'right-2 top-2'
+        }`}
+      >
+        <Trash2 className="h-5 w-5 text-gray-600" />
+      </div>
     </div>
   );
 
@@ -234,12 +241,6 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
           {renderCanvas()}
           <div className="flex h-1/4 w-full flex-col items-start justify-center">
             <div className="flex rotate-90 flex-col">
-              <ShortButton
-                children={'다시 입력'}
-                colorType={'primary'}
-                className={'mb-2 text-text-default'}
-                onClick={clearCanvas}
-              />
               <ShortButton
                 children={'서명 완료'}
                 colorType={'black'}
@@ -265,17 +266,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
               description={'거의 다 왔어요!'}
             />
           </div>
-          <div className="flex h-2/5 w-full flex-col">
-            {renderCanvas()}
-            <div className="flex justify-end">
-              <ShortButton
-                children={'다시 입력'}
-                colorType={'primary'}
-                className={'mx-0 mt-2 w-1/3 text-text-default'}
-                onClick={clearCanvas}
-              />
-            </div>
-          </div>
+          <div className="flex h-2/5 w-full flex-col">{renderCanvas()}</div>
           <div className="mb-20 w-full">
             <LongButton
               children={'서명 완료'}
