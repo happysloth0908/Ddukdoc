@@ -5,6 +5,12 @@ pipeline {
         nodejs 'NodeJS 22.14'  // Jenkins에 설정한 Node.js 이름 (Global Tool Configuration)
     }
 
+    environment {
+        // 동적으로 현재 활성 환경과 대기 환경을 결정하는 변수
+        ACTIVE_ENV = ""
+        INACTIVE_ENV = ""
+    }
+
     stages {
         stage('Debug Variables') {
             steps {
@@ -53,6 +59,29 @@ pipeline {
             }
         }
 
+        stage('Determine Active Environment') {
+            when {
+                expression { return env.BACKEND_CHANGES == 'true' }
+            }
+            steps {
+                script {
+                    // 현재 활성화된 환경 확인
+                    if (env.DEPLOY_ENV == 'production') {
+                        def activeEnv = sh(script: "cat /home/ubuntu/active_prod_env.txt || echo 'blue'", returnStdout: true).trim()
+                        env.ACTIVE_ENV = activeEnv
+                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
+                    } else {
+                        def activeEnv = sh(script: "cat /home/ubuntu/active_dev_env.txt || echo 'blue'", returnStdout: true).trim()
+                        env.ACTIVE_ENV = activeEnv
+                        env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
+                    }
+
+                    echo "현재 활성 환경: ${env.ACTIVE_ENV}"
+                    echo "배포할 환경: ${env.INACTIVE_ENV}"
+                }
+            }
+        }
+
         stage('Blockchain API Build') {
             when {
                 expression { return env.BLOCKCHAIN_CHANGES == 'true' }
@@ -96,12 +125,10 @@ pipeline {
                         dir('backend') {
                             // application-secret.yml 파일 생성
                             withCredentials([file(credentialsId: 'APPLICATION-SECRET', variable: 'APP_SECRET')]) {
-                                //                         sh 'echo "$APP_SECRET" > src/main/resources/application-secret.yml'
-//                         sh 'ls -la src/main/resources/application-secret.yml || echo "파일 생성 실패"'
                                 sh '''
-                            cp "$APP_SECRET" src/main/resources/application-secret.yml
-                            chmod 644 src/main/resources/application-*.yml
-                        '''
+                                cp "$APP_SECRET" src/main/resources/application-secret.yml
+                                chmod 644 src/main/resources/application-*.yml
+                                '''
                             }
 
                             // 환경변수를 application-dev.yml 또는 application-prod.yml에 적용
@@ -115,11 +142,11 @@ pipeline {
 
                                 // 플레이스홀더를 Jenkins에 등록된 환경 변수로 대체
                                 sh """
-                        sed -i "s|\\\${DB_URL}|${env.DB_URL}|g" "${profileFile}" || echo "DB_URL 치환 실패"
-                        sed -i "s|\\\${DB_USERNAME}|${env.DB_USERNAME}|g" "${profileFile}" || echo "DB_USERNAME 치환 실패"
-                        sed -i "s|\\\${DB_PASSWORD}|${env.DB_PASSWORD}|g" "${profileFile}" || echo "DB_PASSWORD 치환 실패"
-                        sed -i "s|\\\${REDIS_HOST}|${env.REDIS_HOST}|g" "${profileFile}" || echo "REDIS_HOST 치환 실패"
-                        """
+                                sed -i "s|\\\${DB_URL}|${env.DB_URL}|g" "${profileFile}" || echo "DB_URL 치환 실패"
+                                sed -i "s|\\\${DB_USERNAME}|${env.DB_USERNAME}|g" "${profileFile}" || echo "DB_USERNAME 치환 실패"
+                                sed -i "s|\\\${DB_PASSWORD}|${env.DB_PASSWORD}|g" "${profileFile}" || echo "DB_PASSWORD 치환 실패"
+                                sed -i "s|\\\${REDIS_HOST}|${env.REDIS_HOST}|g" "${profileFile}" || echo "REDIS_HOST 치환 실패"
+                                """
                             }
 
                             sh 'chmod +x ./gradlew'
@@ -129,10 +156,22 @@ pipeline {
                             sh 'ls -la build/libs/ || echo "빌드 실패"'
 
                             // Docker 이미지 빌드
-                            sh """
-                    docker build -t ddukdoc-backend:${env.DEPLOY_ENV} \
-                    --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} . || echo "Docker 빌드 실패"
-                    """
+                            // sh """
+                            // docker build -t ddukdoc-backend:${env.DEPLOY_ENV} \
+                            // --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} . || echo "Docker 빌드 실패"
+                            // """
+
+                            if (env.DEPLOY_ENV == 'production') {
+                                sh """
+                                docker build -t ddukdoc-backend:production-${env.INACTIVE_ENV} \
+                                --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} . || echo "Docker 빌드 실패"
+                                """
+                            } else {
+                                sh """
+                                docker build -t ddukdoc-backend:development-${env.INACTIVE_ENV} \
+                                --build-arg SPRING_PROFILE=${env.SPRING_PROFILE} . || echo "Docker 빌드 실패"
+                                """
+                            }
 
                             // 이미지 생성 확인
                             sh "docker images | grep ddukdoc-backend || echo '이미지가 없습니다'"
@@ -255,22 +294,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        try {
-//                            그냥 항상 운영환경에서만 배포되도록 설정
-                            sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
-                            sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate blockchain-api"
-                        } catch (Exception e) {
-                            echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
-                            sh "docker rm -f blockchain-api || true"
-                            sh """
-                        docker run -d --name blockchain-api \
-                        --network app-network \
-                        -p 3000:3000 \
-                        -e NODE_ENV=production \
-                        --restart unless-stopped \
-                        blockchain-api:latest
-                    """
-                        }
+                        // 그냥 항상 운영환경에서만 배포되도록 설정
+                        sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
+                        sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate blockchain-api"
 
                         // 컨테이너 실행 상태 확인
                         sh "docker ps | grep blockchain-api"
@@ -291,40 +317,22 @@ pipeline {
                 script {
                     try {
                         if (env.DEPLOY_ENV == 'production') {
-                            try {
-                                sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
-                                sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate backend-prod"
-                            } catch (Exception e) {
-                                echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
-                                sh "docker rm -f backend-prod || true"
-                                sh """
-                            docker run -d --name backend-prod \
-                            --network app-network \
-                            -p 8080:8080 \
-                            -e SERVER_PORT=8080 \
-                            -e SPRING_PROFILES_ACTIVE=${env.SPRING_PROFILE} \
-                            --restart unless-stopped \
-                            ddukdoc-backend:${env.DEPLOY_ENV}
-                            """
-                            }
+                            //sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml config"
+                            // sh "docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d --force-recreate backend-prod"
+                            sh """
+                                docker-compose -f /home/ubuntu/docker-compose-prod.yml stop backend-prod-${env.INACTIVE_ENV} || true
+                                docker-compose -f /home/ubuntu/docker-compose-prod.yml rm -f backend-prod-${env.INACTIVE_ENV} || true
+                                docker-compose -f /home/ubuntu/docker-compose-prod.yml up -d backend-prod-${env.INACTIVE_ENV}
+                                """
                         } else {
                             // 개발 환경 배포
-                            try {
-                                sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml config"
-                                sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-dev"
-                            } catch (Exception e) {
-                                echo "Docker Compose 실행 실패, Docker run으로 시도합니다."
-                                sh "docker rm -f backend-dev || true"
-                                sh """
-                            docker run -d --name backend-dev \
-                            --network app-network \
-                            -p 8085:8085 \
-                            -e SERVER_PORT=8085 \
-                            -e SPRING_PROFILES_ACTIVE=${env.SPRING_PROFILE} \
-                            --restart unless-stopped \
-                            ddukdoc-backend:${env.DEPLOY_ENV}
+                            // sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml config"
+                            // sh "docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d --force-recreate backend-dev"
+                            sh """
+                            docker-compose -f /home/ubuntu/docker-compose-dev.yml stop backend-dev-${env.INACTIVE_ENV} || true
+                            docker-compose -f /home/ubuntu/docker-compose-dev.yml rm -f backend-dev-${env.INACTIVE_ENV} || true
+                            docker-compose -f /home/ubuntu/docker-compose-dev.yml up -d backend-dev-${env.INACTIVE_ENV}
                             """
-                            }
                         }
 
                         // 컨테이너 실행 상태 확인
@@ -362,74 +370,175 @@ pipeline {
                 }
             }
         }
-    }
 
-    post {
-        success {
-            echo "환경 : ${env.DEPLOY_ENV} 배포 성공!"
-            sh "docker ps | grep backend"
 
-            script {
-                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
-                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
-                def changes = ""
+        stage('Healthcheck') {
+            when {
+                expression { return env.BACKEND_CHANGES == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        // 새 배포가 정상적으로 시작되었는지 확인
+                        def port
+                        def healthUrl
 
-                if (env.FRONTEND_CHANGES == 'true') {
-                    changes += "Frontend"
-                }
-                if (env.BACKEND_CHANGES == 'true') {
-                    if (changes) {
-                        changes += ", Backend"
-                    } else {
-                        changes += "Backend"
+                        if (env.DEPLOY_ENV == 'production') {
+                            port = env.INACTIVE_ENV == 'blue' ? '8080' : '8081'
+                            healthUrl = "http://localhost:${port}/api/actuator/health"
+                        } else {
+                            port = env.INACTIVE_ENV == 'blue' ? '8085' : '8086'
+                            healthUrl = "http://localhost:${port}/api/actuator/health"
+                        }
+
+                        // 헬스체크 요청 및 응답 확인 (최대 10회 시도)
+                        def isHealthy = false
+                        def attempts = 0
+
+                        while (!isHealthy && attempts < 15) {
+                            def response = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${healthUrl} || echo '000'", returnStdout: true).trim()
+
+                            if (response == '200') {
+                                isHealthy = true
+                                echo "새 환경(${env.INACTIVE_ENV})이 정상 동작 중입니다."
+                            } else {
+                                attempts++
+                                echo "헬스체크 실패 (${attempts}/10). 5초 후 다시 시도합니다... (응답 코드: ${response})"
+                                sleep 5
+                            }
+                        }
+
+                        if (!isHealthy) {
+                            error "새 환경(${env.INACTIVE_ENV}) 헬스체크 실패. 배포를 중단합니다."
+                        }
+                    } catch (Exception e) {
+                        env.FAILURE_STAGE = '헬스체크'
+                        env.FAILURE_MESSAGE = e.getMessage()
+                        throw e
                     }
                 }
-                if (!changes) {
-                    changes = "설정 변경"
+            }
+        }
+
+        stage('Switch Traffic (Optional)') {
+            when {
+                expression { return env.BACKEND_CHANGES == 'true' }
+            }
+            steps {
+                script {
+                    try {
+                        // 자동 전환 여부 확인 (기본적으로 비활성화)
+                        def autoSwitch = false
+
+                        if (autoSwitch) {
+                            echo "트래픽 자동 전환 시작: ${env.ACTIVE_ENV} -> ${env.INACTIVE_ENV}"
+
+                            if (env.DEPLOY_ENV == 'production') {
+                                // Nginx 설정 파일에서 활성 환경 변수 업데이트
+                                sh """
+                                sed -i 's/set \\\$active_backend "backend-prod-[^"]*";/set \\\$active_backend "backend-prod-${env.INACTIVE_ENV}";/g' /home/ubuntu/nginx/conf/default.conf
+                                
+                                # Nginx 설정 테스트 및 리로드
+                                docker exec nginx nginx -t && docker exec nginx nginx -s reload
+                                
+                                # 활성 환경 정보 저장
+                                echo "${env.INACTIVE_ENV}" > /home/ubuntu/active_prod_env.txt
+                                """
+                            } else {
+                                // 개발 환경 Nginx 설정 업데이트
+                                sh """
+                                sed -i 's/set \\\$active_backend_dev "backend-dev-[^"]*";/set \\\$active_backend_dev "backend-dev-${env.INACTIVE_ENV}";/g' /home/ubuntu/nginx/conf/dev.conf
+                                
+                                # Nginx 설정 테스트 및 리로드
+                                docker exec nginx nginx -t && docker exec nginx nginx -s reload
+                                
+                                # 활성 환경 정보 저장
+                                echo "${env.INACTIVE_ENV}" > /home/ubuntu/active_dev_env.txt
+                                """
+                            }
+
+                            echo "트래픽 전환 완료: ${env.ACTIVE_ENV} -> ${env.INACTIVE_ENV}"
+                        } else {
+                            echo "자동 트래픽 전환이 비활성화되어 있습니다. 필요시 switch-environment.sh 스크립트를 사용하여 수동으로 전환하세요."
+                            echo "전환 명령어: sudo /home/ubuntu/switch-environment.sh ${env.DEPLOY_ENV}"
+                        }
+                    } catch (Exception e) {
+                        env.FAILURE_STAGE = '트래픽 전환'
+                        env.FAILURE_MESSAGE = e.getMessage()
+                        throw e
+                    }
                 }
-
-                mattermostSend(
-                        color: 'good',
-                        message: "✅ 배포 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
-                                "👤 작성자: ${Author_ID} (${Author_Name})\n" +
-                                "🔄 변경사항: ${changes}\n" +
-                                "🌐 환경: ${env.DEPLOY_ENV}\n" +
-                                "🔍 <${env.BUILD_URL}|상세 정보 보기>",
-                        endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
-                        channel: '78077804f0d7f41a4976e15a024145e8'
-                )
             }
         }
+    }
+}
 
-        failure {
-            echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
-            echo "실패 원인을 확인합니다."
-            sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
 
-            script {
-                def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
-                def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+post {
+    success {
+        echo "환경 : ${env.DEPLOY_ENV} 배포 성공!"
+        sh "docker ps | grep backend"
 
-                // 실패 단계와 메시지 확인
-                def failStage = env.FAILURE_STAGE ?: "알 수 없음"
-                def failMessage = env.FAILURE_MESSAGE ?: "자세한 로그를 확인해주세요"
+        script {
+            def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+            def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+            def changes = ""
 
-                mattermostSend(
-                        color: 'danger',
-                        message: "❌ 배포 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
-                                "👤 작성자: ${Author_ID} (${Author_Name})\n" +
-                                "⚠️ 실패 단계: ${failStage}\n" +
-                                "📝 실패 내용: ${failMessage}\n" +
-                                "🌐 환경: ${env.DEPLOY_ENV}\n" +
-                                "🔍 <${env.BUILD_URL}|상세 정보 보기>",
-                        endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
-                        channel: '78077804f0d7f41a4976e15a024145e8'
-                )
+            if (env.FRONTEND_CHANGES == 'true') {
+                changes += "Frontend"
             }
-        }
+            if (env.BACKEND_CHANGES == 'true') {
+                if (changes) {
+                    changes += ", Backend"
+                } else {
+                    changes += "Backend"
+                }
+            }
+            if (!changes) {
+                changes = "설정 변경"
+            }
 
-        always {
-            echo "빌드 및 배포 과정이 종료되었습니다."
+            mattermostSend(
+                    color: 'good',
+                    message: "✅ 배포 성공: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
+                            "👤 작성자: ${Author_ID} (${Author_Name})\n" +
+                            "🔄 변경사항: ${changes}\n" +
+                            "🌐 환경: ${env.DEPLOY_ENV}\n" +
+                            "🔍 <${env.BUILD_URL}|상세 정보 보기>",
+                    endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
+                    channel: '78077804f0d7f41a4976e15a024145e8'
+            )
         }
+    }
+
+    failure {
+        echo "환경 : ${env.DEPLOY_ENV} 배포 실패!"
+        echo "실패 원인을 확인합니다."
+        sh "docker ps -a | grep backend || echo '백엔드 컨테이너가 없습니다'"
+
+        script {
+            def Author_ID = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
+            def Author_Name = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
+
+            // 실패 단계와 메시지 확인
+            def failStage = env.FAILURE_STAGE ?: "알 수 없음"
+            def failMessage = env.FAILURE_MESSAGE ?: "자세한 로그를 확인해주세요"
+
+            mattermostSend(
+                    color: 'danger',
+                    message: "❌ 배포 실패: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
+                            "👤 작성자: ${Author_ID} (${Author_Name})\n" +
+                            "⚠️ 실패 단계: ${failStage}\n" +
+                            "📝 실패 내용: ${failMessage}\n" +
+                            "🌐 환경: ${env.DEPLOY_ENV}\n" +
+                            "🔍 <${env.BUILD_URL}|상세 정보 보기>",
+                    endpoint: 'https://meeting.ssafy.com/hooks/pmu7f349wb8y5q1djoar94k8mc',
+                    channel: '78077804f0d7f41a4976e15a024145e8'
+            )
+        }
+    }
+
+    always {
+        echo "빌드 및 배포 과정이 종료되었습니다."
     }
 }
