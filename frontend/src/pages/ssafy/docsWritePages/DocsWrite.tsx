@@ -66,10 +66,9 @@ export const DocsWrite = () => {
               }
             />
             <Route
-              path="detail/*"
+              path="detail/:id/*"
               element={
                 <docsWriteChildren.DocsWriteDetail
-                  curTemplate={templateCode}
                 />
               }
             />
