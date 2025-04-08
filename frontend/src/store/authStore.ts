@@ -1,12 +1,11 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import api from '@/apis/axios';
 
 interface AuthState {
   isLoggedIn: boolean;
   loading: boolean;
   error: Error | null;
   checkAuthStatus: () => Promise<void>;
-  logout: () => Promise<void>;
 }
 export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
@@ -23,14 +22,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true });
       console.log('API 호출 전');
-      const response = await axios.get('/api/users/status', {
-        withCredentials: true,
-      });
+      const response = await api.get('/api/users/general');
       console.log('API 응답:', response.data);
 
-      if (response.data && response.data.success === true) {
+      if (response.data && response.data.success) {
         console.log('로그인 상태 true로 설정');
-        set({ isLoggedIn: true, error: null });
+        set({ isLoggedIn: response.data.success, error: null });
       } else {
         console.log('로그인 상태 false로 설정');
         set({ isLoggedIn: false, error: null });
@@ -44,16 +41,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       console.log('loading 상태 false로 설정');
       set({ loading: false });
-    }
-  },
-
-  // 로그아웃 함수
-  logout: async () => {
-    try {
-      await axios.post('/api/users/logout', {}, { withCredentials: true });
-      set({ isLoggedIn: false });
-    } catch (err) {
-      console.error('로그아웃 실패:', err);
     }
   },
 }));

@@ -3,6 +3,7 @@ import forgeryInspectionChildren from './forgeryInspectionChildren';
 import { useRef, useState } from 'react';
 import api from '@/apis/axios';
 import { AxiosError } from 'axios';
+import { useLocation } from 'react-router-dom';
 
 interface forgeryTestResponseProps {
   success: boolean;
@@ -18,6 +19,7 @@ export const ForgeryInspection = () => {
 
   // 라우팅 훅
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 파일 설정 핸들러 - 자식 컴포넌트에서 호출
   const handleFileSelect = (selectedFile: File | null) => {
@@ -35,7 +37,9 @@ export const ForgeryInspection = () => {
     }
     try {
       setError(null);
-      navigate('waiting');
+      navigate('/forgery/waiting', {
+        state: { ...location.state, fromUpload: true },
+      }); //
 
       // waiting 화면 시작 시간 기록
       const waitingStartTime = Date.now();
@@ -61,7 +65,10 @@ export const ForgeryInspection = () => {
         );
       }
 
-      navigate('result');
+      navigate('/forgery/result', {
+        replace: true,
+        state: { ...location.state, fromWaiting: true },
+      });
     } catch (e) {
       if (e instanceof AxiosError) {
         // 400 에러는 정상 응답으로 처리하고 result 페이지로 이동
@@ -81,7 +88,10 @@ export const ForgeryInspection = () => {
             );
           }
 
-          navigate('result');
+          navigate('/forgery/result', {
+            replace: true,
+            state: { ...location.state, fromWaiting: true },
+          });
           return;
         }
 
@@ -93,7 +103,12 @@ export const ForgeryInspection = () => {
         setError('알 수 없는 오류가 발생했습니다.');
       }
       // 에러 발생 시 업로드 화면으로 돌아감
-      navigate('/');
+      if (location.state?.fromSsafy) {
+        console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
+        navigate('/ssafy', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     }
   };
 
@@ -102,12 +117,12 @@ export const ForgeryInspection = () => {
     fileRef.current = null;
     forgeryTestResponceRef.current = null;
     setError(null);
-    const origin = sessionStorage.getItem('origin');
-    sessionStorage.removeItem('origin');
-    if (origin && origin === 'ssafy') {
-      navigate('/ssafy');
+
+    if (location.state?.fromSsafy) {
+      console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
+      navigate('/ssafy', { replace: true });
     } else {
-      navigate('/');
+      navigate('/', { replace: true });
     }
   };
 
@@ -124,15 +139,36 @@ export const ForgeryInspection = () => {
             />
           }
         />
-        <Route path="waiting" element={<forgeryInspectionChildren.Waiting />} />
+        <Route
+          path="waiting"
+          element={
+            location.state?.fromUpload ? (
+              <forgeryInspectionChildren.Waiting />
+            ) : (
+              <forgeryInspectionChildren.FileUpload
+                onFileSelect={handleFileSelect}
+                onUploadClick={onUploadClick}
+                externalError={error}
+              />
+            )
+          }
+        />
         <Route
           path="result"
           element={
-            <forgeryInspectionChildren.Result
-              fileTitle={fileRef.current?.name}
-              result={forgeryTestResponceRef.current?.success}
-              onReset={handleReset}
-            />
+            location.state?.fromWaiting ? (
+              <forgeryInspectionChildren.Result
+                fileTitle={fileRef.current?.name}
+                result={forgeryTestResponceRef.current?.success}
+                onReset={handleReset}
+              />
+            ) : (
+              <forgeryInspectionChildren.FileUpload
+                onFileSelect={handleFileSelect}
+                onUploadClick={onUploadClick}
+                externalError={error}
+              />
+            )
           }
         />
       </Routes>

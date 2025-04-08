@@ -213,7 +213,7 @@ export const FileUpload: FC<FileUploadProps> = ({
               {renderPDF()}
             </div>
 
-            <div className="mt-2 text-center text-sm text-gray-500">
+            <div className="mt-2 truncate text-center text-sm text-gray-500">
               {file.name} ({(file.size / 1024).toFixed(1)} KB)
             </div>
           </div>

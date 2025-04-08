@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { SsafyLogin } from './ssafyLoginPages/SsafyLogin';
 import { SsafyMain } from './mainPages/SsafyMain';
 import { DocsWrite } from './docsWritePages/DocsWrite';
-import { ProtectedRoute } from '@/functions/ProtectedRoute';
+import { SsafyProtectedRoute } from '@/functions/SsafyProtectedRoute';
 import SsafyMyPage from './mypages/MyPage';
 
 function SsafyRouter() {
@@ -12,25 +12,25 @@ function SsafyRouter() {
       <Route
         index
         element={
-          <ProtectedRoute>
+          <SsafyProtectedRoute>
             <SsafyMain />
-          </ProtectedRoute>
+          </SsafyProtectedRoute>
         }
       />
       <Route
         path="docs/*"
         element={
-          // <ProtectedRoute>
-          <DocsWrite />
-          // </ProtectedRoute>
+          <SsafyProtectedRoute>
+            <DocsWrite />
+          </SsafyProtectedRoute>
         }
       />
       <Route
         path="mypage/*"
         element={
-          <ProtectedRoute>
+          <SsafyProtectedRoute>
             <SsafyMyPage />
-          </ProtectedRoute>
+          </SsafyProtectedRoute>
         }
       />
     </Routes>

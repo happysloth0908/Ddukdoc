@@ -83,14 +83,20 @@ const FinalCheck = ({ role }: FinalCheckProps) => {
               },
             ],
     };
-    const response = await sendReceiveData(
-      parseInt(id || '0'),
-      recieverData,
-      signatureData
-    );
-    console.log(response);
-    setIsLoading(false);
-    navigate(`/mypage/blockchain`);
+    try {
+      const response = await sendReceiveData(
+        parseInt(id || '0'),
+        recieverData,
+        signatureData
+      );
+      console.log(response);
+      setIsLoading(false);
+      navigate(`/mypage/blockchain`);
+    } catch (error) {
+      console.error(error);
+      alert('블록체인에 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      setIsLoading(false);
+    }
   };
 
   return (

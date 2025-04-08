@@ -188,7 +188,7 @@ const EtcFiles = () => {
         )}
       </div>
 
-      <div className="sticky bottom-0 bg-white px-4 py-4">
+      <div className="sticky bottom-0 px-4 py-4">
         <div className="flex flex-col items-center space-y-2">
           <input
             type="file"
