@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut, House } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
@@ -14,6 +14,15 @@ export const Header = () => {
       navigate('/');
     }
   };
+
+  // 홈 버튼 눌렀을 때
+  const goHome = () => {
+    if(pathname.startsWith('/ssafy')) {
+      navigate('/ssafy');
+    } else {
+      navigate('/');
+    }
+  }
 
   const getTitleByPath = () => {
     if (pathname.startsWith('*/docs')) return '문서 작성';
@@ -38,6 +47,7 @@ export const Header = () => {
               {getTitleByPath()}
             </div>
             <LogOut className="invisible text-primary-300" />
+            <House className='text-primary-300' onClick={goHome} />
           </div>
         )}
     </div>
