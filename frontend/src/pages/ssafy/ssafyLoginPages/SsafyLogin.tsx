@@ -1,7 +1,26 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { SsafyLoginPage } from './ssafyLoginChildren/SsafyLoginPage';
+import { useSsafyAuthStore } from '@/store/ssafyAuthStore';
+import { useEffect } from 'react';
 
 export const SsafyLogin = () => {
+  const { isLoggedIn, loading, checkAuthStatus } = useSsafyAuthStore();
+  const navigate = useNavigate();
+
+useEffect(() => {
+  checkAuthStatus();
+}, [checkAuthStatus]);
+
+useEffect(() => {
+  if (isLoggedIn && !loading) {
+    navigate('/ssafy', { replace: true });
+  }
+}, [isLoggedIn, loading, navigate]);
+
+if (loading) {
+  return <div>로딩 중...</div>;
+}
+
   const onSsafyLoginClick = (): void => {
     const VITE_SSAFY_CLIENT_ID = import.meta.env.VITE_SSAFY_CLIENT_ID;
     const VITE_SSAFY_REDIRECT_URI = import.meta.env.VITE_SSAFY_REDIRECT_URI;
