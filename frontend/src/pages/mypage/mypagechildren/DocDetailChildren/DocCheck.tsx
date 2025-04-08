@@ -119,35 +119,18 @@ const DocCheck = () => {
       });
 
       // 서명 정보 업데이트
-      if (isRecipient) {
-        // 수신자인 경우
-        setCreditorSignature(
-          response.data.data.signature.recipient_signature
-            ? 'data:image/png;base64,' +
-                response.data.data.signature.recipient_signature
-            : ''
-        );
+      if (response.data.data.user_role_info.recipient_role_id === 2) {
         setDebtorSignature(
-          response.data.data.signature.creator_signature
-            ? 'data:image/png;base64,' +
-                response.data.data.signature.creator_signature
-            : ''
+          'data:image/png;base64,' +
+            response.data.data.signature.creator_signature
         );
-      } else {
-        // 발신자인 경우
+      } else if (response.data.data.user_role_info.recipient_role_id === 3) {
         setCreditorSignature(
-          response.data.data.signature.creator_signature
-            ? 'data:image/png;base64,' +
-                response.data.data.signature.creator_signature
-            : ''
-        );
-        setDebtorSignature(
-          response.data.data.signature.recipient_signature
-            ? 'data:image/png;base64,' +
-                response.data.data.signature.recipient_signature
-            : ''
+          'data:image/png;base64,' +
+            response.data.data.signature.creator_signature
         );
       }
+
       setRecipientRoleId(response.data.data.user_role_info.recipient_role_id);
     } catch (error) {
       console.error(error);

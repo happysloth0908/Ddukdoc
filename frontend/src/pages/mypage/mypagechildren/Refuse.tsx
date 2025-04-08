@@ -15,7 +15,7 @@ const Refuse = () => {
         return_reason: content,
       });
       // replace: true로 설정하여 뒤로가기 방지
-      navigate('/mypage', { replace: true });
+      navigate('/mypage', { state: { from: '/' } });
     } catch (error) {
       console.error('반송 실패:', error);
       alert('반송에 실패했습니다.');
