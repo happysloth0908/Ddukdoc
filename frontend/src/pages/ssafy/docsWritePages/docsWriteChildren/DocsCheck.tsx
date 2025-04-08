@@ -1,8 +1,9 @@
 import atoms from '@/components/atoms';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { S1 } from '@/pdfs/SSAFY/S1';
+import { S6 } from '@/pdfs/SSAFY/S6';
 import { contractSave } from '@/apis/ssafy/docsWrite';
-import { useS1Data } from '@/store/docs';
+import { useS1Data, useS6Data } from '@/store/docs';
 import blockchainLoading from '@/assets/images/blockchain/blockchain.gif';
 import { useEffect, useState } from 'react';
 
@@ -15,7 +16,9 @@ export const DocsCheck = ({
   const location = useLocation();
   const navigate = useNavigate();
   const previousPage = location.state?.from || '알 수 없음';
-  const { data, signature, resetData } = useS1Data();
+  console.log(previousPage.split('/').at(-1));
+  const S1Data = useS1Data();
+  const S6Data = useS6Data();
   const [isLoading, setIsLoading] = useState(false);
   const [dots, setDots] = useState(0);
   
@@ -54,51 +57,100 @@ export const DocsCheck = ({
 
   const save = async () => {
     setIsLoading(true);
-    const formData = {
-      "role_id": 6,
-      "title": `${formatted}_노트북 반출 확인서_${data.applicant_name}`,
-      "data": [
-        {
-          "field_id": 61,
-          "name": "export_date",
-          "field_value": data.export_date
-        },
-        {
-          "field_id": 62,
-          "name": "return_due_date",
-          "field_value": data.return_due_date
-        },
-        {
-          "field_id": 63,
-          "name": "location",
-          "field_value": data.location
-        },
-        {
-          "field_id": 64,
-          "name": "student_id",
-          "field_value": data.student_id
-        },
-        {
-          "field_id": 65,
-          "name": "contact_number",
-          "field_value": data.contact_number
-        },
-        {
-          "field_id": 66,
-          "name": "applicant_name",
-          "field_value": data.applicant_name
+      if (curTemplate == "S1") {
+        const formData = {
+          "role_id": 6,
+          "title": `${formatted}_노트북 반출 확인서_${S1Data.data.applicant_name}`,
+          "data": [
+            {
+              "field_id": 61,
+              "name": "export_date",
+              "field_value": S1Data.data.export_date
+            },
+            {
+              "field_id": 62,
+              "name": "return_due_date",
+              "field_value": S1Data.data.return_due_date
+            },
+            {
+              "field_id": 63,
+              "name": "location",
+              "field_value": S1Data.data.location
+            },
+            {
+              "field_id": 64,
+              "name": "student_id",
+              "field_value": S1Data.data.student_id
+            },
+            {
+              "field_id": 65,
+              "name": "contact_number",
+              "field_value": S1Data.data.contact_number
+            },
+            {
+              "field_id": 66,
+              "name": "applicant_name",
+              "field_value": S1Data.data.applicant_name
+            }
+          ]
         }
-      ]
+        try {
+          await contractSave(curTemplate, formData, S1Data.signature).then((res) => {
+            setIsLoading(false);
+            S1Data.resetData();
+            navigate("/ssafy/docs/share", {state: { docId: res.data}});
+          });
+        } catch (error) {
+          console.log(error);
+          setIsLoading(false);
+        }
+      }
+      else if (curTemplate == "S6") {
+        const formData = {
+          "role_id": 6,
+          "title": "S6번_프로젝트 동의서_김싸피",
+          "data": [
+              {
+                  "field_id": 88,
+                  "name": "project_name", 
+                  "field_value": S6Data.data.project_name
+              },
+              {
+                  "field_id": 89,
+                  "name": "submitted_date", 
+                  "field_value": S6Data.data.date
+              },
+              {
+                  "field_id": 90,
+                  "name": "student_birthdate", 
+                  "field_value": S6Data.data.birth
+              },
+              {
+                  "field_id": 91,
+                  "name": "student_name", 
+                  "field_value": S6Data.data.name
+              }
+          ]
+        }
+        try {
+          await contractSave(curTemplate, formData, S6Data.signature).then((res) => {
+            setIsLoading(false);
+            S1Data.resetData();
+            navigate("/ssafy/docs/share", {state: { docId: res.data}});
+          });
+        } catch (error) {
+          console.log(error);
+          setIsLoading(false);
+        }
+      }
     }
-    try {
-      await contractSave(curTemplate, formData, signature).then((res) => {
-        setIsLoading(false);
-        resetData();
-        navigate("/ssafy/docs/share", {state: { docId: res.data}});
-      });
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
+
+  const docType = (curTemplate: string) => {
+    switch (curTemplate) {
+      case "S1":
+        return <S1/>;
+      case "S6":
+        return <S6/>;
     }
   }
 
@@ -114,9 +166,9 @@ export const DocsCheck = ({
           description="확인하고 다음을 눌러주세요!"
         />
         {/* 일단 노트북 반출 서류만 */}
-        <S1/>
+        {docType(curTemplate)}
       </div>
-      {previousPage == '/ssafy/docs/detail/S1/signature' ? (
+      {previousPage.split('/').at(-1) == 'signature' ? (
         <atoms.LongButton
           onClick={save}
           className="mb-20"
