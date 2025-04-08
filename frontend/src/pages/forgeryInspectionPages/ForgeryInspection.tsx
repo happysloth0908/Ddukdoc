@@ -3,6 +3,7 @@ import forgeryInspectionChildren from './forgeryInspectionChildren';
 import { useRef, useState } from 'react';
 import api from '@/apis/axios';
 import { AxiosError } from 'axios';
+import { useLocation } from 'react-router-dom';
 
 interface forgeryTestResponseProps {
   success: boolean;
@@ -18,6 +19,7 @@ export const ForgeryInspection = () => {
 
   // 라우팅 훅
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 파일 설정 핸들러 - 자식 컴포넌트에서 호출
   const handleFileSelect = (selectedFile: File | null) => {
@@ -102,9 +104,8 @@ export const ForgeryInspection = () => {
     fileRef.current = null;
     forgeryTestResponceRef.current = null;
     setError(null);
-    const origin = sessionStorage.getItem('origin');
-    sessionStorage.removeItem('origin');
-    if (origin && origin === 'ssafy') {
+
+    if (location.state?.fromSsafy) {
       navigate('/ssafy');
     } else {
       navigate('/');
