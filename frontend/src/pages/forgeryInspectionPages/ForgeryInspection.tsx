@@ -63,7 +63,7 @@ export const ForgeryInspection = () => {
         );
       }
 
-      navigate('result');
+      navigate('result', { replace: true });
     } catch (e) {
       if (e instanceof AxiosError) {
         // 400 에러는 정상 응답으로 처리하고 result 페이지로 이동
@@ -83,7 +83,7 @@ export const ForgeryInspection = () => {
             );
           }
 
-          navigate('result');
+          navigate('result', { replace: true });
           return;
         }
 
@@ -97,9 +97,9 @@ export const ForgeryInspection = () => {
       // 에러 발생 시 업로드 화면으로 돌아감
       if (location.state?.fromSsafy) {
         console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
-        navigate('/ssafy');
+        navigate('/ssafy', { replace: true });
       } else {
-        navigate('/');
+        navigate('/', { replace: true });
       }
     }
   };
@@ -112,9 +112,9 @@ export const ForgeryInspection = () => {
 
     if (location.state?.fromSsafy) {
       console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
-      navigate('/ssafy');
+      navigate('/ssafy', { replace: true });
     } else {
-      navigate('/');
+      navigate('/', { replace: true });
     }
   };
 
