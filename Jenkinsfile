@@ -79,11 +79,24 @@ pipeline {
 
                     // 현재 활성화된 환경 확인
                     if (env.DEPLOY_ENV == 'production') {
-                        def activeEnv = sh(script: "cat /home/ubuntu/active_prod_env.txt || echo 'blue'", returnStdout: true).trim()
+                        // 여기서 바로 변수에 할당하지 않고 출력 확인
+                        echo "Production 환경 파일 읽기 시도"
+                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_prod_env.txt || echo 'blue'", returnStdout: true)
+                        echo "파일 내용 출력: ${activeEnvOutput}"
+                        // 변수 트림 후 할당
+                        def activeEnv = activeEnvOutput.trim()
+                        echo "트림 후 값: ${activeEnv}"
+                        // 환경 변수 설정
                         env.ACTIVE_ENV = activeEnv
                         env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
                     } else {
-                        def activeEnv = sh(script: "cat /home/ubuntu/active_dev_env.txt || echo 'blue'", returnStdout: true).trim()
+                        echo "개발 환경 파일 읽기 시도"
+                        def activeEnvOutput = sh(script: "cat /home/ubuntu/active_dev_env.txt || echo 'blue'", returnStdout: true)
+                        echo "파일 내용 출력: ${activeEnvOutput}"
+                        // 변수 트림 후 할당
+                        def activeEnv = activeEnvOutput.trim()
+                        echo "트림 후 값: ${activeEnv}"
+                        // 환경 변수 설정
                         env.ACTIVE_ENV = activeEnv
                         env.INACTIVE_ENV = activeEnv == 'blue' ? 'green' : 'blue'
                     }
