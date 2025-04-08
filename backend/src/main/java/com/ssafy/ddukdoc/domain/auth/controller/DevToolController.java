@@ -1,5 +1,6 @@
 package com.ssafy.ddukdoc.domain.auth.controller;
 
+import com.ssafy.ddukdoc.global.common.constants.UserType;
 import com.ssafy.ddukdoc.global.security.jwt.JwtTokenProvider;
 import com.ssafy.ddukdoc.global.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,8 +34,9 @@ public class DevToolController {
     @GetMapping("/token/{userId}")
     @Operation(summary = "테스트용 토큰 발급", description = "개발 환경에서만 사용 가능한 테스트용 토큰 발급 API입니다. 프로덕션 환경에서는 비활성화됩니다. \n\n 또는 `X-DEV-USER` 헤더에 `userId`를 넣어 인증이 필요한 api를 통과 가능")
     public ResponseEntity<Map<String, String>> getTestToken(@PathVariable Integer userId) {
-        String accessToken = jwtTokenProvider.createAccessToken(userId.toString());
-        String refreshToken = jwtTokenProvider.createRefreshToken(userId.toString());
+        String admin = UserType.ADMIN.name();
+        String accessToken = jwtTokenProvider.createAccessToken(userId.toString(), admin);
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId.toString(), admin);
 
         ResponseCookie accessTokenCookie = CookieUtil.makeDevAccessTokenCookie(accessToken);
         ResponseCookie refreshTokenCookie = CookieUtil.makeDevRefreshTokenCookie(refreshToken);
