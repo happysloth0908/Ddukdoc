@@ -456,7 +456,7 @@ pipeline {
                 script {
                     try {
                         // 자동 전환 여부 확인 (기본적으로 비활성화)
-                        def autoSwitch = false
+                        def autoSwitch = true
 
                         if (autoSwitch) {
                             echo "트래픽 자동 전환 시작: ${env.ACTIVE_ENV} -> ${env.INACTIVE_ENV}"
