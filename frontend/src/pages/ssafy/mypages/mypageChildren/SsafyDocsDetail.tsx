@@ -3,7 +3,7 @@ import atoms from '@/components/atoms';
 import { ApiResponse } from '@/types/mypage';
 import { ArrowDownToLine, Share } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 interface errorResponse extends ApiResponse {
   data: null;
@@ -11,6 +11,7 @@ interface errorResponse extends ApiResponse {
 
 const SsafyDocsDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [pdfUrl, setPdfUrl] = useState<string>();
   const pdfUrlRef = useRef<string | undefined>(undefined);
   const fileNameRef = useRef<string>('download.pdf');
@@ -84,6 +85,10 @@ const SsafyDocsDetail = () => {
     }
   }, [id]);
 
+  const handleShare = () => {
+    navigate(`/ssafy/mypage/share/${id}`);
+  };
+
   useEffect(() => {
     fetchDocInfo();
     fetchPdf();
@@ -111,6 +116,7 @@ const SsafyDocsDetail = () => {
             <atoms.LongButton
               colorType="primary"
               className="flex items-center justify-center gap-x-2"
+              onClick={handleShare}
             >
               <Share />
               MM으로 공유하기
