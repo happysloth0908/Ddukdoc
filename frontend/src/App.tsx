@@ -7,6 +7,7 @@ import { LoginPage } from '@/pages/loginPages/Login';
 import MyPage from '@/pages/mypage/MyPage.tsx';
 import { ForgeryInspection } from './pages/forgeryInspectionPages/ForgeryInspection';
 import { ProtectedRoute } from './functions/ProtectedRoute';
+import { SsafyProtectedRoute } from './functions/SsafyProtectedRoute';
 import SsafyRouter from './pages/ssafy/SsafyRouter';
 // if (import.meta.env.VITE_NODE_ENV === 'development') {
 //   worker.start();
@@ -65,9 +66,15 @@ function App() {
           <Route
             path="/forgery/*"
             element={
-              // <ProtectedRoute>
-              <ForgeryInspection />
-              // </ProtectedRoute>
+              location.state?.fromSsafy ? (
+                <SsafyProtectedRoute>
+                  <ForgeryInspection />
+                </SsafyProtectedRoute>
+              ) : (
+                <ProtectedRoute>
+                  <ForgeryInspection />
+                </ProtectedRoute>
+              )
             }
           />
           <Route path="/ssafy/*" element={<SsafyRouter />} />
