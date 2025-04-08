@@ -1,7 +1,7 @@
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import { useEffect, useState, useRef } from 'react';
 import { AdditionalFile } from '@/components/molecules/cards/AdditionalFile.tsx';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { apiClient, sendFileData } from '@/apis/mypage.ts';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
 import { ApiResponse, FileData } from '@/types/mypage.ts';
@@ -13,8 +13,9 @@ interface apiResponse extends ApiResponse {
 const EtcFiles = () => {
   const { id } = useParams();
   const [files, setFiles] = useState<FileData[]>([]);
-  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const ALLOWED_EXTENSIONS = [
     'mp3',
@@ -136,12 +137,41 @@ const EtcFiles = () => {
     }
   };
 
+  const handleImageClick = async (fileId: number) => {
+    try {
+      const response = await apiClient.get<{ data: FileData }>(
+        `api/material/${id}/${fileId}`
+      );
+      const base64 = response.data.data.file_content;
+      const dataUrl = `data:image/jpeg;base64,${base64}`;
+      setSelectedImage(dataUrl);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('이미지 로드 실패:', error);
+    }
+  };
+
   useEffect(() => {
     fetchFiles();
   }, []);
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="relative flex h-screen w-full flex-col">
+      {/* 이미지 모달 */}
+      {isModalOpen && selectedImage && (
+        <div
+          className="absolute -bottom-16 -left-8 -right-8 -top-16 z-50 flex items-center justify-center bg-black bg-opacity-70"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div className="h-full w-full p-4">
+            <img
+              src={selectedImage}
+              alt="확대된 이미지"
+              className="h-full w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
       <div className="mt-6 px-4">
         <DocsDescription
           title={'추가 자료 목록'}
@@ -171,7 +201,7 @@ const EtcFiles = () => {
                 className={`${isImage ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                 onClick={() => {
                   if (isImage) {
-                    navigate(`/mypage/${id}/files/${file.material_id}`);
+                    handleImageClick(file.material_id);
                   }
                 }}
               >
