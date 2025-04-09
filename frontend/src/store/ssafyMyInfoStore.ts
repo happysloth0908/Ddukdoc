@@ -1,28 +1,30 @@
 import api from '@/apis/axios';
 import { create } from 'zustand';
 
-interface SsafyMyData {
-  id: number;
-  name: string;
-  email: string;
-  social_provider: string;
-  user_type: string;
+interface MyInfoData {
+  name: string | null;
+  email: string | null;
+  region: string | null;
+  retire_yn: string | null;
+  category: string | null;
+  project_name: string | null;
 }
 
 interface SsafyMyStoreActions {
-  data: SsafyMyData;
+  data: MyInfoData;
   setData: () => Promise<void>;
   loading: boolean;
   error: Error | null;
 }
 
-export const useMyStore = create<SsafyMyStoreActions>((set, get) => ({
+export const useSsafyMyStore = create<SsafyMyStoreActions>((set, get) => ({
   data: {
-    id: 0,
     name: '',
     email: '',
-    social_provider: '',
-    user_type: '',
+    region: '',
+    retire_yn: '',
+    category: '',
+    project_name: '',
   },
   loading: false,
   error: null,
@@ -35,10 +37,10 @@ export const useMyStore = create<SsafyMyStoreActions>((set, get) => ({
     }
     try {
       set({ loading: true });
-      const response = await api.get('/어쩌구 정보 가져오기');
+      const response = await api.get('/api/ssafy/users/info');
       console.log('API 응답:', response.data);
-      if (response.data) {
-        set({ data: response.data, error: null }); // 데이터 설정
+      if (response.data.success) {
+        set({ data: response.data.data, error: null }); // 데이터 설정
       }
     } catch (err) {
       console.error('인증 확인 실패:', err);
