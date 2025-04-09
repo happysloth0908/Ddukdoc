@@ -10,15 +10,15 @@ export const Result = ({
   onReset: () => void;
 }) => {
   return (
-    <div className="flex w-full flex-col justify-center">
-      <div className="my-10 mt-10 text-info-large font-bold">
+    <div className="flex h-full w-full flex-col justify-between py-8">
+      <div className="text-info-large font-bold">
         <div>문서 검증 결과를</div>
         <div>알려드릴게요</div>
       </div>
-      <div className="felx w-full flex-1 items-center justify-center">
+      <div className="flex w-full items-center justify-center">
         <ValidateResult fileTitle={fileTitle} status={result} />
       </div>
-      <div className="mb-20">
+      <div>
         <LongButton onClick={onReset} colorType="black">
           홈으로
         </LongButton>
