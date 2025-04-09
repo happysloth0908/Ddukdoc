@@ -126,7 +126,7 @@ public class ProjectUtilizationAgreementForm implements DocumentGenerator {
 
             // 서명을 이름 옆에 배치
             float xPosition = 410; // 이름 옆에 위치
-            float yPosition = 220; // 이름과 같은 높이
+            float yPosition = 200; // 이름과 같은 높이
             signature.setFixedPosition(xPosition, yPosition);
             document.add(signature);
         }
