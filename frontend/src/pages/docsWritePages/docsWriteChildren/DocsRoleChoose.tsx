@@ -1,6 +1,7 @@
 import atoms from '@/components/atoms';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DefaultIcons from '@/assets/images/default';
+import { useIOUDocsStore } from '@/store/docs';
 
 export const DocsRoleChoose = ({
   templateCode,
@@ -11,10 +12,17 @@ export const DocsRoleChoose = ({
   role: string;
   onRole: (code: string) => void;
 }) => {
+  const navigate = useNavigate();
+  const { resetData } = useIOUDocsStore();
   const handleSelect = (id: string) => {
     onRole(id);
   };
 
+  const handleClick = () => {
+    resetData();
+    navigate('/docs/detail/' + templateCode);
+
+  }
   return (
     <div className="flex h-full flex-col gap-y-6">
       <div className="flex flex-1 justify-center flex-col gap-y-6">
@@ -40,9 +48,7 @@ export const DocsRoleChoose = ({
           className="text-info-small font-bold"
         />
       </div>
-      <Link to={'/docs/detail/' + templateCode}>
-        <atoms.LongButton className="mb-20" children="다음" colorType="black" />
-      </Link>
+      <atoms.LongButton onClick={handleClick} className="mb-20" children="다음" colorType="black" />
     </div>
   );
 };

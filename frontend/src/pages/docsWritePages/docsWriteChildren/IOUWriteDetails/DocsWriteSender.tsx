@@ -65,13 +65,13 @@ export const DocsWriteSender = ({
         const idWithoutHyphens = value.replace(/-/g, '');
         if (!/^\d{0,13}$/.test(idWithoutHyphens))
           error = '주민번호는 (-)를 제외한 13자리 숫자로만 작성해주세요.';
-        else if (idWithoutHyphens.length > 0 && idWithoutHyphens.length < 13)
+        else if (idWithoutHyphens.length != 13)
           error = '주민번호는 13자리여야 합니다.';
         break;
       case 'contact':
         // Check the raw number input without hyphens
         const contactWithoutHyphens = value.replace(/-/g, '');
-        if (contactWithoutHyphens.length > 0 && contactWithoutHyphens.length < 11)
+        if (contactWithoutHyphens.length != 11)
           error = '전화번호는 11자리여야 합니다.';
         else if (!/^\d*$/.test(contactWithoutHyphens))
           error = '연락처는 숫자로만 작성해주세요';
