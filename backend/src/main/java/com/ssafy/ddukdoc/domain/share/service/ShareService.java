@@ -37,7 +37,9 @@ public class ShareService {
     private final WebClient webClient;
     private final S3Util s3Util;
 
+    public static final String MATTER_MOST_INCORRECT_AUTH = "MatterMost 인증 정보가 올바르지 않습니다.";
     public static final String MATTER_MOST_NO_RESPONSE = "MatterMost 서버 응답이 없습니다.";
+    public static final String MATTERMOST_NO_BODY_MESSAGE = "MatterMost 서버 응답 본문이 없습니다.";
 
     public MMLoginResponse mattermostLogin(MMLoginRequest loginRequest) {
         try {
@@ -66,7 +68,7 @@ public class ShareService {
             Map<String, Object> responseBody = response.getBody();
 
             if (responseBody == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 서버 응답 본문이 없습니다.");
+                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTERMOST_NO_BODY_MESSAGE);
             }
 
             // 응답 헤더에서 토큰 추출
@@ -175,7 +177,7 @@ public class ShareService {
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 인증 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, MATTER_MOST_INCORRECT_AUTH);
             }
             log.error("MatterMost 채널 조회 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -275,7 +277,7 @@ public class ShareService {
 
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 인증 정보가 올바르지 않습니다.");
+                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, MATTER_MOST_INCORRECT_AUTH);
             }
             log.error("MatterMost 메시지 전송 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -284,60 +286,89 @@ public class ShareService {
 
     public MMUserResponse mattermostUser(MMUserRequest userRequest) {
         try {
-            String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
-                    .path(MMConstants.SEARCH_USER_URL)
-                    .queryParam("name", userRequest.getKeyword())
-                    .build()
-                    .toUriString();
+            // API 호출 및 응답 처리
+            Map<String, Object> responseBody = callMattermostAPI(userRequest);
 
-            ResponseEntity<Map<String, Object>> response = webClient.get()
-                    .uri(uri)
-                    .header(MMConstants.AUTH, MMConstants.TOKEN + userRequest.getToken())
-                    .retrieve()
-                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-                    })
-                    .block();
-
-            if (response == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
-            }
-
-            Map<String, Object> responseBody = response.getBody();
-            if (responseBody == null) {
-                throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 서버 응답 본문이 없습니다.");
-            }
-
-            Object usersObj = responseBody.get("users");
-            List<?> usersList = usersObj instanceof List<?> ? (List<?>) usersObj : null;
+            // 사용자 목록 추출
+            List<?> usersList = extractUsersList(responseBody);
 
             if (usersList == null) {
                 return MMUserResponse.of(new ArrayList<>());
             }
 
-            List<MMUserResponse.MMUser> users = new ArrayList<>();
-
-            // users 목록 안전하게 추출
-            for (Object userObj : usersList) {
-                if (userObj instanceof Map<?, ?> user) {
-
-                    // 필요한 필드 추출 (null 체크 추가)
-                    String id = user.get("id") instanceof String ? (String) user.get("id") : "";
-                    String username = user.get("username") instanceof String ? (String) user.get("username") : "";
-                    String nickname = user.get("nickname") instanceof String ? (String) user.get("nickname") : "";
-
-                    users.add(MMUserResponse.MMUser.of(id, username, nickname));
-                }
-            }
+            // 사용자 정보 변환
+            List<MMUserResponse.MMUser> users = convertToMMUsers(usersList);
 
             return MMUserResponse.of(users);
 
         } catch (WebClientResponseException e) {
-            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "MatterMost 인증 정보가 올바르지 않습니다.");
-            }
-            log.error("MatterMost 사용자 검색 중 오류 발생: {}", e.getMessage());
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+            handleWebClientException(e);
+            return null; // 이 라인은 실행되지 않음 (위 메소드에서 예외 발생)
         }
+    }
+
+    // API 호출 메소드
+    private Map<String, Object> callMattermostAPI(MMUserRequest userRequest) {
+        String uri = UriComponentsBuilder.fromUriString(MMConstants.API_URL)
+                .path(MMConstants.SEARCH_USER_URL)
+                .queryParam("name", userRequest.getKeyword())
+                .build()
+                .toUriString();
+
+        ResponseEntity<Map<String, Object>> response = webClient.get()
+                .uri(uri)
+                .header(MMConstants.AUTH, MMConstants.TOKEN + userRequest.getToken())
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .block();
+
+        if (response == null) {
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTER_MOST_NO_RESPONSE);
+        }
+
+        Map<String, Object> responseBody = response.getBody();
+        if (responseBody == null) {
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTERMOST_NO_BODY_MESSAGE);
+        }
+
+        return responseBody;
+    }
+
+    // 사용자 목록 추출 메소드
+    private List<?> extractUsersList(Map<String, Object> responseBody) {
+        Object usersObj = responseBody.get("users");
+        return usersObj instanceof List<?> ? (List<?>) usersObj : null;
+    }
+
+    // 사용자 정보 변환 메소드
+    private List<MMUserResponse.MMUser> convertToMMUsers(List<?> usersList) {
+        List<MMUserResponse.MMUser> users = new ArrayList<>();
+
+        for (Object userObj : usersList) {
+            if (userObj instanceof Map<?, ?> user) {
+                String id = extractStringField(user, "id");
+                String username = extractStringField(user, "username");
+                String nickname = extractStringField(user, "nickname");
+
+                users.add(MMUserResponse.MMUser.of(id, username, nickname));
+            }
+        }
+
+        return users;
+    }
+
+    // 문자열 필드 안전하게 추출
+    private String extractStringField(Map<?, ?> map, String key) {
+        return map.get(key) instanceof String ? (String) map.get(key) : "";
+    }
+
+    // 웹클라이언트 예외 처리
+    private void handleWebClientException(WebClientResponseException e) {
+        if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, MATTER_MOST_INCORRECT_AUTH);
+        }
+        log.error("MatterMost 사용자 검색 중 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     public void mattermostMessageToUser(MMMessageToUserRequest messageRequest) {
@@ -367,7 +398,7 @@ public class ShareService {
         Map<String, Object> responseBody = response.getBody();
 
         if (responseBody == null) {
-            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "MatterMost 서버 응답 본문이 없습니다.");
+            throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, MATTERMOST_NO_BODY_MESSAGE);
         }
 
         String channelId = (String) responseBody.get("id");

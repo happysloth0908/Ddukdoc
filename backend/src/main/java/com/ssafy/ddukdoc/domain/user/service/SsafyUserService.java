@@ -29,6 +29,8 @@ public class SsafyUserService {
     private final UserRepository userRepository;
     private final WebClient webClient;
 
+    public static final String USER_ID = "userId";
+
     @Value("${ssafy.open-api.key}")
     private String ssafyApiKey;
 
@@ -53,13 +55,13 @@ public class SsafyUserService {
 
             if (response == null) {
                 throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "Ssafy 사용자 정보 요청 응답 없습니다.")
-                        .addParameter("userId", userId);
+                        .addParameter(USER_ID, userId);
             }
 
             Map<String, Object> responseBody = response.getBody();
             if (responseBody == null) {
                 throw new CustomException(ErrorCode.EXTERNAL_API_ERROR, "Ssafy 사용자 정보 요청 본문이 없습니다.")
-                        .addParameter("userId", userId);
+                        .addParameter(USER_ID, userId);
             }
 
             Object teamsObj = responseBody.get("teams");
@@ -84,7 +86,7 @@ public class SsafyUserService {
         } catch (WebClientResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Ssafy 사용자 요청 정보가 올바르지 않습니다.")
-                        .addParameter("userId", userId);
+                        .addParameter(USER_ID, userId);
             }
             log.error("Ssafy 사용자 검색 중 오류 발생: {}", e.getMessage());
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);

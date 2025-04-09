@@ -13,16 +13,15 @@ import com.ssafy.ddukdoc.global.common.util.FileValidationUtil;
 import com.ssafy.ddukdoc.global.common.util.S3Util;
 import com.ssafy.ddukdoc.global.error.code.ErrorCode;
 import com.ssafy.ddukdoc.global.error.exception.CustomException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -86,11 +85,11 @@ public class MaterialService {
         }
 
         // 문서 내 등록된 추가자료 모두 조회
-        List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
+        List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocumentId(documentId);
 
         return documentEvidenceList.stream()
                 .map(MaterialListResponseDto::of)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public MaterialDetailResponseDto getMaterialDetail(Integer userId, Integer documentId, Integer materialId) {
@@ -169,7 +168,7 @@ public class MaterialService {
         }
 
         // 추가자료 목록 조회
-        List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocument_Id(documentId);
+        List<DocumentEvidence> documentEvidenceList = materialRepository.findAllByDocumentId(documentId);
         if (documentEvidenceList.isEmpty()) {
             throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_EMPTY, DOCUMENT_ID, documentId);
         }
@@ -178,20 +177,7 @@ public class MaterialService {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try (ZipOutputStream zipStream = new ZipOutputStream(byteStream)) {
             for (DocumentEvidence evidence : documentEvidenceList) {
-                try {
-                    // S3에서 파일 자료 복호화 및 다운로드
-                    byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(evidence.getFilePath());
-
-                    // Zip 파일 엔트리 생성
-                    ZipEntry zipEntry = new ZipEntry(evidence.getTitle() + "." + evidence.getMimeType());
-                    zipStream.putNextEntry(zipEntry);
-                    zipStream.write(fileContent);
-                    zipStream.closeEntry();
-                } catch (IOException e) {
-                    log.error("자료 파일 처리 실패 - 증빙 제목: {}. 에러: {}", evidence.getTitle(), e.getMessage(), e);
-                    throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, DOCUMENT_ID, documentId)
-                            .addParameter(MATERIAL_ID, evidence.getId());
-                }
+                addEvidenceToZip(documentId, evidence, zipStream);
             }
             zipStream.finish();
         } catch (IOException e) {
@@ -202,4 +188,20 @@ public class MaterialService {
         return MaterialDownloadResponseDto.of(document, byteStream.toByteArray());
     }
 
+    private void addEvidenceToZip(Integer documentId, DocumentEvidence evidence, ZipOutputStream zipStream) {
+        try {
+            // S3에서 파일 자료 복호화 및 다운로드
+            byte[] fileContent = s3Util.downloadAndDecryptFileToBytes(evidence.getFilePath());
+
+            // Zip 파일 엔트리 생성
+            ZipEntry zipEntry = new ZipEntry(evidence.getTitle() + "." + evidence.getMimeType());
+            zipStream.putNextEntry(zipEntry);
+            zipStream.write(fileContent);
+            zipStream.closeEntry();
+        } catch (IOException e) {
+            log.error("자료 파일 처리 실패 - 증빙 제목: {}. 에러: {}", evidence.getTitle(), e.getMessage(), e);
+            throw new CustomException(ErrorCode.MATERIAL_DOWNLOAD_ERROR, DOCUMENT_ID, documentId)
+                    .addParameter(MATERIAL_ID, evidence.getId());
+        }
+    }
 }
