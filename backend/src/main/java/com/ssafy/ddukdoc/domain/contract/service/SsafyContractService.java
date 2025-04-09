@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,10 +52,11 @@ public class SsafyContractService {
     private final SignatureRepository signatureRepository;
     private final RoleRepository roleRepository;
     private final UserDocRoleRepository userDocRoleRepository;
-//    private final AESUtil aesUtil;
     private final PdfGeneratorUtil pdfGeneratorUtil;
     private final BlockchainUtil blockchainUtil;
     private final EncryptionStrategy encryptionStrategy;
+
+    public static final int DOCUMENT_SAVE_SUCCESS = 1;
 
     public List<TemplateFieldResponseDto> getTemplateFields(String  codeStr){
 
@@ -66,10 +66,8 @@ public class SsafyContractService {
                 .orElseThrow(() -> new CustomException(ErrorCode.TEMPLATE_NOT_FOUND, "templateCode", templateCode));
         List<TemplateField> fields = templateFieldRepository.findByTemplateIdOrderByDisplayOrderAsc(template.getId());
 
-        List<TemplateFieldResponseDto> fieldResponses = fields.stream()
-                .map(TemplateFieldResponseDto::of).collect(Collectors.toList());
-
-        return fieldResponses;
+        return fields.stream()
+                .map(TemplateFieldResponseDto::of).toList();
     }
     @Transactional public Integer saveDoc(String codeStr, DocumentSaveRequestDto requestDto, Integer userId, MultipartFile signatureFile, List<MultipartFile> proofDocuments){
         TemplateCode templateCode = TemplateCode.fromString(codeStr);
@@ -102,8 +100,8 @@ public class SsafyContractService {
         switch (templateCode){
             case S5:  //서명없이 저장
                 return saveDocumentNoSignature(document,saveDocument,requestDto,templateCode);
-            case S2: case S3:  //서명 + 증빙서류 필요
-                return saveDocumentWithSignatureAndExtra(document,saveDocument,user, requestDto, templateCode,signatureFile,proofDocuments);
+            case S2, S3:  //서명 + 증빙서류 필요
+                return saveDocumentWithSignatureAndExtra();
             default:  // 서명만 필요
                 return saveDocumentWithSignature(document,saveDocument,user, requestDto, templateCode,signatureFile);
         }
@@ -131,8 +129,8 @@ public class SsafyContractService {
         return saveDocument.getId();
     }
 
-    private Integer saveDocumentWithSignatureAndExtra(Document document, Document saveDocument, User user, DocumentSaveRequestDto requestDto, TemplateCode templateCode,MultipartFile signatureFile, List<MultipartFile> proofDocuments) {
-        return 1;
+    private Integer saveDocumentWithSignatureAndExtra() {
+        return DOCUMENT_SAVE_SUCCESS;
     }
 
     private Integer saveDocumentWithSignature(Document document, Document saveDocument, User user, DocumentSaveRequestDto requestDto, TemplateCode templateCode,MultipartFile signatureFile) {
@@ -145,7 +143,7 @@ public class SsafyContractService {
 
             // 파일 생성 시 필요한 서명 맵 생성
             Map<Integer,byte[]> signature = new HashMap<>();
-            signature.put(requestDto.getRoleId(),signatureFile.getBytes());;
+            signature.put(requestDto.getRoleId(),signatureFile.getBytes());
 
             // 문서 pdf 생성
             Map<String,Object> result = pdfGeneratorUtil.generatePdfNoData(
@@ -222,7 +220,7 @@ public class SsafyContractService {
                     return fieldValueDto.toEntity(document, field, user,encryptedValue);
 
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         documentFieldValueRepository.saveAll(fieldValues);
     }
@@ -238,9 +236,8 @@ public class SsafyContractService {
         );
 
         // PDF 파일을 암호화하여 S3에 업로드
-        String pdfPath = s3Util.uploadEncryptedFile(multipartFile, "contract/" + document.getId());
 
-        return pdfPath;
+        return s3Util.uploadEncryptedFile(multipartFile, "contract/" + document.getId());
     }
 
     // 문서 상태 변경 메서드

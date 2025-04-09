@@ -20,8 +20,8 @@
   "dir": "auto",
   "lang": "ko-KR",
   "name": "뚝딱뚝Doc",
-  "short_name": "DDDD",
-  "start_url": "http://localhost:4173",
+  "short_name": "DDUKDOC",
+  "start_url": "https://ddukdoc.shop",
   "scope": "/",
   "description": "복잡한 문서, 한번에 뚝딱!"
 }

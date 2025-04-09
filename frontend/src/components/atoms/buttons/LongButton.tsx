@@ -1,7 +1,7 @@
 import ButtonProps from './ButtonProps';
 
 interface LongButtonProps extends ButtonProps {
-  colorType?: 'primary' | 'gray' | 'black' | 'warning';
+  colorType?: 'primary' | 'gray' | 'black' | 'warning' | 'none';
 }
 
 export default function LongButton({
@@ -21,6 +21,8 @@ export default function LongButton({
         return 'bg-status-warning';
       case 'black':
         return 'bg-text-default text-gray-white';
+      case 'none':
+        return '';
       default:
         return 'bg-primary-300';
     }

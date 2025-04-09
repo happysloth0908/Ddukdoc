@@ -30,7 +30,7 @@ public class SsafyUserController {
     @SSAFYAccess
     @Operation(summary = "SSAFY 사용자 정보 확인", description = "사용자 정보를 반환합니다.")
     @ApiErrorCodeExamples({ErrorCode.INVALID_USER_ID, ErrorCode.EXTERNAL_API_ERROR, ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INTERNAL_SERVER_ERROR})
-    public ResponseEntity<CommonResponse<SsafyUserInfoResponse>> SsafyUserInfo(
+    public ResponseEntity<CommonResponse<SsafyUserInfoResponse>> ssafyUserInfo(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         Integer userId = authenticationUtil.getCurrentUserId(userPrincipal);

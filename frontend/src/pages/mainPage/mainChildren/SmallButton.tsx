@@ -2,19 +2,31 @@ interface SmallButtonProps {
   imageSrc: string;
   title: string;
   subtitle: string;
+  className?: string;
 }
 
-const SmallButton = ({ imageSrc, title, subtitle }: SmallButtonProps) => {
+const SmallButton = ({
+  imageSrc,
+  title,
+  subtitle,
+  className,
+}: SmallButtonProps) => {
   return (
-    <div className="relative flex h-48 w-full max-w-xs flex-col items-center overflow-hidden rounded-xl shadow-md">
+    <div
+      className={`${className} relative flex w-full flex-col items-center overflow-hidden rounded-xl`}
+    >
       <div className="absolute inset-0 rounded-xl bg-white"></div>
 
-      <div className="relative flex h-full w-full flex-col items-center justify-center">
-        <div className="mb-4 w-16 ">
-          <img className="h-16 w-auto object-contain" src={imageSrc} alt="User Icon" />
+      <div className="relative flex h-full w-full flex-col items-center justify-center py-4">
+        <div className="mb-3 w-16">
+          <img
+            className="h-16 w-auto object-contain"
+            src={imageSrc}
+            alt={title}
+          />
         </div>
 
-        <div className="mb-2 text-center text-xl font-extrabold">{title}</div>
+        <div className="mb-1 text-center text-xl font-extrabold">{title}</div>
         <div className="text-center text-xs font-light">{subtitle}</div>
       </div>
     </div>

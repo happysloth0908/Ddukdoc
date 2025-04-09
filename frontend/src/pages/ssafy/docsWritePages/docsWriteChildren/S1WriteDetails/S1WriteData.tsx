@@ -2,10 +2,12 @@ import { useS1Data } from '@/store/docs';
 import atoms from '@/components/atoms';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSsafyMyStore } from '@/store/ssafyMyInfoStore';
 
 export const S1WriteData = () => {
   const { data, setData } = useS1Data();
   const navigate = useNavigate();
+  const ssafyInfo = useSsafyMyStore();
 
   const [formData, setFormData] = useState({
     export_date: data.export_date || "",
@@ -13,7 +15,7 @@ export const S1WriteData = () => {
     location: data.location || "",
     student_id: data.student_id || "",
     contact_number: (data.contact_number || "").replace(/-/g, ''),
-    applicant_name: data.applicant_name || ""
+    applicant_name: data.applicant_name || ssafyInfo.data.name || ""
   });
 
   const [errorStatus, setErrorStatus] = useState({
@@ -72,13 +74,15 @@ export const S1WriteData = () => {
 
       case 'contact_number':
         // 하이픈 제거 후 검증
-        const contactWithoutHyphens = value.replace(/-/g, '');
-        if (contactWithoutHyphens.length != 11) {
-          errorMsg = '전화번호는 (-)를 제외한 11자리를 입력해주세요.';
-        } else if (!/^\d*$/.test(contactWithoutHyphens)) {
-          errorMsg = '연락처는 숫자로만 작성해주세요';
+        {
+            const contactWithoutHyphens = value.replace(/-/g, '');
+          if (contactWithoutHyphens.length != 11) {
+            errorMsg = '전화번호는 (-)를 제외한 11자리를 입력해주세요.';
+          } else if (!/^\d*$/.test(contactWithoutHyphens)) {
+            errorMsg = '연락처는 숫자로만 작성해주세요';
+          }
+          break;
         }
-        break;
 
       case 'applicant_name':
         if (!/^[가-힣a-zA-Z]{2,20}$/.test(value.trim()))

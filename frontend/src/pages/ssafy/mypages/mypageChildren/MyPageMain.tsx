@@ -96,20 +96,6 @@ const MyPageMain = () => {
 
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden px-6">
-      {/* <div className="flex w-full flex-col space-y-4 pt-4">
-        <DocsDescription
-          title={'김소운'}
-          subTitle={''}
-          description={'sozzy@naver.com'}
-        />
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-normal text-black">대전</span>
-          <span className="text-2xl text-gray-400">|</span>
-          <span className="text-lg font-normal text-black">12333494</span>
-          <span className="text-2xl text-gray-400">|</span>
-          <span className="text-lg font-normal text-black">재학 중</span>
-        </div>
-      </div> */}
       <SsafyMyInfo />
 
       <div className="flex w-full flex-1 flex-col space-y-4 overflow-y-auto pt-8">

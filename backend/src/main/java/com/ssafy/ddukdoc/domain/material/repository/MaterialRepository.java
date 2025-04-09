@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MaterialRepository extends JpaRepository<DocumentEvidence, Integer> {
-    List<DocumentEvidence> findAllByDocument_Id(Integer documentId);
+    List<DocumentEvidence> findAllByDocumentId(Integer documentId);
 }
