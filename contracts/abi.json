@@ -1,18 +1,5 @@
 [
 	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "deleteDocument",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -51,49 +38,14 @@
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "uri",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "documentHash",
-				"type": "string"
-			}
-		],
-		"name": "DocumentUpdated",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "string",
 				"name": "name",
 				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "hash",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "uri",
-				"type": "string"
 			}
 		],
-		"name": "registerDocument",
+		"name": "deleteDocument",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -171,46 +123,23 @@
 		"inputs": [
 			{
 				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
 				"name": "hash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "uri",
 				"type": "string"
 			}
 		],
-		"name": "getDocumentsByHash",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "uri",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "hash",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					}
-				],
-				"internalType": "struct DocumentRegistry.Document[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
+		"name": "registerDocument",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]
