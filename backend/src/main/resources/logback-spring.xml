@@ -25,7 +25,7 @@
     <springProfile name="dev">
         <!-- JSON 포맷 로거 (Logstash로 전송) -->
         <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-            <destination>logstash:5044</destination>
+            <destination>logstash:5045</destination>
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                 <includeMdc>true</includeMdc>
                 <customFields>{"app_name":"ddukdoc","environment":"dev"}</customFields>
@@ -81,7 +81,7 @@
     <springProfile name="prod">
         <!-- JSON 포맷 로거 (Logstash로 전송) -->
         <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-            <destination>logstash:5044</destination>
+            <destination>logstash:5045</destination>
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                 <includeMdc>true</includeMdc>
                 <customFields>{"app_name":"ddukdoc","environment":"prod"}</customFields>
