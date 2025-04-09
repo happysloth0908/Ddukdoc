@@ -199,7 +199,7 @@ const SsafyS1DocPatch = () => {
     };
 
     setData(updatedData);
-    navigate(`/ssafy/mypage/sign/${id}`);
+    navigate(`/ssafy/mypage/sign/${id}`, { state: { templateCode: 'S1' } });
   };
   return (
     <div className="flex h-full w-full flex-col items-center justify-center">
