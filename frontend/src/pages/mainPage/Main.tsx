@@ -17,16 +17,18 @@ export const MainMenuPage = () => {
       const redirectPath = getCookie('auth_redirect_path');
 
       if (redirectPath) {
-        const isSsafy = window.location.href.includes('ssafy');
+        const isSsafy = window.location.pathname.includes('ssafy');
         const redirectIsSsafy = redirectPath.includes('ssafy');
-  
+
         //리다이렉트 주소와 origin 이 맞지 않으면 무시하고 메인으로 가게 하기
-        if(isSsafy !== redirectIsSsafy){
+        if (isSsafy !== redirectIsSsafy) {
+          console.log('origin 이 맞지 않으니 메인 페이지로 갑니다. ');
           deleteCookie('auth_redirect_path');
           navigate(isSsafy ? '/ssafy' : '/');
+        } else {
+          deleteCookie('auth_redirect_path');
+          navigate(redirectPath);
         }
-        deleteCookie('auth_redirect_path');
-        navigate(redirectPath);
       }
     }
   }, [isLoggedIn, navigate]);
@@ -53,8 +55,9 @@ export const MainMenuPage = () => {
         <div className="flex-1">
           <Link to="/forgery">
             <SmallButton
+              className="shadow-md"
               imageSrc={MainPage.securityShield}
-              subtitle="블록체인 기술로 위변조 검사"
+              subtitle="블록체인 위변조 검사"
               title="위변조 검사"
             />
           </Link>
@@ -62,6 +65,7 @@ export const MainMenuPage = () => {
         <div className="flex-1">
           <Link to="/mypage">
             <SmallButton
+              className="shadow-md"
               imageSrc={MainPage.myDoc}
               subtitle="내 문서들을 한번에 확인"
               title="나의 문서"

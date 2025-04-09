@@ -109,7 +109,7 @@ export const DocsCheck = ({
       else if (curTemplate == "S6") {
         const formData = {
           "role_id": 6,
-          "title": "S6번_프로젝트 동의서_김싸피",
+          "title": `${formatted}_프로젝트 활용 동의서_${S6Data.data.name}`,
           "data": [
               {
                   "field_id": 88,

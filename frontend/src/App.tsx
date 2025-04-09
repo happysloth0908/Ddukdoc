@@ -17,12 +17,11 @@ import { ErrorPage } from './pages/errorPages/error';
 function App() {
   const location = useLocation();
   const isMainRoute = location.pathname === '/';
-  const isSsafy =
-    location.pathname === '/ssafy/login' || location.pathname === '/ssafy';
+  const isSsafy = location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
     : isSsafy
-      ? 'bg-blue-gradient'
+      ? 'bg-[#F2F2F2]'
       : 'bg-bg-default';
 
   return (

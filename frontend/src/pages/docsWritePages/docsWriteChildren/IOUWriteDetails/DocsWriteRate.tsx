@@ -100,6 +100,64 @@ export const DocsWriteRate = ({
     navigate('/docs/detail/G1/bank');
   };
 
+  // 각 필드에 맞는 suffix 반환 함수
+  const getSuffix = (fieldName: string) => {
+    switch (fieldName) {
+      case 'interest_rate':
+      case 'late_interest_rate':
+        return '%';
+      case 'interest_payment_date':
+        return '일';
+      case 'loss_of_benefit_conditions':
+        return '회';
+      default:
+        return '';
+    }
+  };
+
+  // 인풋 렌더링을 위한 헬퍼 함수
+  const renderInput = (
+    name: keyof typeof formData,
+    label: string,
+    type: 'input' | 'date' = 'input'
+  ) => {
+    const suffix = getSuffix(name);
+    
+    return (
+      <div>
+        {type === 'input' ? (
+          <div className="relative">
+            <atoms.Input
+              className={`${errorStatus[name] ? 'ring-1 ring-red-500' : ''} ${suffix ? 'pr-8' : ''}`}
+              name={name}
+              defaultValue={formData[name] == '0' ? '' : formData[name]}
+              label={label}
+              onChange={handleChange}
+            />
+            {suffix && (
+              <div className="absolute right-3 bottom-0 -translate-y-1/2 text-gray-500">
+                {suffix}
+              </div>
+            )}
+          </div>
+        ) : (
+          <atoms.DateInput
+            className={errorStatus[name] ? 'ring-1 ring-red-500' : ''}
+            name={name}
+            defaultValue={formData[name as 'repayment_date']}
+            label={label}
+            onChange={handleChange}
+          />
+        )}
+        <p
+          className={`text-xs text-red-500 ${errorStatus[name] ? '' : 'hidden'}`}
+        >
+          {errorStatus[name]}
+        </p>
+      </div>
+    );
+  };
+
   return (
     <div className="flex h-full w-full flex-col">
       <atoms.ProgressBar curStage={3} totalStage={6} />
@@ -111,102 +169,11 @@ export const DocsWriteRate = ({
             description="를 입력하고 있어요"
           />
           <form className="flex flex-col gap-y-6">
-            <div>
-              <atoms.Input
-                className={
-                  errorStatus.interest_rate ? 'ring-1 ring-red-500' : ''
-                }
-                name="interest_rate"
-                defaultValue={formData.interest_rate}
-                label="이자율"
-                onChange={handleChange}
-              />
-              <p
-                className={`text-xs text-red-500 ${
-                  errorStatus.interest_rate ? '' : 'hidden'
-                }`}
-              >
-                {errorStatus.interest_rate}
-              </p>
-            </div>
-
-            <div>
-              <atoms.DateInput
-                className={
-                  errorStatus.repayment_date ? 'ring-1 ring-red-500' : ''
-                }
-                name="repayment_date"
-                defaultValue={formData.repayment_date}
-                label="원금 변제일"
-                onChange={handleChange}
-              />
-              <p
-                className={`text-xs text-red-500 ${
-                  errorStatus.repayment_date ? '' : 'hidden'
-                }`}
-              >
-                {errorStatus.repayment_date}
-              </p>
-            </div>
-
-            <div>
-              <atoms.Input
-                className={
-                  errorStatus.interest_payment_date ? 'ring-1 ring-red-500' : ''
-                }
-                name="interest_payment_date"
-                defaultValue={formData.interest_payment_date}
-                label="이자 지급일 (매월)"
-                onChange={handleChange}
-              />
-              <p
-                className={`text-xs text-red-500 ${
-                  errorStatus.interest_payment_date ? '' : 'hidden'
-                }`}
-              >
-                {errorStatus.interest_payment_date}
-              </p>
-            </div>
-
-            <div>
-              <atoms.Input
-                className={
-                  errorStatus.late_interest_rate ? 'ring-1 ring-red-500' : ''
-                }
-                name="late_interest_rate"
-                defaultValue={formData.late_interest_rate}
-                label="지연 이자율"
-                onChange={handleChange}
-              />
-              <p
-                className={`text-xs text-red-500 ${
-                  errorStatus.late_interest_rate ? '' : 'hidden'
-                }`}
-              >
-                {errorStatus.late_interest_rate}
-              </p>
-            </div>
-
-            <div>
-              <atoms.Input
-                className={
-                  errorStatus.loss_of_benefit_conditions
-                    ? 'ring-1 ring-red-500'
-                    : ''
-                }
-                name="loss_of_benefit_conditions"
-                defaultValue={formData.loss_of_benefit_conditions}
-                label="기한 이익 상실 연체 횟수"
-                onChange={handleChange}
-              />
-              <p
-                className={`text-xs text-red-500 ${
-                  errorStatus.loss_of_benefit_conditions ? '' : 'hidden'
-                }`}
-              >
-                {errorStatus.loss_of_benefit_conditions}
-              </p>
-            </div>
+            {renderInput('interest_rate', '이자율')}
+            {renderInput('repayment_date', '원금 변제일', 'date')}
+            {renderInput('interest_payment_date', '이자 지급일 (매월)')}
+            {renderInput('late_interest_rate', '지연 이자율')}
+            {renderInput('loss_of_benefit_conditions', '기한 이익 상실 연체 횟수')}
           </form>
         </div>
       </div>

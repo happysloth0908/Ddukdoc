@@ -2,15 +2,17 @@ import { useS6Data } from '@/store/docs';
 import atoms from '@/components/atoms';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSsafyMyStore } from '@/store/ssafyMyInfoStore';
 
 export const S6WriteData = () => {
   const { data, setData } = useS6Data();
   const navigate = useNavigate();
+  const ssafyInfo = useSsafyMyStore();
 
   const [formData, setFormData] = useState({
     project_name: data.project_name || "",
     birth: data.birth || "",
-    name: data.name || "",
+    name: data.name || ssafyInfo.data.name || "",
   });
 
   const [errorStatus, setErrorStatus] = useState({

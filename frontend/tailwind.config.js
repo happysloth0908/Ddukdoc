@@ -32,6 +32,9 @@ export default {
         },
         ssafy: {
           default: '#6DCEF5',
+          b1: '#7F94FF',
+          b2: '#6780FF',
+          grey: '#F2F2F2',
         },
         status: {
           info: '#71A4FF',
@@ -58,7 +61,7 @@ export default {
         l: ['15px', { lineHeight: '22px' }],
         xl: ['16px', { lineHeight: '24px' }],
         'info-small': ['20px', { lineHeight: '28px' }],
-        'info-large': ['24px', { lineHeight: '32px' }],
+        'info-large': ['22px', { lineHeight: '32px' }],
         title: ['50px', { lineHeight: '60px' }],
       },
       keyframes: {
