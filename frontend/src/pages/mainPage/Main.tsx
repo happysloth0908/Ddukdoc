@@ -19,14 +19,16 @@ export const MainMenuPage = () => {
       if (redirectPath) {
         const isSsafy = window.location.href.includes('ssafy');
         const redirectIsSsafy = redirectPath.includes('ssafy');
-  
+
         //리다이렉트 주소와 origin 이 맞지 않으면 무시하고 메인으로 가게 하기
-        if(isSsafy !== redirectIsSsafy){
+        if (isSsafy !== redirectIsSsafy) {
+          console.log('origin 이 맞지 않으니 메인 페이지로 갑니다. ');
           deleteCookie('auth_redirect_path');
           navigate(isSsafy ? '/ssafy' : '/');
+        } else {
+          deleteCookie('auth_redirect_path');
+          navigate(redirectPath);
         }
-        deleteCookie('auth_redirect_path');
-        navigate(redirectPath);
       }
     }
   }, [isLoggedIn, navigate]);
