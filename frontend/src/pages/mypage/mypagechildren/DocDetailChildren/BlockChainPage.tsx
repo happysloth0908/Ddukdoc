@@ -1,11 +1,14 @@
 import atoms from '@/components/atoms';
 import { useNavigate } from 'react-router-dom';
 import safeImage from '@/assets/images/blockchain/safe.png';
+import { useIOUDocsStore } from '@/store/docs';
 
 const BlockChainPage = () => {
   const navigate = useNavigate();
+  const { resetData } = useIOUDocsStore();
 
   const handleClick = () => {
+    resetData();
     navigate('/mypage', { state: { from: '/' } });
   };
 

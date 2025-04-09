@@ -53,7 +53,7 @@ const SelectPerson = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div className="flex flex-1 flex-col overflow-hidden px-1">
       <DocsDescription
         title={'공유할 사용자를 선택해주세요!'}
         subTitle={''}
