@@ -32,6 +32,9 @@ export default {
         },
         ssafy: {
           default: '#6DCEF5',
+          b1: '#7F94FF',
+          b2: '#6780FF',
+          grey: '#F2F2F2',
         },
         status: {
           info: '#71A4FF',
