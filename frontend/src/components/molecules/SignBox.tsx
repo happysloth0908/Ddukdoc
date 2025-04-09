@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ShortButton from '../atoms/buttons/ShortButton';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription.tsx';
 import LongButton from '@/components/atoms/buttons/LongButton.tsx';
-import { useIOUDocsStore, useS1Data } from '@/store/docs';
+import { useIOUDocsStore, useS1Data, useS6Data } from '@/store/docs';
 import { Trash2 } from 'lucide-react';
 
 interface SignBoxProps {
@@ -25,6 +25,7 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
   );
 
   const setS1Signature = useS1Data((state) => state.setSignature);
+  const setS6Signature = useS6Data((state) => state.setSignature);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -205,6 +206,10 @@ export const SignBox: React.FC<SignBoxProps> = ({ next, role, ssafy }) => {
       switch (ssafy.template) {
         case 'S1':
           setS1Signature(signatureData);
+          break;
+
+        case 'S6':
+          setS6Signature(signatureData);
           break;
       }
     } else {

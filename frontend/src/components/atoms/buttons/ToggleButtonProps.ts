@@ -5,4 +5,5 @@ export default interface ToggleButtonProps extends ButtonProps {
   isSelected: boolean;
   icon?: string;
   onToggleClick: (id: string) => void;
+  disabled?: boolean;
 }

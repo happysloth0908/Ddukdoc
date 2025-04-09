@@ -76,7 +76,6 @@ export const DocsChoose = ({
           description='프로젝트 활용에 대한 동의 서류'
           isSelected={templateCode === 'S6' ? true : false}
           icon={ssafyIcons.likeIcon}
-          disabled={true}
         />
       </div>
       <Link to="check" state={{ from: currentPath }}>

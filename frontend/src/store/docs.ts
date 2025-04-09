@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import iouData from '@/types/iou';
 import s1Data from '@/types/s1';
+import s6Data from '@/types/s6';
 
 
 // 차용증
@@ -98,6 +99,40 @@ export const useS1Data = create<s1>((set) => ({
         student_id: '',
         contact_number: '',
         applicant_name: '',
+      },
+      signature: '',
+    })),
+}))
+
+
+interface s6 {
+  data: s6Data;
+  setData: (newData: Partial<s6Data>) => void;
+  signature: string;
+  setSignature: (signature: string) => void;
+  resetData: () => void;
+}
+
+export const useS6Data = create<s6>((set) => ({
+  data: {
+    date: '',
+    project_name: '',
+    birth: '',
+    name: '',
+  },
+  setData: (newData) =>
+    set((state) => ({
+      data: { ...state.data, ...newData },
+    })),
+  signature: '',
+  setSignature: (signature) => set({ signature }),
+  resetData: () => 
+    set(() => ({
+      data: {
+        date: '',
+        project_name: '',
+        birth: '',
+        name: '',
       },
       signature: '',
     })),
