@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import LongButton from '@/components/atoms/buttons/LongButton';
 import { ProgressBar } from '@/components/atoms/infos/ProgressBar';
 import { DocsDescription } from '@/components/atoms/infos/DocsDescription';
-import blockchainLoading from '@/assets/images/blockchain/blockchain.gif';
+import { Viewer } from '@/components/atoms/three/Viewer';
 
 interface FinalCheckProps {
   role: number;
@@ -117,16 +117,14 @@ const FinalCheck = ({ role }: FinalCheckProps) => {
         className="mb-20"
       />
       {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="flex flex-col items-center justify-center rounded-lg p-8">
-            <img
-              src={blockchainLoading}
-              alt="blockchain"
-              className="h-40 w-40"
-            />
-            <p className="mt-4 text-lg font-medium text-white">
-              블록체인에 저장중{'.'.repeat(dots)}
-            </p>
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-10 bg-black bg-opacity-70">
+              <p className="my-4 text-lg font-medium text-white">
+                블록체인에 저장중{'.'.repeat(dots)}
+              </p>
+              <Viewer />
+            </div> 
           </div>
         </div>
       )}

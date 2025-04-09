@@ -12,7 +12,7 @@ export const S1WriteData = () => {
     return_due_date: data.return_due_date || "",
     location: data.location || "",
     student_id: data.student_id || "",
-    contact_number: data.contact_number || "",
+    contact_number: (data.contact_number || "").replace(/-/g, ''),
     applicant_name: data.applicant_name || ""
   });
 
@@ -37,70 +37,64 @@ export const S1WriteData = () => {
   const checkValidation = (name: string, value: string): boolean => {
     let errorMsg = '';
   
-    // const isAllFieldsEmpty = Object.values(formData).every(v => v.trim() === '');
-  
-    // if (isAllFieldsEmpty) {
-    //   errorMsg = '모든 항목을 입력해주세요.';
-    // } else {
-      switch (name) {
-        case 'export_date':
-          if (!value) {
-            errorMsg = '반출 일자를 입력해주세요.';
-          } else if (formData.return_due_date && new Date(value) > new Date(formData.return_due_date)) {
-            errorMsg = '반출 일자는 반입 일자보다 빠른 날짜여야 합니다.';
-          }
-          break;
-  
-        case 'return_due_date':
-          if (!value) {
-            errorMsg = '반입 일자를 입력해주세요.';
-          } else if (formData.export_date && new Date(formData.export_date) > new Date(value)) {
-            errorMsg = '반입 일자는 반출 일자보다 느린 날짜여야 합니다.';
-          }
-          break;
-  
-        case 'location':
-          if (!value.trim()) {
-            errorMsg = '소속을 입력해주세요.';
-          } else if (value.length > 20) {
-            errorMsg = '소속은 20자 이하여야 합니다.';
-          }
-          break;
-  
-        case 'student_id':
-          if (!value.trim()) {
-            errorMsg = '학번을 입력해주세요.';
-          } else if (value.length > 20) {
-            errorMsg = '학번은 20자 이하여야 합니다.';
-          }
-          break;
-  
-        case 'contact_number':
-          if (value.length != 11) errorMsg = '전화번호는 (-)를 제외한 11자리를 입력해주세요.';
-          else if (!/^\d{3}-\d{4}-\d{4}$/.test(formatPhoneNumber(value)))
-            errorMsg = '연락처는 (-)제외 숫자로만 작성해주세요';
-          break;
-  
-        case 'applicant_name':
-          if (!/^[가-힣a-zA-Z]{2,20}$/.test(value.trim()))
-            errorMsg = '이름은 특수문자, 숫자 제외 작성해주세요.';
-          break;
-      }
-    // }
+    switch (name) {
+      case 'export_date':
+        if (!value) {
+          errorMsg = '반출 일자를 입력해주세요.';
+        } else if (formData.return_due_date && new Date(value) > new Date(formData.return_due_date)) {
+          errorMsg = '반출 일자는 반입 일자보다 빠른 날짜여야 합니다.';
+        }
+        break;
+
+      case 'return_due_date':
+        if (!value) {
+          errorMsg = '반입 일자를 입력해주세요.';
+        } else if (formData.export_date && new Date(formData.export_date) > new Date(value)) {
+          errorMsg = '반입 일자는 반출 일자보다 느린 날짜여야 합니다.';
+        }
+        break;
+
+      case 'location':
+        if (!value.trim()) {
+          errorMsg = '소속을 입력해주세요.';
+        } else if (value.length > 20) {
+          errorMsg = '소속은 20자 이하여야 합니다.';
+        }
+        break;
+
+      case 'student_id':
+        if (!value.trim()) {
+          errorMsg = '학번을 입력해주세요.';
+        } else if (value.length > 20) {
+          errorMsg = '학번은 20자 이하여야 합니다.';
+        }
+        break;
+
+      case 'contact_number':
+        // 하이픈 제거 후 검증
+        const contactWithoutHyphens = value.replace(/-/g, '');
+        if (contactWithoutHyphens.length != 11) {
+          errorMsg = '전화번호는 (-)를 제외한 11자리를 입력해주세요.';
+        } else if (!/^\d*$/.test(contactWithoutHyphens)) {
+          errorMsg = '연락처는 숫자로만 작성해주세요';
+        }
+        break;
+
+      case 'applicant_name':
+        if (!/^[가-힣a-zA-Z]{2,20}$/.test(value.trim()))
+          errorMsg = '이름은 특수문자, 숫자 제외 작성해주세요.';
+        break;
+    }
   
     setErrorStatus((prev) => ({ ...prev, [name]: errorMsg }));
     return errorMsg !== '';
   };
   
-  
-
   // 전체 필드 유효성 검사
   const validateAllFields = () => {
     let hasError = false;
     Object.entries(formData).forEach(([name, value]) => {
-      let newVal = value;
-      if (name == 'contact_number') newVal = value.replace(/-/g, '')
-      if (checkValidation(name, newVal)) {
+      if (checkValidation(name, value)) {
         hasError = true;
       }
     });
@@ -109,8 +103,17 @@ export const S1WriteData = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    checkValidation(name, value);
+    
+    if (name === 'contact_number') {
+      // 전화번호 입력 시 숫자만 추출
+      const rawValue = value.replace(/-/g, '');
+      const digitsOnly = rawValue.replace(/\D/g, '').slice(0, 11);
+      setFormData((prev) => ({ ...prev, [name]: digitsOnly }));
+      checkValidation(name, digitsOnly);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      checkValidation(name, value);
+    }
   };
 
   const handleSenderData = () => {
@@ -130,6 +133,12 @@ export const S1WriteData = () => {
     setData(updatedData);
     navigate('/ssafy/docs/detail/S1/signature');
   };
+
+  // 입력 필드에 표시할 전화번호 값(하이픈 포함)
+  const getDisplayPhoneNumber = () => {
+    return formatPhoneNumber(formData.contact_number);
+  };
+
   return (
     <div className="flex h-full w-full flex-col items-center justify-center">
       <atoms.ProgressBar curStage={3} totalStage={6} />
@@ -147,7 +156,6 @@ export const S1WriteData = () => {
                   errorStatus.export_date ? 'ring-1 ring-red-500' : ''
                 }
                 name="export_date"
-                defaultValue={formData.export_date}
                 label="반출 일자(들고 나가는 날짜)"
                 onChange={handleChange}
               />
@@ -166,7 +174,6 @@ export const S1WriteData = () => {
                   errorStatus.return_due_date ? 'ring-1 ring-red-500' : ''
                 }
                 name="return_due_date"
-                defaultValue={formData.return_due_date}
                 label="반입 일자(들고 들어오는 날짜)"
                 onChange={handleChange}
               />
@@ -185,7 +192,7 @@ export const S1WriteData = () => {
                   errorStatus.location ? 'ring-1 ring-red-500' : ''
                 }
                 name="location"
-                defaultValue={formData.location}
+                value={formData.location}
                 label="소속 (예. 대전 1반)"
                 onChange={handleChange}
               />
@@ -204,7 +211,7 @@ export const S1WriteData = () => {
                   errorStatus.student_id ? 'ring-1 ring-red-500' : ''
                 }
                 name="student_id"
-                defaultValue={formData.student_id}
+                value={formData.student_id}
                 label="학번"
                 onChange={handleChange}
               />
@@ -225,7 +232,7 @@ export const S1WriteData = () => {
                     : ''
                 }
                 name="contact_number"
-                defaultValue={formData.contact_number ? formData.contact_number.replace(/-/g, '') : ''}
+                value={getDisplayPhoneNumber()}
                 label="연락처"
                 onChange={handleChange}
               />
@@ -246,7 +253,7 @@ export const S1WriteData = () => {
                     : ''
                 }
                 name="applicant_name"
-                defaultValue={formData.applicant_name}
+                value={formData.applicant_name}
                 label="이름"
                 onChange={handleChange}
               />
