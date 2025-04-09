@@ -105,6 +105,42 @@ async function sendTx(method) {
   }
 }
 
+async function sendTxWithRetry(method, maxRetries = 3) {
+  let retryCount = 0;
+  let lastError = null;
+
+  while (retryCount < maxRetries) {
+    try {
+      console.log(`Attempt ${retryCount + 1} of ${maxRetries}`);
+      
+      // 기존 sendTx 함수 호출
+      const receipt = await sendTx(method);
+      return receipt; // 성공하면 결과 반환
+      
+    } catch (error) {
+      lastError = error;
+      
+      // 타임아웃 오류인 경우 재시도
+      if (error.message.includes('not mined within') || 
+          error.message.includes('timed out') ||
+          error.message.includes('Transaction timed out')) {
+        console.log(`Transaction attempt ${retryCount + 1} timed out, retrying in 5 seconds...`);
+        retryCount++;
+        
+        // 잠시 대기 후 재시도
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } else {
+        // 다른 오류는 바로 실패 처리
+        throw error;
+      }
+    }
+  }
+  
+  // 모든 재시도가 실패한 경우
+  console.error(`Failed after ${maxRetries} attempts`);
+  throw lastError;
+}
+
 // 문서 등록 - 원본 시스템과 호환되는 PUT 엔드포인트
 app.put("/blockchain/tokens/:contractAddress/documents", async (req, res) => {
   try {
@@ -124,8 +160,8 @@ app.put("/blockchain/tokens/:contractAddress/documents", async (req, res) => {
     }
     
     // 문서 등록
-    const receipt = await sendTx(contract.methods.registerDocument(name, docHash, docUri || ""));
-    
+    const receipt = await sendTxWithRetry(contract.methods.registerDocument(name, docHash, docUri || ""));
+
     // BigInt 값을 문자열로 변환
     const serializedReceipt = JSON.parse(JSON.stringify(receipt, (key, value) =>
       typeof value === 'bigint' ? value.toString() : value
@@ -213,8 +249,8 @@ app.delete("/blockchain/tokens/:contractAddress/documents/:name", async (req, re
     }
     
     // 문서 삭제
-    const receipt = await sendTx(contract.methods.deleteDocument(name));
-    
+    const receipt = await sendTxWithRetry(contract.methods.deleteDocument(name));
+
     // BigInt 값을 문자열로 변환
     const serializedReceipt = JSON.parse(JSON.stringify(receipt, (key, value) =>
       typeof value === 'bigint' ? value.toString() : value
@@ -238,14 +274,13 @@ app.delete("/blockchain/tokens/:contractAddress/documents/:name", async (req, re
 
 // 서버 시작 시 컨트랙트 주소 및 라우트 정보 출력
 app.listen(3000, () => {
-  console.log("🚀 API server running at http://localhost:3000");
+  console.log("🚀 API server running at https://j12b108.p.ssafy.io:3000");
   console.log("Contract address:", process.env.CONTRACT_ADDRESS);
   console.log("Network:", process.env.INFURA_URL.includes("polygon") ? "Polygon" : "Ethereum");
   console.log("Cost-optimized mode enabled - gas prices reduced to save MATIC");
   
   // 지원하는 라우트 출력
   console.log("Supported routes:");
-  console.log("- GET /blockchain/tokens/:contractAddress/documents");
   console.log("- GET /blockchain/tokens/:contractAddress/documents/:name");
   console.log("- PUT /blockchain/tokens/:contractAddress/documents");
   console.log("- DELETE /blockchain/tokens/:contractAddress/documents/:name");
