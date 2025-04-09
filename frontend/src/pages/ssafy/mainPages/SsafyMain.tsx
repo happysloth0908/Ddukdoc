@@ -20,9 +20,10 @@ export const SsafyMain = () => {
       if (isSsafy !== redirectIsSsafy) {
         deleteCookie('auth_redirect_path');
         navigate(isSsafy ? '/ssafy' : '/');
+      } else {
+        deleteCookie('auth_redirect_path');
+        navigate(redirectPath);
       }
-      deleteCookie('auth_redirect_path');
-      navigate(redirectPath);
     }
     if (!data) {
       setData();
