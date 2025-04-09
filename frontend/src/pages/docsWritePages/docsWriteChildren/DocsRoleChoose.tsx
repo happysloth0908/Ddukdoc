@@ -1,5 +1,5 @@
 import atoms from '@/components/atoms';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import DefaultIcons from '@/assets/images/default';
 import { useIOUDocsStore } from '@/store/docs';
 
