@@ -18,6 +18,12 @@ spring:
       pageable:
         one-indexed-parameters: true  # 페이징 1부터
 
+cloud:
+  aws:
+    s3:
+      path-prefix: "eftoj1/"
+      path-split: "/eftoj1/"
+
 management:
   endpoints:
     web:

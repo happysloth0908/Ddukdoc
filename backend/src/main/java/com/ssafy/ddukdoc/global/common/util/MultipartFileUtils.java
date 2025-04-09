@@ -1,10 +1,12 @@
 package com.ssafy.ddukdoc.global.common.util;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 
+@UtilityClass
 public class MultipartFileUtils {
-    public static MultipartFile createMultipartFile(
+    public MultipartFile createMultipartFile(
             String name,
             String originalFilename,
             String contentType,

@@ -1,16 +1,27 @@
 package com.ssafy.ddukdoc.global.common.constants;
 
 import com.ssafy.ddukdoc.global.config.DomainConfig;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class SecurityConstants {
 
     @Getter
     private static String domain;
     @Getter
     private static Boolean isLocal = false;
+
+    private final DomainConfig domainConfig;
+
+    @PostConstruct
+    public void init() {
+        domain = domainConfig.getDomain();
+        isLocal = domainConfig.getIsLocal();
+    }
 
     public static final long ACCESS_TOKEN_VALIDITY_SECONDS = 24L * 60 * 60; // 24시간
     public static final long REFRESH_TOKEN_VALIDITY_SECONDS = 14L * 24 * 60 * 60; // 14일
@@ -21,9 +32,4 @@ public class SecurityConstants {
 
     public static final String ROLE_NAME = "typ";
     public static final String ROLE_PREFIX = "ROLE_";
-
-    public SecurityConstants(DomainConfig domainConfig) {
-        domain = domainConfig.getDomain();
-        isLocal = domainConfig.getIsLocal();
-    }
 }

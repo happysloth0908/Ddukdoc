@@ -1,6 +1,5 @@
 package com.ssafy.ddukdoc.global.common.util.blockchain;
 
-import com.ssafy.ddukdoc.domain.contract.dto.BlockchainSaveResult;
 import com.ssafy.ddukdoc.domain.contract.dto.request.BlockChainStoreRequestDto;
 import com.ssafy.ddukdoc.domain.contract.dto.response.BlockchainDocumentResponseDto;
 import com.ssafy.ddukdoc.domain.template.entity.TemplateCode;
@@ -18,8 +17,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -40,6 +37,9 @@ public class BlockchainUtil {
     private final SignatureUtil signatureUtil;
     private final HashUtil hashUtil;
     private final RestTemplate blockchainRestTemplate;
+
+    public static final String DOC_URI = "docUri";
+    public static final String DOC_HASH = "docHash";
 
     /**
      * 문서 저장 API 호출 (PUT)
@@ -93,8 +93,8 @@ public class BlockchainUtil {
 
             return BlockchainDocumentResponseDto.of(
                     documentName,
-                    body.get("docUri") != null ? body.get("docUri").toString() : "",
-                    body.get("docHash") != null ? body.get("docHash").toString() : "",
+                    body.get(DOC_URI) != null ? body.get(DOC_URI).toString() : "",
+                    body.get(DOC_HASH) != null ? body.get(DOC_HASH).toString() : "",
                     body.get("timestamp") != null ? body.get("timestamp").toString() : "0"
             );
 
@@ -135,8 +135,8 @@ public class BlockchainUtil {
 
                         // 키 조회 순서 변경
                         String name = findStringValue(doc, new String[]{"0", "name"});
-                        String uri = findStringValue(doc, new String[]{"1", "uri", "docUri"});
-                        String hash = findStringValue(doc, new String[]{"2", "hash", "docHash"});
+                        String uri = findStringValue(doc, new String[]{"1", "uri", DOC_URI});
+                        String hash = findStringValue(doc, new String[]{"2", "hash", DOC_HASH});
 
                         return BlockchainDocumentResponseDto.of(
                                 name != null ? name : "UNKNOWN",
@@ -144,7 +144,7 @@ public class BlockchainUtil {
                                 hash != null ? hash : ""
                         );
                     })
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception e) {
             log.error("문서 조회 중 오류 발생", e);
             throw new CustomException(
@@ -166,7 +166,7 @@ public class BlockchainUtil {
         return null;
     }
 
-    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode,String docName) {
+    public void saveDocumentInBlockchain(byte[] pdfData, TemplateCode templateCode, String docName) {
         try {
             if (pdfData == null || pdfData.length == 0) {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "pdfData", "빈 데이터");
@@ -175,10 +175,7 @@ public class BlockchainUtil {
             if (docName == null || docName.isEmpty()) {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "docName", "문서명 누락");
             }
-            log.debug("saveDocumentInBlockchain 시작 - 데이터: {}, 템플릿: {}, 문서명: {}",
-                    pdfData != null ? pdfData.length : "null",
-                    templateCode,
-                    docName);
+            log.debug("saveDocumentInBlockchain 시작 - 데이터: {}, 템플릿: {}, 문서명: {}", pdfData.length, templateCode, docName);
             String hash = hashUtil.generateSHA256Hash(pdfData);
             String docHashWithPrefix = "0x" + hash; // 0x 접두사 추가
             log.debug("해시 생성 완료: {}", docHashWithPrefix);
@@ -231,7 +228,7 @@ public class BlockchainUtil {
             HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // DELETE 요청 전송
-            ResponseEntity<Map> response = blockchainRestTemplate.exchange(
+            blockchainRestTemplate.exchange(
                     url,
                     HttpMethod.DELETE,
                     requestEntity,
