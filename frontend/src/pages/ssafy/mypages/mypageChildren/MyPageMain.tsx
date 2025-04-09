@@ -1,10 +1,11 @@
-import { DocsDescription } from '@/components/atoms/infos/DocsDescription';
+// import { DocsDescription } from '@/components/atoms/infos/DocsDescription';
 import { SsafyDocsCard } from '@/components/molecules/cards/SsafyDocsCard';
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSsafyDocs } from '@/apis/ssafy/mypage';
 import Spinner from '@/components/atoms/feedback/Spinner';
 import { SsafyDocData } from '@/types/mypage';
+import { SsafyMyInfo } from './SsafyMyInfo';
 
 const MyPageMain = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ const MyPageMain = () => {
 
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden px-6">
-      <div className="flex w-full flex-col space-y-4 pt-4">
+      {/* <div className="flex w-full flex-col space-y-4 pt-4">
         <DocsDescription
           title={'김소운'}
           subTitle={''}
@@ -104,7 +105,8 @@ const MyPageMain = () => {
           <span className="text-2xl text-gray-400">|</span>
           <span className="text-lg font-normal text-black">재학 중</span>
         </div>
-      </div>
+      </div> */}
+      <SsafyMyInfo />
 
       <div className="flex w-full flex-1 flex-col space-y-4 overflow-y-auto pt-8">
         <div className="flex items-center justify-between">
