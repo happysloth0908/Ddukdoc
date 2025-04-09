@@ -6,7 +6,7 @@ export const SsafyMyInfo = () => {
   const { data, loading, error, setData } = useSsafyMyStore();
 
   useEffect(() => {
-    if (!data) {
+    if (!data.name) {
       setData();
     }
   }, []);

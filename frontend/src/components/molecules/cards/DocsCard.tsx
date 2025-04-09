@@ -40,7 +40,11 @@ export const DocsCard = ({ data, calls, onDelete }: DocsCardProps) => {
         <atoms.RoundIcon isRejected={data.status === '반송'} />
       </div>
       <div className="col-span-3 row-span-2 flex flex-col gap-y-[6px]">
-        <div className="text-l font-bold">{data.title}</div>
+        <div className="text-l font-bold">
+          {data.title.length > 10
+            ? data.title.slice(0, 15) + '...'
+            : data.title}
+        </div>
         <div className="text-xs text-[#5355353]">
           {calls === '수신'
             ? `발송인 : ${data.creator_name}`

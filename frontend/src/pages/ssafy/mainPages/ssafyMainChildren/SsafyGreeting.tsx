@@ -10,7 +10,7 @@ export const SsafyGreeting = () => {
         alt="Wave hand"
       />
       <div className="flex flex-row items-center justify-center font-semibold text-white">
-        <div className="font-bold">{data.name ? data.name : '김소운'}</div>
+        <div className="font-bold">{data.name}</div>
         <div className="">님, 안녕하세요!</div>
       </div>
     </div>

@@ -140,7 +140,7 @@ const SsafyS6DocPatch = () => {
     };
 
     setData(updatedData);
-    navigate(`/ssafy/mypage/sign/${id}`);
+    navigate(`/ssafy/mypage/sign/${id}`, { state: { templateCode: 'S6' } });
   };
 
   return (
