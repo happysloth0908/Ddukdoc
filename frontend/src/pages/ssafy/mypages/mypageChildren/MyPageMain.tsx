@@ -86,7 +86,11 @@ const MyPageMain = () => {
   }, [isFirstLoad, isLoading, isLastPage]);
 
   const handlePatch = async (docId: number) => {
-    navigate(`/ssafy/mypage/patch/${docId}`);
+    // currentDocs 배열에서 해당 docId를 가진 문서 찾기
+    const targetDoc = currentDocs.find((doc) => doc.document_id === docId);
+    navigate(`/ssafy/mypage/patch/${docId}`, {
+      state: { templateCode: targetDoc?.template_code },
+    });
   };
 
   return (

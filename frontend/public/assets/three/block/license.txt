@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mario Brick Block
+* source:	https://sketchfab.com/3d-models/mario-brick-block-a104c8ee588d4670ba5cd621bddb94c8
+* author:	Artise1 (https://sketchfab.com/Artise1)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mario Brick Block" (https://sketchfab.com/3d-models/mario-brick-block-a104c8ee588d4670ba5cd621bddb94c8) by Artise1 (https://sketchfab.com/Artise1) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
