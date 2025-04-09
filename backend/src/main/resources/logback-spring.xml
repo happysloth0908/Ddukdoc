@@ -2,12 +2,14 @@
 <configuration>
     <!-- 공통 변수 정의 -->
     <property name="LOG_PATH" value="/logs" />
-    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight([%thread]) %highlight(%-5level) %logger{36} - %msg%n" />
+    <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight([%thread]) %highlight(%-5level) %logger{36} - %msg%n" />
+    <!-- JSON 형식으로 로그를 출력하기 위한 패턴 -->
+    <property name="JSON_LOG_PATTERN" value="{&quot;timestamp&quot;:&quot;%date{ISO8601}&quot;,&quot;level&quot;:&quot;%level&quot;,&quot;thread&quot;:&quot;%thread&quot;,&quot;logger&quot;:&quot;%logger{36}&quot;,&quot;message&quot;:&quot;%replace(%message){'&quot;','\\\\&quot;'}&quot;,&quot;exception&quot;:&quot;%replace(%ex{short}){'&quot;','\\\\&quot;'}&quot;,&quot;app_name&quot;:&quot;ddukdoc&quot;,&quot;environment&quot;:&quot;${spring.profiles.active:-unknown}&quot;}%n" />
 
     <!-- 콘솔 로그 설정 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -21,7 +23,16 @@
 
     <!-- DEV 환경 로그 설정 -->
     <springProfile name="dev">
-        <!-- 일별 로그 파일 설정 (INFO 레벨) -->
+        <!-- JSON 포맷 로거 (Logstash로 전송) -->
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>logstash:5044</destination>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdc>true</includeMdc>
+                <customFields>{"app_name":"ddukdoc","environment":"dev"}</customFields>
+            </encoder>
+        </appender>
+
+        <!-- 일별 로그 파일 설정 (INFO 레벨) - 파일은 유지 -->
         <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/dev/info/ddukdoc-info.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -30,7 +41,8 @@
                 <onMismatch>DENY</onMismatch>
             </filter>
             <encoder>
-                <pattern>${LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>UTF-8</charset>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <fileNamePattern>${LOG_PATH}/dev/info/ddukdoc-info.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -38,7 +50,7 @@
             </rollingPolicy>
         </appender>
 
-        <!-- 일별 로그 파일 설정 (ERROR 레벨) -->
+        <!-- 일별 로그 파일 설정 (ERROR 레벨) - 파일은 유지 -->
         <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/dev/error/ddukdoc-error.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -47,7 +59,8 @@
                 <onMismatch>DENY</onMismatch>
             </filter>
             <encoder>
-                <pattern>${LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>UTF-8</charset>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <fileNamePattern>${LOG_PATH}/dev/error/ddukdoc-error.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -60,12 +73,22 @@
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE-INFO" />
             <appender-ref ref="FILE-ERROR" />
+            <appender-ref ref="LOGSTASH" />
         </root>
     </springProfile>
 
     <!-- PROD 환경 로그 설정 -->
     <springProfile name="prod">
-        <!-- 일별 로그 파일 설정 (INFO 레벨) -->
+        <!-- JSON 포맷 로거 (Logstash로 전송) -->
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>logstash:5044</destination>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdc>true</includeMdc>
+                <customFields>{"app_name":"ddukdoc","environment":"prod"}</customFields>
+            </encoder>
+        </appender>
+
+        <!-- 일별 로그 파일 설정 (INFO 레벨) - 파일은 유지 -->
         <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/prod/info/ddukdoc-info.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -74,7 +97,8 @@
                 <onMismatch>DENY</onMismatch>
             </filter>
             <encoder>
-                <pattern>${LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>UTF-8</charset>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <fileNamePattern>${LOG_PATH}/prod/info/ddukdoc-info.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -82,7 +106,7 @@
             </rollingPolicy>
         </appender>
 
-        <!-- 일별 로그 파일 설정 (ERROR 레벨) -->
+        <!-- 일별 로그 파일 설정 (ERROR 레벨) - 파일은 유지 -->
         <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${LOG_PATH}/prod/error/ddukdoc-error.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -91,7 +115,8 @@
                 <onMismatch>DENY</onMismatch>
             </filter>
             <encoder>
-                <pattern>${LOG_PATTERN}</pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>UTF-8</charset>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <fileNamePattern>${LOG_PATH}/prod/error/ddukdoc-error.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -104,6 +129,7 @@
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE-INFO" />
             <appender-ref ref="FILE-ERROR" />
+            <appender-ref ref="LOGSTASH" />
         </root>
     </springProfile>
 </configuration>
