@@ -45,6 +45,25 @@ function numberToKorean(num: number): string {
   return `금 ${result} 원정`;
 }
 
+// 쉼표를 추가하는 함수
+const addCommas = (num: string): string => {
+  if (!num) return '';
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+// 쉼표와 원화 기호를 제거하는 함수
+const removeFormattingChars = (value: string): string => {
+  return value.replace(/[₩,\s]/g, '');
+};
+
+// 포맷팅 함수: 숫자 앞에 '₩' 추가하고 쉼표 추가
+const formatCurrency = (value: string): string => {
+  if (!value) return '';
+  const numericValue = removeFormattingChars(value);
+  if (numericValue === '') return '';
+  return `₩ ${addCommas(numericValue)}`;
+};
+
 export const DocsWriteMoney = ({
   data,
   handleData,
@@ -52,10 +71,14 @@ export const DocsWriteMoney = ({
   data: iouData;
   handleData: (newData: Partial<iouData>) => void;
 }) => {
+  // 초기 데이터에 원화 기호와 쉼표 추가
+  const initialNumericValue = data.principal_amount_numeric?.toString() || '';
+  const formattedInitialValue = initialNumericValue ? formatCurrency(initialNumericValue) : '';
+
   const [formData, setFormData] = useState({
     loan_purpose: data.loan_purpose || '',
     loan_date: data.loan_date || '',
-    principal_amount_numeric: data.principal_amount_numeric?.toString() || '',
+    principal_amount_numeric: formattedInitialValue,
   });
 
   const [koreanAmount, setKoreanAmount] = useState(data.principal_amount_text || '');
@@ -84,11 +107,13 @@ export const DocsWriteMoney = ({
     }
 
     if (name === 'principal_amount_numeric') {
-      if (!/^\d{1,12}$/.test(value) || value == "0") {
+      // 원화 기호와 쉼표 제거
+      const numericValue = removeFormattingChars(value);
+      if (!/^\d{1,12}$/.test(numericValue) || numericValue == "0") {
         errorMsg = '숫자만 입력 가능하며, 최대 12자리까지입니다.';
         setKoreanAmount('');
       } else {
-        const num = parseInt(value, 10);
+        const num = parseInt(numericValue, 10);
         if (!isNaN(num)) setKoreanAmount(numberToKorean(num));
       }
     }
@@ -100,28 +125,52 @@ export const DocsWriteMoney = ({
   // 전체 필드 유효성 검사
   const validateAllFields = (): boolean => {
     let hasError = false;
-    Object.entries(formData).forEach(([name, value]) => {
-      if (checkValidation(name, value)) {
-        hasError = true;
-      }
-    });
+    // loan_purpose, loan_date 검사
+    if (checkValidation('loan_purpose', formData.loan_purpose)) {
+      hasError = true;
+    }
+    if (checkValidation('loan_date', formData.loan_date)) {
+      hasError = true;
+    }
+    // principal_amount_numeric 검사 (쉼표와 원화 기호 제거 후)
+    const numericValue = removeFormattingChars(formData.principal_amount_numeric);
+    if (checkValidation('principal_amount_numeric', numericValue)) {
+      hasError = true;
+    }
     return !hasError;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    checkValidation(name, value);
+    
+    if (name === 'principal_amount_numeric') {
+      // 숫자만 추출 (원화 기호와 쉼표 제거)
+      const numericValue = value.replace(/[^0-9]/g, '');
+      
+      // 원화 기호와 쉼표 추가한 형식으로 저장
+      const formattedValue = formatCurrency(numericValue);
+      
+      setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+      
+      // 유효성 검사 (쉼표와 원화 기호 없는 값으로)
+      checkValidation(name, numericValue);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      checkValidation(name, value);
+    }
   };
 
   const handleSenderData = () => {
     if (!validateAllFields()) return;
 
+    // 쉼표와 원화 기호를 제거하고 숫자만 전송
+    const numericValue = removeFormattingChars(formData.principal_amount_numeric);
+    
     const updatedData = {
       loan_purpose: formData.loan_purpose,
       loan_date: formData.loan_date,
       principal_amount_text: koreanAmount,
-      principal_amount_numeric: parseInt(formData.principal_amount_numeric),
+      principal_amount_numeric: parseInt(numericValue, 10),
     };
 
     handleData(updatedData);
@@ -177,7 +226,7 @@ export const DocsWriteMoney = ({
                     : ''
                 }
                 name="principal_amount_numeric"
-                defaultValue={formData.principal_amount_numeric}
+                value={formData.principal_amount_numeric == '₩ 0' ? '' : formData.principal_amount_numeric}  // defaultValue 대신 value 사용
                 label="원금 (숫자 입력)"
                 onChange={handleChange}
               />

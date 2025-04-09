@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
+import { useGLTF } from '@react-three/drei';
 
 // msw 관련
 import { worker } from './mocks/browser';
@@ -18,6 +19,9 @@ createRoot(document.getElementById('root')!).render(
     </StrictMode>
   </BrowserRouter>
 );
+
+useGLTF.preload('/assets/three/bitcoin.glb');
+useGLTF.preload('/assets/three/block/scene.gltf');
 
 // 서비스 워커 등록
 // if ('serviceWorker' in navigator) {
