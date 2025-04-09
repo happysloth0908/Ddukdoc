@@ -3,7 +3,7 @@ import atoms from '@/components/atoms';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const DocsWriteData = () => {
+export const S1WriteData = () => {
   const { data, setData } = useS1Data();
   const navigate = useNavigate();
 

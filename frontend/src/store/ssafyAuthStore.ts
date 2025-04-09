@@ -22,7 +22,7 @@ export const useSsafyAuthStore = create<SsafyAuthState>((set, get) => ({
     try {
       set({ loading: true });
       console.log('API 호출 전');
-      const response = await api.get('/api/users/ssafy');
+      const response = await api.get('/api/users/status/ssafy');
       console.log('API 응답:', response.data);
 
       if (response.data && response.data.success) {

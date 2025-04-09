@@ -103,12 +103,13 @@ export const ForgeryInspection = () => {
         setError('알 수 없는 오류가 발생했습니다.');
       }
       // 에러 발생 시 업로드 화면으로 돌아감
-      if (location.state?.fromSsafy) {
-        console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
-        navigate('/ssafy', { replace: true });
-      } else {
-        navigate('/', { replace: true });
-      }
+      // if (location.state?.fromSsafy) {
+      //   console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
+      //   navigate('/ssafy', { replace: true });
+      // } else {
+      //   navigate('/', { replace: true });
+      // }
+      navigate('/error', { replace: true, state: { ...location.state } });
     }
   };
 

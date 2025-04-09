@@ -11,7 +11,14 @@ export const SsafyMain = () => {
     const redirectPath = getCookie('auth_redirect_path');
 
     if (redirectPath) {
-      // 사용 후 삭제
+      const isSsafy = window.location.href.includes('ssafy');
+      const redirectIsSsafy = redirectPath.includes('ssafy');
+
+      //리다이렉트 주소와 origin 이 맞지 않으면 무시하고 메인으로 가게 하기
+      if(isSsafy !== redirectIsSsafy){
+        deleteCookie('auth_redirect_path');
+        navigate(isSsafy ? '/ssafy' : '/');
+      }
       deleteCookie('auth_redirect_path');
       navigate(redirectPath);
     }
