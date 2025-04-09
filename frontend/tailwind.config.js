@@ -58,7 +58,7 @@ export default {
         l: ['15px', { lineHeight: '22px' }],
         xl: ['16px', { lineHeight: '24px' }],
         'info-small': ['20px', { lineHeight: '28px' }],
-        'info-large': ['24px', { lineHeight: '32px' }],
+        'info-large': ['22px', { lineHeight: '32px' }],
         title: ['50px', { lineHeight: '60px' }],
       },
       keyframes: {
