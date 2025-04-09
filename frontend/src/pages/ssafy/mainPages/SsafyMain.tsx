@@ -26,7 +26,7 @@ export const SsafyMain = () => {
         navigate(redirectPath);
       }
     }
-    if (!data) {
+    if (!data.name) {
       setData();
     }
   }, []);

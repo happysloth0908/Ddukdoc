@@ -49,7 +49,7 @@ export const Header = () => {
               {getTitleByPath()}
             </div>
             <LogOut className="invisible text-primary-300" />
-            <House className='text-primary-300' onClick={goHome} />
+            <House className={`${pathname.startsWith('/forgery') ? 'hidden' : ''} text-primary-300`} onClick={goHome} />
           </div>
         )}
     </div>

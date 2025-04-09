@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import atoms from '@/components/atoms';
 import iouData from '@/types/iou';
 import { useState } from 'react';
+import { useIOUDocsStore } from '@/store/docs';
 
 export const DocsWriteRate = ({
   data,
@@ -11,6 +12,7 @@ export const DocsWriteRate = ({
   handleData: (newData: Partial<iouData>) => void;
 }) => {
   const navigate = useNavigate();
+  const IOUStore = useIOUDocsStore();
 
   const [formData, setFormData] = useState({
     interest_rate: data.interest_rate.toString() || '',
@@ -44,6 +46,8 @@ export const DocsWriteRate = ({
       case 'repayment_date':
         if (value === '') {
           errorMsg = '날짜를 선택해주세요.';
+        } else if (new Date(value) < new Date(IOUStore.data.loan_date)) {
+          errorMsg = '원금 변제일은 차용일자보다 느린 날짜여야 합니다.';
         }
         break;
 

@@ -12,7 +12,7 @@ export const CompletePage = ({ type }: CompletePageProps) => {
   };
   if (type === 'share') {
     value.title = '공유가 완료되었습니다';
-    value.context = '작성하신 문서를 안전하게 암호화 해서 저장했어요';
+    value.context = 'MatterMost에서' + '\n' + '확인해주세요';
   } else if (type === 'save') {
     value.title = '저장이 완료되었습니다';
     value.context = '작성하신 문서를 안전하게 암호화 해서 저장했어요';
