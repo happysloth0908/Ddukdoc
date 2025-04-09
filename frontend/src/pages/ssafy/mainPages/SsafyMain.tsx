@@ -3,24 +3,29 @@ import { SsafyLoginSVG } from '@/assets/images/ssafy';
 import SmallButton from '@/pages/mainPage/mainChildren/SmallButton';
 import { useEffect } from 'react';
 import { getCookie, deleteCookie } from '@/utils/cookies';
+import { useSsafyMyStore } from '@/store/ssafyMyInfoStore';
 
 export const SsafyMain = () => {
+  const { data, setData } = useSsafyMyStore();
   const navigate = useNavigate();
   useEffect(() => {
     // localStorage에서 리다이렉트 경로 가져오기
     const redirectPath = getCookie('auth_redirect_path');
 
     if (redirectPath) {
-      const isSsafy = window.location.href.includes('ssafy');
+      const isSsafy = window.location.pathname.includes('ssafy');
       const redirectIsSsafy = redirectPath.includes('ssafy');
 
       //리다이렉트 주소와 origin 이 맞지 않으면 무시하고 메인으로 가게 하기
-      if(isSsafy !== redirectIsSsafy){
+      if (isSsafy !== redirectIsSsafy) {
         deleteCookie('auth_redirect_path');
         navigate(isSsafy ? '/ssafy' : '/');
       }
       deleteCookie('auth_redirect_path');
       navigate(redirectPath);
+    }
+    if (!data) {
+      setData();
     }
   }, []);
 
