@@ -4,6 +4,7 @@ import { Documents } from '@/pdfs/Documents';
 import { contractSave } from '@/apis/docsWrite';
 import { useIOUDocsStore } from '@/store/docs';
 import { initializeKakao, shareToKakao } from '@/functions/KakaoShare';
+import { useEffect } from 'react';
 
 export const DocsCheck = ({
   curTemplate,
@@ -16,10 +17,22 @@ export const DocsCheck = ({
   const location = useLocation();
   const navigate = useNavigate();
   const previousPage = location.state?.from || '알 수 없음';
-
-  console.log(previousPage);
+  
   // 카카오 공유 전 1회 호출 필수
   initializeKakao();
+
+  // 첫 렌더링 시 접근 가능한 페이지에서 온게 아니라면  다른 곳으로 팅겨내기기
+  useEffect(() => {
+    switch (previousPage) {
+      case '/docs':
+      case '/docs/detail/G1/special':
+      case 'settings':
+        break;
+      default:
+        navigate('/');
+        break;
+    }
+  }, []);
 
   const getNextPage = () => {
     switch (previousPage) {
