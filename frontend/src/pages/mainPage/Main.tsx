@@ -24,9 +24,10 @@ export const MainMenuPage = () => {
         if (isSsafy !== redirectIsSsafy) {
           deleteCookie('auth_redirect_path');
           navigate(isSsafy ? '/ssafy' : '/');
+        } else {
+          deleteCookie('auth_redirect_path');
+          navigate(redirectPath);
         }
-        deleteCookie('auth_redirect_path');
-        navigate(redirectPath);
       }
     }
   }, [isLoggedIn, navigate]);
@@ -53,8 +54,9 @@ export const MainMenuPage = () => {
         <div className="flex-1">
           <Link to="/forgery">
             <SmallButton
+              className="shadow-md"
               imageSrc={MainPage.securityShield}
-              subtitle="블록체인 기술로 위변조 검사"
+              subtitle="블록체인 위변조 검사"
               title="위변조 검사"
             />
           </Link>
@@ -62,6 +64,7 @@ export const MainMenuPage = () => {
         <div className="flex-1">
           <Link to="/mypage">
             <SmallButton
+              className="shadow-md"
               imageSrc={MainPage.myDoc}
               subtitle="내 문서들을 한번에 확인"
               title="나의 문서"
