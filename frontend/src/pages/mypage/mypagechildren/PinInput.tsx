@@ -36,7 +36,7 @@ const PinInput = () => {
       if (response.data.success) {
         setPin('');
         setError(false);
-        navigate(`/mypage/detail/${id}`, { state: { from: '/mypage' } });
+        navigate(`/mypage/detail/${id}`, { state: { from: '/mypage' }, replace: true });
       }
     } catch {
       setShake(true);
