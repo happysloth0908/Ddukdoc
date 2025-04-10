@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Delete } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePinStore } from '@/store/mypage';
 import { apiClient } from '@/apis/mypage';
 
@@ -10,8 +10,22 @@ const PinInput = () => {
   const [shake, setShake] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const { pinInfo } = usePinStore();
+  const previousPage = location.state?.from || '알 수 없음';
+
+
+    // 첫 렌더링 시 접근 가능한 페이지에서 온게 아니라면  다른 곳으로 팅겨내기기
+    useEffect(() => {
+      switch (previousPage) {
+        case '/mypage/detail':
+          break;
+        default:
+          navigate('/');
+          break;
+      }
+    }, []);
 
   const verifyPin = async (newPin: string) => {
     setIsLoading(true);

@@ -21,6 +21,19 @@ export const DocsCheck = ({
   const S6Data = useS6Data();
   const [isLoading, setIsLoading] = useState(false);
   const [dots, setDots] = useState(0);
+
+  // 첫 렌더링 시 접근 가능한 페이지에서 온게 아니라면  다른 곳으로 팅겨내기기
+  useEffect(() => {
+    switch (previousPage) {
+      case '/ssafy/docs':
+      case '/ssafy/docs/detail/G1/special':
+      case '/ssafy/docs/detail/G1/signature':
+        break;
+      default:
+        navigate('/');
+        break;
+    }
+  }, []);
   
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -103,6 +116,7 @@ export const DocsCheck = ({
         } catch (error) {
           console.log(error);
           setIsLoading(false);
+          S1Data.resetData();
           navigate('/error', {state: {fromSsafy: true}});
         }
       }
@@ -137,11 +151,12 @@ export const DocsCheck = ({
           await contractSave(curTemplate, formData, S6Data.signature).then((res) => {
             setIsLoading(false);
             S6Data.resetData();
-            navigate("/ssafy/docs/share", {state: { docId: res.data}});
+            navigate("/ssafy/docs/share", {state: { docId: res.data, from: '/ssafy/docs/check'}});
           });
         } catch (error) {
           console.log(error);
           setIsLoading(false);
+          S6Data.resetData();
           navigate('/error', {state: {fromSsafy: true}});
         }
       }
