@@ -37,6 +37,7 @@ export const AdditionalFile = ({ data, onDelete }: AdditionalFileProps) => {
       if (onDelete) onDelete(data.material_id);
     } catch (error) {
       console.error('파일 삭제 중 오류가 발생했습니다:', error);
+      alert("본인이 올린 자료만 삭제가 가능합니다!");
     }
   };
 

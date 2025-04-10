@@ -156,7 +156,7 @@ const DocCheck = () => {
           creatorName: err.response.data.data.creatorName,
           documentTitle: err.response.data.data.documentTitle,
         });
-        navigate(`/mypage/pin/${id}`);
+        navigate(`/mypage/pin/${id}`, {state: {from: '/mypage/detail'}, replace: true});
       }
     }
   }, [

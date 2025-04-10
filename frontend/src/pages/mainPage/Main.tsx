@@ -6,12 +6,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useEffect } from 'react';
 import { getCookie, deleteCookie } from '@/utils/cookies';
+import { useIOUDocsStore, useS1Data, useS6Data } from '@/store/docs';
 
 export const MainMenuPage = () => {
   const { isLoggedIn } = useAuthStore();
   const navigate = useNavigate();
+  const IOUStore = useIOUDocsStore();
+  const S1Data = useS1Data();
+  const S6Data = useS6Data();
 
   useEffect(() => {
+    IOUStore.resetData();
+    S1Data.resetData();
+    S6Data.resetData();
     if (isLoggedIn) {
       // localStorage에서 리다이렉트 경로 가져오기
       const redirectPath = getCookie('auth_redirect_path');
@@ -36,10 +43,9 @@ export const MainMenuPage = () => {
   return (
     <div className="relative flex h-screen flex-col overflow-hidden px-4">
       {/* 헤더 - test */}
-      <div className="py-5 text-center"></div>
 
       {/* 로고 - 중앙 배치 */}
-      <div className="mb-10 mt-16 flex items-center justify-center">
+      <div className="mb-10 mt-16 flex items-center justify-center pt-5">
         <img src={Login.title} alt="뚝딱뚝Doc" />
       </div>
 
