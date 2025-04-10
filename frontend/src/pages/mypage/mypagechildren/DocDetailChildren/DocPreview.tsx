@@ -139,7 +139,7 @@ const DocPreview = () => {
         title="PDF Viewer"
       /> */}
       <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
-        <div className="w-full flex-1 mx-auto border rounded-lg shadow overflow-hidden bg-white">
+        <div className="w-full h-full max-h-[500px] mx-auto border rounded-lg shadow overflow-hidden bg-white">
           <Viewer fileUrl={pdfUrl}/>
         </div>
       </Worker>
