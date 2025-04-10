@@ -127,54 +127,24 @@ async function getNextNonce(fromAddress) {
 
 // --- 동적 Gas 가격 관리 ---
 async function getDynamicGasPrice() {
-  const now = Date.now();
+  // 폴리곤에서는 최소 25 Gwei 이상의 Priority Fee가 필요
+  const MIN_PRIORITY_FEE = web3.utils.toWei("30", "gwei"); // 30 Gwei, 여유있게 설정
 
-  // 최근에 트랜잭션이 실패했다면 승수를 증가시킴
-  const multiplier = Math.min(2.0, 1.1 + gasStats.failedAttempts * 0.1);
+  try {
+    const gasPrice = await web3.eth.getGasPrice();
+    const maxFeePerGas = BigInt(gasPrice) * 2n; // 충분한 최대 가스 가격
 
-  // 캐시 시간이 지났거나 가격이 없는 경우 새로 가져옴
-  if (!gasStats.price || now - gasStats.lastUpdate > GAS_PRICE_CACHE_TIME) {
-    try {
-      // 체인별로 다른 메소드 필요할 수 있음
-      if (process.env.INFURA_URL.includes("polygon")) {
-        // 폴리곤에서는 maxPriorityFeePerGas 최적화가 중요
-        const feeData = await web3.eth.getBlock("pending");
-        const baseFee = feeData.baseFeePerGas || (await web3.eth.getGasPrice());
-        const priorityFee = BigInt(baseFee) / 10n; // 베이스 수수료의 10%
-
-        gasStats.price = {
-          maxFeePerGas: (
-            (BigInt(baseFee) * BigInt(Math.floor(multiplier * 100))) /
-            100n
-          ).toString(),
-          maxPriorityFeePerGas: priorityFee.toString(),
-        };
-      } else {
-        // 이더리움 및 기타 체인용
-        const gasPrice = await web3.eth.getGasPrice();
-        gasStats.price = {
-          gasPrice: (
-            (BigInt(gasPrice) * BigInt(Math.floor(multiplier * 100))) /
-            100n
-          ).toString(),
-        };
-      }
-
-      gasStats.lastUpdate = now;
-      console.log(
-        `Updated gas price with multiplier ${multiplier}:`,
-        gasStats.price
-      );
-    } catch (error) {
-      console.error("Error fetching gas price:", error);
-      // 오류 발생시 기본값으로 대체
-      if (!gasStats.price) {
-        gasStats.price = { gasPrice: "20000000000" }; // 기본 20 Gwei
-      }
-    }
+    return {
+      maxFeePerGas: maxFeePerGas.toString(),
+      maxPriorityFeePerGas: MIN_PRIORITY_FEE,
+    };
+  } catch (error) {
+    console.error("Error getting gas price:", error);
+    return {
+      maxFeePerGas: web3.utils.toWei("100", "gwei"),
+      maxPriorityFeePerGas: MIN_PRIORITY_FEE,
+    };
   }
-
-  return gasStats.price;
 }
 
 // --- 트랜잭션 전송 (개선됨) ---
