@@ -9,7 +9,7 @@ export const Result = ({
   fileTitle?: string;
   result?: boolean;
   onReset: () => void;
-  errorType: string;
+  errorType?: string;
 }) => {
   return (
     <div className="flex h-full w-full flex-col justify-between py-8">

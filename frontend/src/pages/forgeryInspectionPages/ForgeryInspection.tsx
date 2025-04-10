@@ -101,7 +101,7 @@ export const ForgeryInspection = () => {
 
         // 다른 에러는 처리
         setErrorMessage(
-          e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
+          e.response?.data?.error.message || '파일 업로드 중 오류가 발생했습니다.'
         );
       } else {
         setErrorMessage('알 수 없는 오류가 발생했습니다.');
@@ -158,7 +158,7 @@ export const ForgeryInspection = () => {
               <forgeryInspectionChildren.Result
                 fileTitle={fileRef.current?.name}
                 result={forgeryTestResponceRef.current?.success}
-                errorType={forgeryTestResponceRef.current?.error.code}
+                errorType={forgeryTestResponceRef.current?.error.code }
                 onReset={handleReset}
               />
             ) : (
