@@ -13,7 +13,7 @@ export const DocsDescription = ({
     <div className="flex flex-col gap-x-2">
       <p className="text-info-small">{title}</p>
       <div className="text-md text-text-description">
-        <span className="font-bold">{subTitle}</span>
+        <span className="font-bold">{subTitle + ' '}</span>
         <span className="font-normal">{description}</span>
       </div>
     </div>
