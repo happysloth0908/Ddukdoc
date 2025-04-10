@@ -17,12 +17,12 @@ export const Header = () => {
 
   // 홈 버튼 눌렀을 때
   const goHome = () => {
-    if(pathname.startsWith('/ssafy')) {
+    if (pathname.startsWith('/ssafy')) {
       navigate('/ssafy');
     } else {
       navigate('/');
     }
-  }
+  };
 
   const getTitleByPath = () => {
     if (pathname.startsWith('*/docs')) return '문서 작성';
@@ -40,8 +40,9 @@ export const Header = () => {
         !(pathname === '/ssafy/login') &&
         !(pathname === '/docs/share') &&
         !(pathname === '/ssafy/docs/share') &&
-        !(pathname === '/mypage/pin/*') && 
-        !(pathname === '/mypage/blockchain') && (
+        !(pathname === '/mypage/pin/*') &&
+        !(pathname === '/mypage/blockchain') &&
+        !(pathname === '/forgery/waiting') && (
           <div className="z-100 sticky left-0 top-0 -mx-8 flex w-full items-center bg-bg-default py-5">
             <ArrowLeft className="text-primary-300" onClick={onClick} />
             <span className="text-md"></span>
@@ -49,7 +50,10 @@ export const Header = () => {
               {getTitleByPath()}
             </div>
             <LogOut className="invisible text-primary-300" />
-            <House className={`${pathname.startsWith('/forgery') ? 'hidden' : ''} text-primary-300`} onClick={goHome} />
+            <House
+              className={`${pathname.startsWith('/forgery') ? 'hidden' : ''} text-primary-300`}
+              onClick={goHome}
+            />
           </div>
         )}
     </div>
