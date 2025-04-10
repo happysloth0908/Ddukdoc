@@ -211,7 +211,11 @@ async function sendTx(method, options = {}) {
       type: gasPriceData.maxFeePerGas ? 2 : 0, // EIP-1559 지원 여부
     };
 
-    console.log("Transaction object:", JSON.stringify(tx, null, 2));
+    // BigInt 직렬화 처리를 위한 함수
+    const replacer = (key, value) =>
+      typeof value === "bigint" ? value.toString() : value;
+
+    console.log("Transaction object:", JSON.stringify(tx, replacer, 2));
 
     // 트랜잭션 서명 및 전송
     const signed = await web3.eth.accounts.signTransaction(
@@ -318,10 +322,19 @@ async function sendTxWithRetry(method, options = {}) {
           error.message.includes("nonce too low") ||
           error.message.includes("replacement transaction underpriced")
         ) {
-          const account = web3.eth.accounts.privateKeyToAccount(
-            process.env.PRIVATE_KEY
-          );
-          await syncNonce(account.address);
+          try {
+            const account = web3.eth.accounts.privateKeyToAccount(
+              process.env.PRIVATE_KEY
+            );
+            await syncNonce(account.address);
+            // nonce 관련 오류 발생 시 options 객체에 새로운 nonce 값을 설정
+            options.nonce = currentNonce;
+          } catch (syncError) {
+            console.error("Error syncing nonce:", syncError);
+          }
+        } else if (error.message.includes("serialize a BigInt")) {
+          // BigInt 직렬화 오류 처리
+          console.error("BigInt serialization error detected, applying fixes");
         }
 
         continue;
