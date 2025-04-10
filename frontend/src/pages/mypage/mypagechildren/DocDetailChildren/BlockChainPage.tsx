@@ -9,7 +9,7 @@ const BlockChainPage = () => {
 
   const handleClick = () => {
     resetData();
-    navigate('/mypage', { state: { from: '/' } });
+    navigate('/mypage', { state: { from: '/' }, replace: true });
   };
 
   return (
