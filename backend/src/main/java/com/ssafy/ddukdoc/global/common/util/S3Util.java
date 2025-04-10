@@ -14,10 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -116,49 +113,95 @@ public class S3Util {
         }
     }
 
-    // 새로운 업로드 메서드
     private String uploadEncryptedFileWithMD5(File encryptedFile, String dirName, String encryptedDek, String iv) {
         String fileName = PATH_PREFIX + dirName + "/" + UUID.randomUUID() + "-encrypted-" + encryptedFile.getName();
 
         try {
+            log.info("=== 파일 업로드 시작 ===");
+            log.info("업로드 디렉토리: {}", dirName);
+            log.info("생성된 파일명: {}", fileName);
+
             // 파일 데이터를 바이트 배열로 읽기
+            log.info("파일 읽기 시작");
+            log.info("원본 암호화 파일 경로: {}", encryptedFile.getAbsolutePath());
+            log.info("원본 암호화 파일 존재 여부: {}", encryptedFile.exists());
+            log.info("원본 암호화 파일 크기: {} bytes", encryptedFile.length());
+
             byte[] fileData = Files.readAllBytes(encryptedFile.toPath());
+            log.info("파일 읽기 완료");
+            log.info("읽은 파일 데이터 크기: {} bytes", fileData.length);
+
+            // 로그에 데이터 특성 추가
+            log.info("파일 데이터 첫 10바이트 (16진수): {}",
+                    bytesToHex(Arrays.copyOfRange(fileData, 0, Math.min(10, fileData.length))));
 
             // 메타데이터 설정
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.addUserMetadata("encrypted-dek", encryptedDek);
             metadata.addUserMetadata("iv", iv);
+            log.info("메타데이터 추가: DEK 및 IV");
 
             // 콘텐츠 길이 및 MD5 해시 명시적 설정
             metadata.setContentLength(fileData.length);
+            log.info("콘텐츠 길이 설정: {} bytes", fileData.length);
 
             // MD5 해시 계산 및 설정
-            String base64Md5 = Base64.getEncoder().encodeToString(
-                    DigestUtils.md5(fileData)
-            );
+            byte[] md5Bytes = DigestUtils.md5(fileData);
+            String base64Md5 = Base64.getEncoder().encodeToString(md5Bytes);
             metadata.setContentMD5(base64Md5);
 
-            log.info("S3 업로드 파일 정보:");
-            log.info("파일명: {}", fileName);
-            log.info("파일 크기: {} bytes", fileData.length);
-            log.info("계산된 MD5 해시: {}", base64Md5);
+            log.info("MD5 해시 계산");
+            log.info("계산된 MD5 해시 (Base64): {}", base64Md5);
+            log.info("MD5 해시 바이트 (16진수): {}", bytesToHex(md5Bytes));
 
             // InputStream을 사용하여 업로드
             try (InputStream inputStream = new ByteArrayInputStream(fileData)) {
-                PutObjectRequest putObjectRequest = new PutObjectRequest(
-                        bucket,
-                        fileName,
-                        inputStream,
-                        metadata
-                ).withCannedAcl(CannedAccessControlList.PublicRead);
+                    PutObjectRequest putObjectRequest = new PutObjectRequest(
+                            bucket,
+                            fileName,
+                            inputStream,
+                            metadata
+                    ).withCannedAcl(CannedAccessControlList.PublicRead);
 
-                amazonS3.putObject(putObjectRequest);
+                log.info("S3 업로드 준비");
+                log.info("버킷 이름: {}", bucket);
 
-                log.info("S3 업로드 성공: {}", fileName);
-                return amazonS3.getUrl(bucket, fileName).toString();
+                // 재시도 로직 추가
+                int maxRetries = 3;
+                for (int attempt = 1; attempt <= maxRetries; attempt++) {
+                    try {
+                        log.info("S3 업로드 시도 (시도 {})", attempt);
+                        long startTime = System.currentTimeMillis();
+
+                        amazonS3.putObject(putObjectRequest);
+
+                        long endTime = System.currentTimeMillis();
+                        log.info("S3 업로드 성공");
+                        log.info("업로드 소요 시간: {} ms", (endTime - startTime));
+
+                        String uploadedUrl = amazonS3.getUrl(bucket, fileName).toString();
+                        log.info("업로드된 파일 URL: {}", uploadedUrl);
+
+                        log.info("=== 파일 업로드 완료 ===");
+                        return uploadedUrl;
+                    } catch (AmazonS3Exception e) {
+                        log.error("S3 업로드 실패 (시도 {})", attempt);
+                        log.error("예외 메시지: {}", e.getMessage());
+                        log.error("에러 코드: {}", e.getErrorCode());
+                        log.error("요청 ID: {}", e.getRequestId());
+
+                        if (attempt == maxRetries) {
+                            throw e;
+                        }
+                        log.warn("{}초 대기 후 재시도", attempt);
+                        Thread.sleep(1000 * attempt);
+                    }
+                }
             }
         } catch (Exception e) {
-            log.error("S3 업로드 중 오류 발생", e);
+            log.error("=== 파일 업로드 중 심각한 오류 발생 ===");
+            log.error("오류 메시지: {}", e.getMessage());
+            log.error("예외 클래스: {}", e.getClass().getName());
 
             // 추가 디버깅 정보
             if (e instanceof AmazonS3Exception) {
@@ -169,7 +212,19 @@ public class S3Util {
 
             throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR, "fileName", fileName);
         }
+
+        throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR, "fileName", fileName);
     }
+
+    // 바이트 배열을 16진수 문자열로 변환하는 유틸리티 메서드 추가
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
     // 파일 삭제 유틸리티 메서드 추가
     private void deleteFileQuietly(File file) {
         if (file != null && file.exists()) {
