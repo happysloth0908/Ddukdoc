@@ -215,19 +215,6 @@ public class S3Util {
                 : "unknown_" + UUID.randomUUID().toString();
         File convertFile = new File(System.getProperty("java.io.tmpdir") + "/", safeFilename);
 
-//        if (convertFile.exists()) {
-//            if (!convertFile.delete()) {
-//                String name = convertFile.getName();
-//                throw new CustomException(ErrorCode.FILE_DELETE_ERROR, "fileName", name);
-//            }
-//        }
-//        if (convertFile.createNewFile()) {
-//            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-//                fos.write(file.getBytes());
-//            }
-//            return Optional.of(convertFile);
-//        }
-//        return Optional.empty();
         try {
             // 기존 파일 제거
             if (convertFile.exists()) {
