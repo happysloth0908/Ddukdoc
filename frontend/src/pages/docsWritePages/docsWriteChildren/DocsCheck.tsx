@@ -27,6 +27,7 @@ export const DocsCheck = ({
       case '/docs':
       case '/docs/detail/G1/special':
       case 'settings':
+      case '/docs/detail/G1/signature':
         break;
       default:
         navigate('/');

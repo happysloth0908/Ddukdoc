@@ -1,10 +1,9 @@
 import { apiClient } from '@/apis/ssafy/mypage';
 import atoms from '@/components/atoms';
 import { ApiResponse } from '@/types/mypage';
-import { ArrowDownToLine, Share } from 'lucide-react';
+import { ArrowDownToLine, Share, Edit } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
 interface errorResponse extends ApiResponse {
   data: null;
 }
@@ -16,12 +15,14 @@ const SsafyDocsDetail = () => {
   const pdfUrlRef = useRef<string | undefined>(undefined);
   const fileNameRef = useRef<string>('download.pdf');
   const [error, setError] = useState<boolean>(false);
+  const [templateCode, setTemplateCode] = useState<string>('');
 
   const fetchDocInfo = useCallback(async () => {
     try {
       const response = await apiClient.get(`/api/ssafy/docs/${id}`);
       if (response.data.success) {
         fileNameRef.current = `${response.data.data.docs_info.title}.pdf`;
+        setTemplateCode(response.data.data.docs_info.template_code);
       }
     } catch (error) {
       console.error('문서 정보 조회 실패:', error);
@@ -89,6 +90,12 @@ const SsafyDocsDetail = () => {
     navigate(`/ssafy/mypage/share/${id}`);
   };
 
+  const handleEdit = () => {
+    navigate(`/ssafy/mypage/patch/${id}`, {
+      state: { templateCode },
+    });
+  };
+
   useEffect(() => {
     fetchDocInfo();
     fetchPdf();
@@ -107,11 +114,19 @@ const SsafyDocsDetail = () => {
         </div>
       ) : pdfUrl ? (
         <div className="flex w-full flex-1 flex-col">
-          <iframe
-            src={pdfUrl + '#toolbar=0&navpanes=0&scrollbar=0'}
-            className="mb-10 mt-4 w-full flex-1"
-            title="PDF Viewer"
-          />
+          <div className="relative flex flex-1 flex-col">
+            <button
+              onClick={handleEdit}
+              className="absolute right-2 top-6 z-10 rounded-full bg-black p-2 shadow-md hover:bg-gray-100"
+            >
+              <Edit className="h-5 w-5 text-white" />
+            </button>
+            <iframe
+              src={pdfUrl + '#toolbar=0&navpanes=0&scrollbar=0'}
+              className="mb-10 mt-4 w-full flex-1"
+              title="PDF Viewer"
+            />
+          </div>
           <div className="mb-10 flex flex-col space-y-2">
             <atoms.LongButton
               colorType="primary"
