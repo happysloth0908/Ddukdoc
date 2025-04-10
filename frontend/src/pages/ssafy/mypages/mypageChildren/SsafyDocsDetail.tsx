@@ -34,22 +34,57 @@ const SsafyDocsDetail = () => {
     }
   }, [id]);
 
-  const handleDownload = useCallback(() => {
-    if (pdfUrl) {
+  // const handleDownload = useCallback(() => {
+  //   if (pdfUrl) {
+  //     const link = document.createElement('a');
+  //     link.href = pdfUrl;
+  //     link.download = fileNameRef.current;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  // }, [pdfUrl]);
+
+  const isAndroidWebView = /Android/i.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+
+  const handleDownload = useCallback(async () => {
+    if (isAndroidWebView) {
+      const response = await apiClient.get(`/api/ssafy/docs/${id}/download`, {
+        headers: {
+          Accept: 'application/pdf',
+        },
+        responseType: 'blob',
+      });
+  
+      const blob = response.data;
+      const reader = new FileReader();
+  
+      reader.onloadend = function () {
+        const base64data = reader.result;
+        if (typeof base64data === 'string' && window.AndroidBridge && window.AndroidBridge.saveFile) {
+          window.AndroidBridge.saveFile(base64data, fileNameRef.current);
+        }
+      };
+  
+      reader.readAsDataURL(blob);
+    } else {
+      // 기존 웹 다운로드 로직 유지
       const link = document.createElement('a');
-      link.href = pdfUrl;
+      if (pdfUrl) link.href = pdfUrl;
       link.download = fileNameRef.current;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
   }, [pdfUrl]);
+  
 
   const fetchPdf = useCallback(async () => {
     try {
       const response = await apiClient.get(`/api/ssafy/docs/${id}/download`, {
         headers: {
           Accept: 'application/pdf',
+          "X-DEV-USER": 1
         },
         responseType: 'blob',
       });
