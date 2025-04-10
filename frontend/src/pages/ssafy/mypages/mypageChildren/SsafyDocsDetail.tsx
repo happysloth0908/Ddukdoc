@@ -84,7 +84,6 @@ const SsafyDocsDetail = () => {
       const response = await apiClient.get(`/api/ssafy/docs/${id}/download`, {
         headers: {
           Accept: 'application/pdf',
-          "X-DEV-USER": 1
         },
         responseType: 'blob',
       });
