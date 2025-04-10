@@ -4,10 +4,12 @@ export const Result = ({
   fileTitle = '',
   result = false,
   onReset,
+  errorType = '',
 }: {
   fileTitle?: string;
   result?: boolean;
   onReset: () => void;
+  errorType?: string;
 }) => {
   return (
     <div className="flex h-full w-full flex-col justify-between py-8">
@@ -16,7 +18,11 @@ export const Result = ({
         <div>알려드릴게요</div>
       </div>
       <div className="flex w-full items-center justify-center">
-        <ValidateResult fileTitle={fileTitle} status={result} />
+        <ValidateResult
+          fileTitle={fileTitle}
+          status={result}
+          errorType={errorType}
+        />
       </div>
       <div>
         <LongButton onClick={onReset} colorType="black">
