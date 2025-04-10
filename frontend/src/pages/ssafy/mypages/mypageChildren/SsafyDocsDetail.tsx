@@ -4,6 +4,11 @@ import { ApiResponse } from '@/types/mypage';
 import { ArrowDownToLine, Share, Edit } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+
+// Import the styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
 interface errorResponse extends ApiResponse {
   data: null;
 }
@@ -121,11 +126,16 @@ const SsafyDocsDetail = () => {
             >
               <Edit className="h-5 w-5 text-white" />
             </button>
-            <iframe
+            {/* <iframe
               src={pdfUrl + '#toolbar=0&navpanes=0&scrollbar=0'}
               className="mb-10 mt-4 w-full flex-1"
               title="PDF Viewer"
-            />
+            /> */}
+            <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+              <div className="w-full h-full mx-auto border rounded-lg shadow overflow-hidden bg-white">
+                <Viewer fileUrl={pdfUrl}/>
+              </div>
+            </Worker>
           </div>
           <div className="mb-10 flex flex-col space-y-2">
             <atoms.LongButton
