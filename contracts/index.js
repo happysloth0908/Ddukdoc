@@ -217,6 +217,26 @@ async function sendTx(method, options = {}) {
 
     console.log("Transaction object:", JSON.stringify(tx, replacer, 2));
 
+    // 가스 가격 로그 출력 - 디버깅용
+    if (tx.maxFeePerGas) {
+      console.log(
+        `Using EIP-1559 gas pricing - Max Fee: ${web3.utils.fromWei(
+          tx.maxFeePerGas,
+          "gwei"
+        )} Gwei, Priority Fee: ${web3.utils.fromWei(
+          tx.maxPriorityFeePerGas,
+          "gwei"
+        )} Gwei`
+      );
+    } else if (tx.gasPrice) {
+      console.log(
+        `Using legacy gas pricing - Gas Price: ${web3.utils.fromWei(
+          tx.gasPrice,
+          "gwei"
+        )} Gwei`
+      );
+    }
+
     // 트랜잭션 서명 및 전송
     const signed = await web3.eth.accounts.signTransaction(
       tx,
@@ -245,6 +265,12 @@ async function sendTx(method, options = {}) {
         "Replacement transaction underpriced. Increasing gas price..."
       );
       gasStats.failedAttempts++;
+    } else if (error.message.includes("transaction underpriced")) {
+      console.error(
+        "Transaction underpriced. Significantly increasing gas price..."
+      );
+      gasStats.failedAttempts += 2;
+      gasStats.lastUpdate = 0; // 가스 가격 캐시 무효화
     } else if (error.message.includes("nonce too low")) {
       console.error("Nonce too low. Need to re-sync from network.");
       await syncNonce(
@@ -266,10 +292,13 @@ function isRetryableError(error) {
     "timed out",
     "nonce too low",
     "replacement transaction underpriced",
+    "transaction underpriced",
     "insufficient funds",
     "connection error",
     "could not connect",
     "already known",
+    "bigint",
+    "gas required exceeds allowance",
   ];
 
   return retryableErrors.some((errText) =>
@@ -317,7 +346,7 @@ async function sendTxWithRetry(method, options = {}) {
         );
         await new Promise((r) => setTimeout(r, delay));
 
-        // Nonce 관련 오류일 경우 네트워크에서 동기화
+        // 특정 오류 처리
         if (
           error.message.includes("nonce too low") ||
           error.message.includes("replacement transaction underpriced")
@@ -332,7 +361,17 @@ async function sendTxWithRetry(method, options = {}) {
           } catch (syncError) {
             console.error("Error syncing nonce:", syncError);
           }
-        } else if (error.message.includes("serialize a BigInt")) {
+        } else if (error.message.includes("transaction underpriced")) {
+          // 가스 가격 관련 오류 - 가스 가격 증가
+          console.log(
+            "Transaction underpriced error detected, increasing gas price"
+          );
+          gasStats.failedAttempts += 2; // 가스 가격을 더 크게 증가시키기 위해 실패 카운터 증가
+          gasStats.lastUpdate = 0; // 가스 가격 캐시 무효화
+        } else if (
+          error.message.includes("BigInt") ||
+          error.message.includes("bigint")
+        ) {
           // BigInt 직렬화 오류 처리
           console.error("BigInt serialization error detected, applying fixes");
         }
