@@ -12,7 +12,6 @@ export const DocsCheck = ({
 }: {
   curTemplate: string;
 }) => {
-  // const { data, creditor_signature, debtor_signature } = useIOUDocsStore();
   const location = useLocation();
   const navigate = useNavigate();
   const previousPage = location.state?.from || '알 수 없음';
@@ -30,7 +29,7 @@ export const DocsCheck = ({
       case '/ssafy/docs/detail/S6/signature':
         break;
       default:
-        navigate('/');
+        navigate('/ssafy');
         break;
     }
   }, []);
