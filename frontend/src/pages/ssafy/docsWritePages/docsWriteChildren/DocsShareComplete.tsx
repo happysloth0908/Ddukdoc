@@ -1,6 +1,6 @@
 import atoms from "@/components/atoms";
 import { useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 export const DocsShareComplete = () => {
@@ -20,14 +20,16 @@ export const DocsShareComplete = () => {
         }
     }, []);
 
+    const onClick = () => {
+        navigate("/ssafy/mypage/detail/" + docId, {replace: true})
+    };
+
     return (
         <div className="h-full flex flex-col gap-y-6 overflow-hidden">
             <div className="flex flex-1 items-center justify-center">
                 <atoms.CompletePage type="save" />
             </div>
-            <Link to={"/ssafy/mypage/detail/" + docId }>
-                <atoms.LongButton className='mb-20' children="문서 확인하기" colorType='black' />
-            </Link>
+            <atoms.LongButton onClick={onClick} className='mb-20' children="문서 확인하기" colorType='black' />
         </div>
     );
 }
