@@ -26,8 +26,8 @@ export const DocsCheck = ({
   useEffect(() => {
     switch (previousPage) {
       case '/ssafy/docs':
-      case '/ssafy/docs/detail/G1/special':
-      case '/ssafy/docs/detail/G1/signature':
+      case '/ssafy/docs/detail/S1/signature':
+      case '/ssafy/docs/detail/S6/signature':
         break;
       default:
         navigate('/');
