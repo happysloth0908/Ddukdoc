@@ -15,7 +15,7 @@ export const DocsShareComplete = () => {
         case '/ssafy/docs/check':
             break;
         default:
-            navigate('/');
+            navigate('/ssafy');
             break;
         }
     }, []);

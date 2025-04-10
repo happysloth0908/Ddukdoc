@@ -20,9 +20,9 @@ function SsafyRouter() {
       <Route
         path="docs/*"
         element={
-          <SsafyProtectedRoute>
+          // <SsafyProtectedRoute>
             <DocsWrite />
-          </SsafyProtectedRoute>
+          // </SsafyProtectedRoute>
         }
       />
       <Route

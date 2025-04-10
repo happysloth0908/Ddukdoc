@@ -48,8 +48,11 @@ function numberToKorean(num: number): string {
 // 쉼표를 추가하는 함수
 const addCommas = (num: string): string => {
   if (!num) return '';
-  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const number = Number(num);
+  if (isNaN(number)) return num; // 숫자가 아닌 경우 그대로 반환
+  return number.toLocaleString();
 };
+
 
 // 쉼표와 원화 기호를 제거하는 함수
 const removeFormattingChars = (value: string): string => {

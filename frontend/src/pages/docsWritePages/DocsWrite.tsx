@@ -4,7 +4,7 @@ import { useState, createRef, RefObject } from 'react';
 import docsWriteChildren from './docsWriteChildren';
 
 export const DocsWrite = () => {
-  const [templateCode, setTemplateCode] = useState<string>('G1');
+  const [templateCode, setTemplateCode] = useState<string>('');
   const [role, setRole] = useState<string>('채권자');
   const location = useLocation();
 
@@ -79,7 +79,7 @@ export const DocsWrite = () => {
             />
             <Route
               path="detail/*"
-              element={<docsWriteChildren.DocsWriteDetail role={role} />}
+              element={<docsWriteChildren.DocsWriteDetail templateCode={templateCode} role={role} />}
             />
             <Route
               path="share"
