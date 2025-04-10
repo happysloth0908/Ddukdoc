@@ -8,14 +8,18 @@ import { useLocation } from 'react-router-dom';
 interface forgeryTestResponseProps {
   success: boolean;
   data: string; // success/fail 위조 여부부
-  error: string;
+  errorMessage: string;
   timestamp: string;
+  error: {
+    code: string;
+    message: string;
+  };
 }
 
 export const ForgeryInspection = () => {
   const fileRef = useRef<File | null>(null);
   const forgeryTestResponceRef = useRef<forgeryTestResponseProps | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 라우팅 훅
   const navigate = useNavigate();
@@ -26,17 +30,17 @@ export const ForgeryInspection = () => {
     fileRef.current = selectedFile;
     // 파일이 없으면 에러 메시지 초기화
     if (!selectedFile) {
-      setError(null);
+      setErrorMessage(null);
     }
   };
 
   const onUploadClick = async () => {
     if (!fileRef.current) {
-      setError('파일을 선택해주세요.');
+      setErrorMessage('파일을 선택해주세요.');
       return;
     }
     try {
-      setError(null);
+      setErrorMessage(null);
       navigate('/forgery/waiting', {
         state: { ...location.state, fromUpload: true },
       }); //
@@ -96,11 +100,11 @@ export const ForgeryInspection = () => {
         }
 
         // 다른 에러는 처리
-        setError(
+        setErrorMessage(
           e.response?.data?.message || '파일 업로드 중 오류가 발생했습니다.'
         );
       } else {
-        setError('알 수 없는 오류가 발생했습니다.');
+        setErrorMessage('알 수 없는 오류가 발생했습니다.');
       }
       navigate('/error', { replace: true, state: { ...location.state } });
     }
@@ -110,7 +114,7 @@ export const ForgeryInspection = () => {
   const handleReset = () => {
     fileRef.current = null;
     forgeryTestResponceRef.current = null;
-    setError(null);
+    setErrorMessage(null);
 
     if (location.state?.fromSsafy) {
       console.log('싸피에서 왔으므로 싸피로 돌아갑니다. ');
@@ -129,7 +133,7 @@ export const ForgeryInspection = () => {
             <forgeryInspectionChildren.FileUpload
               onFileSelect={handleFileSelect}
               onUploadClick={onUploadClick}
-              externalError={error}
+              externalError={errorMessage}
             />
           }
         />
@@ -142,7 +146,7 @@ export const ForgeryInspection = () => {
               <forgeryInspectionChildren.FileUpload
                 onFileSelect={handleFileSelect}
                 onUploadClick={onUploadClick}
-                externalError={error}
+                externalError={errorMessage}
               />
             )
           }
@@ -154,13 +158,14 @@ export const ForgeryInspection = () => {
               <forgeryInspectionChildren.Result
                 fileTitle={fileRef.current?.name}
                 result={forgeryTestResponceRef.current?.success}
+                errorType={forgeryTestResponceRef.current?.error.code}
                 onReset={handleReset}
               />
             ) : (
               <forgeryInspectionChildren.FileUpload
                 onFileSelect={handleFileSelect}
                 onUploadClick={onUploadClick}
-                externalError={error}
+                externalError={errorMessage}
               />
             )
           }
