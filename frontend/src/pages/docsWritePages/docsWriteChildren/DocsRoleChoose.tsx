@@ -2,6 +2,7 @@ import atoms from '@/components/atoms';
 import { useNavigate } from 'react-router-dom';
 import DefaultIcons from '@/assets/images/default';
 import { useIOUDocsStore } from '@/store/docs';
+import { useEffect } from 'react';
 
 export const DocsRoleChoose = ({
   templateCode,
@@ -13,6 +14,12 @@ export const DocsRoleChoose = ({
   onRole: (code: string) => void;
 }) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (templateCode == '') {
+      navigate("/", { replace: true });
+    }
+  }, []);
   const { resetData } = useIOUDocsStore();
   const handleSelect = (id: string) => {
     onRole(id);

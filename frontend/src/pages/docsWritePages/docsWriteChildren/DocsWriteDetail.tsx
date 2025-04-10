@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { DocsWriteSender } from './IOUWriteDetails/DocsWriteSender';
 import { DocsWriteMoney } from './IOUWriteDetails/DocsWriteMoney';
 import { DocsWriteRate } from './IOUWriteDetails/DocsWriteRate';
@@ -8,9 +8,17 @@ import { DocsWriteSignature } from './IOUWriteDetails/DocsWriteSignature';
 
 import { useIOUDocsStore } from '@/store/docs';
 import iouData from '@/types/iou';
+import { useEffect } from 'react';
 
-export const DocsWriteDetail = ({ role }: { role: string }) => {
+export const DocsWriteDetail = ({ templateCode, role }: { templateCode: string, role: string }) => {
   const { data, setData } = useIOUDocsStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (templateCode == '') {
+      navigate("/", { replace: true });
+    }
+  }, []);
 
   const updateIOUData = (newData: Partial<iouData>) => {
     const updatedData = { ...data, ...newData };

@@ -16,7 +16,8 @@ import { ErrorPage } from './pages/errorPages/error';
 
 function App() {
   const location = useLocation();
-  const isMainRoute = location.pathname === '/';
+  const isMainRoute =
+    location.pathname === '/' || location.pathname === '/login';
   const isSsafy = location.pathname === '/ssafy';
   const bgClass = isMainRoute
     ? 'bg-backgroundswirl bg-no-repeat bg-cover'
