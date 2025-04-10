@@ -1,7 +1,8 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import atoms from '@/components/atoms';
 import DocSelectCard from '@/components/atoms/ssafy/buttons/DocSelectCard';
 import { ssafyIcons } from '@/assets/images/ssafy'
+import { useS1Data, useS6Data } from '@/store/docs';
 
 export const DocsChoose = ({
   templateCode,
@@ -11,10 +12,19 @@ export const DocsChoose = ({
   onTemplateCode: (code: string) => void;
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const S1Data = useS1Data();
+  const S6Data = useS6Data();
   const currentPath = location.pathname;
 
   const handleSelect = (id: string) => {
     onTemplateCode(id);
+  };
+
+  const onClick = () => {
+    S1Data.resetData();
+    S6Data.resetData();
+    navigate("check", {state: {from: currentPath}});
   };
 
   return (
@@ -78,9 +88,7 @@ export const DocsChoose = ({
           icon={ssafyIcons.likeIcon}
         />
       </div>
-      <Link to="check" state={{ from: currentPath }}>
-        <atoms.LongButton className="mb-20" children="다음" colorType="black" />
-      </Link>
+        <atoms.LongButton onClick={onClick} className="mb-20" children="다음" colorType="black" />
     </div>
   );
 };
