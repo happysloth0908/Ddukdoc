@@ -3,7 +3,7 @@ import Forgery from '@/assets/images/forgeryInspection';
 interface ValidateResultProps {
   status: boolean;
   fileTitle: string;
-  errorType: string;
+  errorType?: string;
 }
 
 export const ValidateResult = ({
