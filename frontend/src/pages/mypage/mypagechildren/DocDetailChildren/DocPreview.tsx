@@ -5,6 +5,10 @@ import { ApiResponse } from '@/types/mypage';
 import atoms from '@/components/atoms';
 import Spinner from '@/components/atoms/feedback/Spinner';
 import { FolderPlus, ArrowDownToLine } from 'lucide-react';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+
+// Import the styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
 
 interface errorResponse extends ApiResponse {
   data: null;
@@ -129,11 +133,16 @@ const DocPreview = () => {
           <span>문서 다운로드</span>
         </atoms.ShortButton>
       </div>
-      <iframe
+      {/* <iframe
         src={pdfUrl + '#toolbar=0&navpanes=0&scrollbar=0'}
         className="w-full flex-1"
         title="PDF Viewer"
-      />
+      /> */}
+      <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+        <div className="w-full h-full max-h-[500px] mx-auto border rounded-lg shadow overflow-hidden bg-white">
+          <Viewer fileUrl={pdfUrl}/>
+        </div>
+      </Worker>
     </div>
   ) : (
     <div className="flex h-full w-full items-center justify-center">

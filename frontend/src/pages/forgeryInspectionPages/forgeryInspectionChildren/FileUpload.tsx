@@ -1,5 +1,10 @@
 import { useState, DragEvent, useEffect, ChangeEvent, FC } from 'react';
 import LongButton from '@/components/atoms/buttons/LongButton';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+
+// Import the styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
 // import api from '@/apis/axios';
 // import { AxiosError } from 'axios';
 
@@ -35,7 +40,8 @@ export const FileUpload: FC<FileUploadProps> = ({
   useEffect(() => {
     if (file) {
       const url = URL.createObjectURL(file);
-      setPdfUrl(url + '#toolbar=0&navpanes=0&scrollbar=0');
+      // setPdfUrl(url + '#toolbar=0&navpanes=0&scrollbar=0');
+      setPdfUrl(url);
 
       // 컴포넌트가 언마운트될 때 URL 객체를 해제
       return () => {
@@ -113,11 +119,16 @@ export const FileUpload: FC<FileUploadProps> = ({
     if (!pdfUrl) return null;
 
     return (
-      <iframe
-        src={pdfUrl}
-        className="h-full w-full border-0"
-        title="PDF Viewer"
-      />
+      // <iframe
+      //   src={pdfUrl}
+      //   className="h-full w-full border-0"
+      //   title="PDF Viewer"
+      // />
+      <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+        <div className="w-full h-full mx-auto border rounded-lg shadow overflow-hidden bg-white">
+          <Viewer fileUrl={pdfUrl}/>
+        </div>
+      </Worker>
     
     );
   };
@@ -167,7 +178,7 @@ export const FileUpload: FC<FileUploadProps> = ({
          )}
        </>
      ) : (
-       <div className="flex h-full flex-col">
+       <div className="flex h-full max-h-[500px] overflow-hidden w-full flex-col">
          <div className="mb-2 flex items-center justify-between">
            <h2
              className="max-w-[70%] truncate text-xl font-semibold"

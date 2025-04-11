@@ -4,6 +4,11 @@ import { ApiResponse } from '@/types/mypage';
 import { ArrowDownToLine, Share, Edit } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+
+// Import the styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
 interface errorResponse extends ApiResponse {
   data: null;
 }
@@ -29,16 +34,50 @@ const SsafyDocsDetail = () => {
     }
   }, [id]);
 
-  const handleDownload = useCallback(() => {
-    if (pdfUrl) {
+  // const handleDownload = useCallback(() => {
+  //   if (pdfUrl) {
+  //     const link = document.createElement('a');
+  //     link.href = pdfUrl;
+  //     link.download = fileNameRef.current;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  // }, [pdfUrl]);
+
+  const isAndroidWebView = /Android/i.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+
+  const handleDownload = useCallback(async () => {
+    if (isAndroidWebView) {
+      const response = await apiClient.get(`/api/ssafy/docs/${id}/download`, {
+        headers: {
+          Accept: 'application/pdf',
+        },
+        responseType: 'blob',
+      });
+  
+      const blob = response.data;
+      const reader = new FileReader();
+  
+      reader.onloadend = function () {
+        const base64data = reader.result;
+        if (typeof base64data === 'string' && window.AndroidBridge && window.AndroidBridge.saveFile) {
+          window.AndroidBridge.saveFile(base64data, fileNameRef.current);
+        }
+      };
+  
+      reader.readAsDataURL(blob);
+    } else {
+      // 기존 웹 다운로드 로직 유지
       const link = document.createElement('a');
-      link.href = pdfUrl;
+      if (pdfUrl) link.href = pdfUrl;
       link.download = fileNameRef.current;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
   }, [pdfUrl]);
+  
 
   const fetchPdf = useCallback(async () => {
     try {
@@ -121,11 +160,16 @@ const SsafyDocsDetail = () => {
             >
               <Edit className="h-5 w-5 text-white" />
             </button>
-            <iframe
+            {/* <iframe
               src={pdfUrl + '#toolbar=0&navpanes=0&scrollbar=0'}
               className="mb-10 mt-4 w-full flex-1"
               title="PDF Viewer"
-            />
+            /> */}
+            <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+              <div className="w-full h-full max-h-[500px] mx-auto border rounded-lg shadow overflow-hidden bg-white">
+                <Viewer fileUrl={pdfUrl}/>
+              </div>
+            </Worker>
           </div>
           <div className="mb-10 flex flex-col space-y-2">
             <atoms.LongButton
