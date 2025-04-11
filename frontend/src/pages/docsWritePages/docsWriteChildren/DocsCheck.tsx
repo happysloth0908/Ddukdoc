@@ -179,7 +179,7 @@ export const DocsCheck = ({
           response.data.document_id,
         );
         resetData();
-        navigate('/docs/share', { state: { docId: response.data.document_id } });
+        navigate('/docs/share', { state: {from: location.pathname, docId: response.data.document_id } });
       } else {
         console.error('Kakao SDK가 초기화되지 않았습니다.');
       }
