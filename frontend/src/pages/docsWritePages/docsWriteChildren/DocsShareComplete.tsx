@@ -12,10 +12,10 @@ export const DocsShareComplete = () => {
   // 첫 렌더링 시 접근 가능한 페이지에서 온게 아니라면  다른 곳으로 팅겨내기기
   useEffect(() => {
     switch (previousPage) {
-      case '/ssafy/docs/check':
+      case '/docs/check':
         break;
       default:
-        navigate('/ssafy');
+        navigate('/');
         break;
     }
   }, []);
