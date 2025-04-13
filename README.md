@@ -20,9 +20,9 @@
 ‘DDUKDOC’은 블록체인 기반 문서 작성 서비스입니다.
 
 ## 📚 Quick Link
-- #### 🏠 [Service Link](https://docs.street-drop.com/docs/service-intro)
-- #### 📚 [SUPERAPP API]()
-- #### 📱 [Android App Download]()
+- #### 🏠 [Service Link](https://j12b108.p.ssafy.io/landing/)
+- #### 📚 [SUPERAPP API](https://doc-28.gitbook.io/api-documents)
+- #### 📱 [Android App Download](https://j12b108.p.ssafy.io/landing/)
 ## 💁‍♂️ Introduction
 
   <blockquote>
