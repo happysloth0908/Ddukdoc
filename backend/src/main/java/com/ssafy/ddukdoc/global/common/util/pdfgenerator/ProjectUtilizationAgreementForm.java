@@ -1,15 +1,15 @@
 package com.ssafy.ddukdoc.global.common.util.pdfgenerator;
 
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
-import com.itextpdf.layout.properties.VerticalAlignment;
 import com.ssafy.ddukdoc.domain.document.dto.request.DocumentFieldDto;
 
 import java.io.IOException;
@@ -59,8 +59,8 @@ public class ProjectUtilizationAgreementForm implements DocumentGenerator {
                 .setMarginBottom(20);
         document.add(item3);
 
-        // SSAFY 공통 프로젝트 결과만 해당되는 항목
-        Paragraph specialItem = new Paragraph("- SSAFY 공통 프로젝트 결과인 \"" +
+        // SSAFY 자율 프로젝트 결과만 해당되는 항목
+        Paragraph specialItem = new Paragraph("- SSAFY 자율 프로젝트 결과인 \"" +
                 getFieldValue(fieldMap, "project_name", "_______") + "\"과 관련된 전체 결과물")
                 .setFont(font)
                 .setFontSize(11)
