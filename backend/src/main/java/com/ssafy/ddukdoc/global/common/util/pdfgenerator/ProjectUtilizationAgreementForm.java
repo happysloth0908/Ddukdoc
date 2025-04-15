@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ProjectUtilizationAgreementForm implements DocumentGenerator {
-    private static final int APPLICANT_ROLE_ID = 6;  // 신청자 역할 ID
+    private static final int APPLICANT_ROLE_ID = 6;  // 신청자 역할 ID.
 
     @Override
     public void generateDocument(Document document, List<DocumentFieldDto> fieldValues, Map<Integer, byte[]> signatures, PdfFont font) throws IOException {
