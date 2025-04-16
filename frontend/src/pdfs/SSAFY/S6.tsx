@@ -25,7 +25,7 @@ export const S6 = () => {
             </li>
         </ol>
 
-        <p className="mb-8 pl-4">- SSAFY 공통 프로젝트 결과인 "{data.project_name ? data.project_name : <span className="border-b border-gray-400 inline-block w-8"></span>}"과 관련된 전체 결과물</p>
+        <p className="mb-8 pl-4">- SSAFY 자율 프로젝트 결과인 "{data.project_name ? data.project_name : <span className="border-b border-gray-400 inline-block w-8"></span>}"과 관련된 전체 결과물</p>
 
         <div className="text-center space-y-4 mb-8">
             <p className="font-medium">본인은 위 내용을 확인하고 동의합니다.</p>
