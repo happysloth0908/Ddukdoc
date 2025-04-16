@@ -59,8 +59,8 @@ public class ProjectUtilizationAgreementForm implements DocumentGenerator {
                 .setMarginBottom(20);
         document.add(item3);
 
-        // SSAFY 공통 프로젝트 결과만 해당되는 항목
-        Paragraph specialItem = new Paragraph("- SSAFY 공통 프로젝트 결과인 \"" +
+        // SSAFY 자율 프로젝트 결과만 해당되는 항목
+        Paragraph specialItem = new Paragraph("- SSAFY 자율 프로젝트 결과인 \"" +
                 getFieldValue(fieldMap, "project_name", "_______") + "\"과 관련된 전체 결과물")
                 .setFont(font)
                 .setFontSize(11)
