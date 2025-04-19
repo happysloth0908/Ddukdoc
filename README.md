@@ -50,6 +50,10 @@ It provides a secure and reliable way to create, sign, and verify documents usin
 ![Architecture2](https://velog.velcdn.com/images/happysloth0908/post/c3569fe0-aee9-47f2-ba91-53505e010a56/image.jpg)
 ![Architecture3](https://velog.velcdn.com/images/happysloth0908/post/67d0862b-27bd-43fb-9c9d-b113b727ff0d/image.jpg)
 
+## 📖 Api
+![api](https://velog.velcdn.com/images/happysloth0908/post/dbe1fdf3-6ad3-4821-a989-c82f58607cbc/image.jpg)
+#### 📚 [API Gitbook](https://doc-28.gitbook.io/api-documents)
+
 
 ## 👥 Team
 
@@ -152,7 +156,9 @@ It provides a secure and reliable way to create, sign, and verify documents usin
 
 - SonarQube 검증을 파이프라인에 통합하고, 빌드 결과(Jenkins) 및 주요 로그(Kibana)를 Mattermost를 통해 개발자에게 전송합니다.
 
-
+## 📖 Api
+![api](https://velog.velcdn.com/images/happysloth0908/post/251634e8-6ea5-4761-a2f6-83da9973846f/image.png)
+#### 📚 [API Gitbook](https://doc-28.gitbook.io/api-documents)
 
 ## 👥 Team 백팔백중
 
