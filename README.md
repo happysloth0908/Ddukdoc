@@ -22,9 +22,9 @@ DDUKDOC is a blockchain-based digital document service you can trust.
 It provides a secure and reliable way to create, sign, and verify documents using blockchain technology.
 
 ## 📚 Quick Link
-- #### 🏠 [Service Link](https://j12b108.p.ssafy.io/landing/)
+- #### 🏠 [Service Link](https://dukd0c8.ssafyapp.com/login)
 - #### 📚 [SUPERAPP API](https://doc-28.gitbook.io/api-documents)
-- #### 📱 [Android App Download](https://j12b108.p.ssafy.io/landing/)
+- #### 📱 [Android App Download](https://dukd0c8.ssafyapp.com/landing/)
 ## 💁‍♂️ Introduction
 
   <blockquote>
@@ -121,9 +121,9 @@ It provides a secure and reliable way to create, sign, and verify documents usin
 ‘DDUKDOC’은 블록체인 기반 문서 작성 서비스입니다.
 
 ## 📚 Quick Link
-- #### 🏠 [Service Link](https://j12b108.p.ssafy.io/landing/)
+- #### 🏠 [Service Link](https://dukd0c8.ssafyapp.com/login)
 - #### 📚 [SUPERAPP API](https://doc-28.gitbook.io/api-documents)
-- #### 📱 [Android App Download](https://j12b108.p.ssafy.io/landing/)
+- #### 📱 [Android App Download](https://dukd0c8.ssafyapp.com/landing/)
 ## 💁‍♂️ Introduction
 
   <blockquote>
